@@ -1,0 +1,62 @@
+# Model 3: Fund & Expenditure Anomaly Detector Report
+
+**Project**: AI-Powered MPLADS Monitoring and Analytics Platform (SIH PS 26102)  
+**Phase**: Phase 4.3 — Model 3 (Fund & Expenditure Anomaly)  
+**Date**: 2026-09-08  
+**Status**: `MODEL 3 COMPLETE`  
+
+---
+
+## 1. Executive Summary
+Model 3 evaluates the financial flow and expenditure patterns of MPLADS works to detect anomalous fund utilization, unusual tranche fragmentation, disbursement timing latencies, and administrative status-expenditure mismatches.
+
+## 2. Dataset & Cohort Segmentation
+* **Total Works Analyzed**: 98,825
+* **Active Financial Cohort (Disbursed > 0)**: 71,928 (72.8%)
+* **Zero-Disbursement Cohort**: 26,897 (27.2%)
+* **Execution Runtime**: 4.52 seconds
+
+## 3. Severity Distribution
+| Severity Tier | Work Count | Share % | Definition / Administrative Action |
+|---|---|---|---|
+| `LOW` | 91,519 | 92.61% | Normal expenditure flow / newly sanctioned awaiting release |
+| `MEDIUM` | 5,569 | 5.64% | Watchlist: Elevated anomaly score or dormant sanction (>365 days) |
+| `HIGH` | 1,737 | 1.76% | High Priority: Top multi-variate outlier or status-expenditure mismatch |
+
+## 4. Audit Category Breakdown
+| Audit Category | Count | Description |
+|---|---|---|
+| `ACTIVE_EXPENDITURE` | 71,928 | Evaluated via Isolation Forest on continuous financial features |
+| `NORMAL_AWAITING_DISBURSEMENT` | 21,765 | Early stage (Sanction/Vendor ID) <= 365 days old |
+| `DORMANT_SANCTION` | 4,198 | Sanctioned > 365 days ago with zero fund disbursement |
+| `STATUS_EXPENDITURE_MISMATCH` | 934 | Completed / Physical Inspection with zero expenditure vouchers |
+
+## 5. Active Cohort Calibrated Score Percentiles
+* **p0 (Min)**: 0.0079
+* **p50 (Median)**: 0.0306
+* **p75**: 0.0814
+* **p90**: 0.2001
+* **p95**: 0.3497
+* **p97 (Decision Cutoff)**: 0.5016
+* **p99**: 0.7136
+* **p100 (Max)**: 0.9292
+
+## 6. Sample Top Anomalies
+| Work ID | State | Status | Sanction Amount | Disbursed Amount | Utilization | Tranches | Score | Severity |
+|---|---|---|---|---|---|---|---|---|
+| `WS/MP134/2025-2026/239327` | Odisha | Work partially Completed | ₹49,500,000.00 | ₹7,821,253.00 | 15.8% | 14 | `0.93` | `HIGH` |
+| `WS/MP140/2024-2025/164182` | Punjab | Work partially Completed | ₹1,600,000.00 | ₹826,634.00 | 51.7% | 23 | `0.92` | `HIGH` |
+| `WS/MP201/2025-2026/162408` | Uttar Pradesh | Physical Inspection | ₹19,044,000.00 | ₹19,044,000.00 | 100.0% | 42 | `0.91` | `HIGH` |
+| `WS/MP843/2025-2026/219625` | Punjab | Work partially Completed | ₹3,000,000.00 | ₹2,163,133.00 | 72.1% | 29 | `0.91` | `HIGH` |
+| `WS/MP18328/2025-2026/252741` | Himachal Pradesh | Vendor Identification | ₹1,000,000.00 | ₹335,094.00 | 33.5% | 16 | `0.91` | `HIGH` |
+| `WS/MP18425/2025-2026/202245` | Haryana | Vendor Identification | ₹2,622,000.00 | ₹524,025.00 | 20.0% | 11 | `0.91` | `HIGH` |
+| `WS/MP18162/2025-2026/187436` | Rajasthan | Work Completed | ₹500,000.00 | ₹83,750.00 | 16.8% | 8 | `0.91` | `HIGH` |
+| `WS/MP18328/2025-2026/252745` | Himachal Pradesh | Vendor Identification | ₹1,000,000.00 | ₹325,285.00 | 32.5% | 20 | `0.90` | `HIGH` |
+| `WS/MP507/2026-2027/290535` | Uttar Pradesh | Work partially Completed | ₹49,740,000.00 | ₹35,321,457.00 | 71.0% | 8 | `0.90` | `HIGH` |
+| `WS/MP195/2026-2027/299885` | Uttar Pradesh | Vendor Identification | ₹15,255,000.00 | ₹11,193,611.00 | 73.4% | 11 | `0.90` | `HIGH` |
+
+## 7. Model Artifacts
+* **Scored Output Dataset**: `data/model_outputs/fund_expenditure_anomaly/fund_expenditure_scores.parquet`
+* **Trained Model**: `models/fund_expenditure_anomaly/isolation_forest.joblib`
+* **Robust Scaler**: `models/fund_expenditure_anomaly/robust_scaler.joblib`
+* **Metadata JSON**: `models/fund_expenditure_anomaly/model_metadata.json`

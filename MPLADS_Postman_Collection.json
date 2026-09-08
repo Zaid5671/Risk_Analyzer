@@ -1,0 +1,640 @@
+{
+  "info": {
+    "name": "MPLADS AI Platform API",
+    "description": "REST API collection for SIH PS 26102: Authentication, RBAC, System, Metadata, Works Registry, Analytics, and Automated Tests.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "bearer_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{bearer_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "00. Authentication & RBAC",
+      "item": [
+        {
+          "name": "Login - Ministry Admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Token returned and saved to variable\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.access_token).to.be.a(\"string\");",
+                  "    pm.expect(json.role).to.eql(\"MINISTRY\");",
+                  "    pm.collectionVariables.set(\"bearer_token\", json.access_token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"ministry@mplads.gov.in\",\n  \"password\": \"Mplads@Demo2026#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates as Central MoSPI Administrator (unrestricted national scope). Automatically saves access_token to collection variable."
+          }
+        },
+        {
+          "name": "Login - State Officer (UP)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"State token saved\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.role).to.eql(\"STATE_OFFICER\");",
+                  "    pm.expect(json.assigned_state).to.eql(\"Uttar Pradesh\");",
+                  "    pm.collectionVariables.set(\"bearer_token\", json.access_token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"state.up@mplads.gov.in\",\n  \"password\": \"Mplads@Demo2026#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates as State Nodal Officer (Uttar Pradesh)."
+          }
+        },
+        {
+          "name": "Login - District Officer (Patna)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"District token saved\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.role).to.eql(\"DISTRICT_OFFICER\");",
+                  "    pm.expect(json.assigned_district).to.eql(\"PATNA\");",
+                  "    pm.collectionVariables.set(\"bearer_token\", json.access_token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"district.patna@mplads.gov.in\",\n  \"password\": \"Mplads@Demo2026#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates as District Planning Officer (Patna, Bihar)."
+          }
+        },
+        {
+          "name": "Login - MP (Sarabjeet Singh Khalsa)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"MP token saved\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.role).to.eql(\"MP\");",
+                  "    pm.expect(json.assigned_mp_name).to.eql(\"SARABJEET SINGH KHALSA\");",
+                  "    pm.collectionVariables.set(\"bearer_token\", json.access_token);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"mp.khalsa@mplads.gov.in\",\n  \"password\": \"Mplads@Demo2026#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Authenticates as Member of Parliament Sarabjeet Singh Khalsa (Faridkot, Punjab). Active detections across all 4 independent models."
+          }
+        },
+        {
+          "name": "Get Profile (/auth/me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Profile returned\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.email).to.be.a(\"string\");",
+                  "    pm.expect(json.is_active).to.eql(true);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Fetches current user's profile and active jurisdiction."
+          }
+        },
+        {
+          "name": "Provision User (/auth/users)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status is 201 or 400 (if already exists)\", function () {",
+                  "    pm.expect([201, 400]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"officer.karnataka@mplads.gov.in\",\n  \"password\": \"SecurePassword2026#\",\n  \"full_name\": \"State Officer Karnataka\",\n  \"role\": \"STATE_OFFICER\",\n  \"assigned_state\": \"Karnataka\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/users",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "auth",
+                "users"
+              ]
+            },
+            "description": "Administrative endpoint to create new stakeholder accounts (MINISTRY role only)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "01. System",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Database is healthy\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.status).to.eql(\"healthy\");",
+                  "    pm.expect(json.total_works).to.eql(98825);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Live database connection check and latency benchmark."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02. Metadata",
+      "item": [
+        {
+          "name": "Get Filter Options",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Dynamic dropdowns populated\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.states.length).to.be.above(30);",
+                  "    pm.expect(json.districts.length).to.be.above(700);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/meta/filters",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "meta",
+                "filters"
+              ]
+            },
+            "description": "Returns dynamic dropdown filter values for states, districts, and all anomaly tiers."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03. Works",
+      "item": [
+        {
+          "name": "List Works (Paginated)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test(\"Returns paginated items\", function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.items).to.be.an(\"array\");",
+                  "    if (json.items.length > 0) {",
+                  "        pm.collectionVariables.set(\"sample_work_id\", json.items[0].work_id);",
+                  "    }",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/works?page=1&page_size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "works"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "page_size",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Lists works with multi-attribute filtering, pagination, and server-side RBAC scoping."
+          }
+        },
+        {
+          "name": "Get Work Dossier",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 403\", function () {",
+                  "    pm.expect([200, 403]).to.include(pm.response.code);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/works/WS/MP18219/2025-2026/137958",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "works",
+                "WS",
+                "MP18219",
+                "2025-2026",
+                "137958"
+              ]
+            },
+            "description": "Deep-dive dossier with 4 independent risk profiles and RBAC jurisdiction verification."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04. Analytics",
+      "item": [
+        {
+          "name": "Cost Anomalies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analytics/cost-anomalies?severity=HIGH&page_size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analytics",
+                "cost-anomalies"
+              ],
+              "query": [
+                {
+                  "key": "severity",
+                  "value": "HIGH"
+                },
+                {
+                  "key": "page_size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Duplicate Works",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analytics/duplicate-works?severity=HIGH&page_size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analytics",
+                "duplicate-works"
+              ],
+              "query": [
+                {
+                  "key": "severity",
+                  "value": "HIGH"
+                },
+                {
+                  "key": "page_size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Fund Anomalies",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analytics/fund-anomalies?severity=HIGH&page_size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analytics",
+                "fund-anomalies"
+              ],
+              "query": [
+                {
+                  "key": "severity",
+                  "value": "HIGH"
+                },
+                {
+                  "key": "page_size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Statutory Delays",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analytics/delays?severity=HIGH&page_size=20",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analytics",
+                "delays"
+              ],
+              "query": [
+                {
+                  "key": "severity",
+                  "value": "HIGH"
+                },
+                {
+                  "key": "page_size",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "District Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analytics/district-summary?limit=50",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analytics",
+                "district-summary"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "MP Summary",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/analytics/mp-summary?limit=50",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "analytics",
+                "mp-summary"
+              ],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "50"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

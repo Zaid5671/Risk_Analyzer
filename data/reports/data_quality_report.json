@@ -1,0 +1,2077 @@
+{
+  "status": "PHASE 2 COMPLETE",
+  "scope_status": {
+    "LokSabha18": {
+      "is_active": true,
+      "status": "processed",
+      "file_count": 6
+    },
+    "RajyaSabha_Sitting": {
+      "is_active": true,
+      "status": "processed",
+      "file_count": 6
+    },
+    "LokSabha17": {
+      "is_active": false,
+      "status": "excluded_optional_historical",
+      "file_count": 0,
+      "message": "Optional historical dataset excluded from current active scope."
+    },
+    "RajyaSabha_Retired": {
+      "is_active": false,
+      "status": "excluded_optional_historical",
+      "file_count": 0,
+      "message": "Optional historical dataset excluded from current active scope."
+    }
+  },
+  "processed_files_count": 12,
+  "dataset_validation_reports": [
+    {
+      "dataset_name": "mp_allocations",
+      "house_name": "Lok Sabha",
+      "source_file": "LokSabha18/Allocated Limit for Honble MPs_LokSabha_18.csv",
+      "rows_before": 544,
+      "grand_total_removed": 1,
+      "rows_after": 543,
+      "column_count": 14,
+      "columns": [
+        "sr_no",
+        "state",
+        "mp_name",
+        "constituency",
+        "allocated_amount_raw",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "allocated_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "State": "state",
+        "Hon'ble Members of Parliaments": "mp_name",
+        "Constituency": "constituency",
+        "Allocated AMOUNT ( \u20b9 )": "allocated_amount_raw",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "state": 0,
+        "mp_name": 0,
+        "constituency": 0,
+        "allocated_amount_raw": 1,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 543,
+        "work_type_template": 543,
+        "is_na_recommendation": 0,
+        "allocated_amount": 1,
+        "district": 543
+      },
+      "work_id_stats": {
+        "total_rows": 543,
+        "valid_work_ids": 0,
+        "null_work_ids": 543,
+        "na_recommendations": 0
+      },
+      "date_stats": {},
+      "amount_stats": {
+        "allocated_amount": {
+          "success_count": 542,
+          "fail_count": 0,
+          "min_value": 49000000.0,
+          "max_value": 327477390.86,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": false,
+        "success_count": 0,
+        "fail_count": 0,
+        "unique_districts": 0
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 36,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 80,
+            "Maharashtra": 49,
+            "West Bengal": 42,
+            "Bihar": 40,
+            "Tamil Nadu": 39,
+            "Madhya Pradesh": 29,
+            "Karnataka": 28,
+            "Gujarat": 26,
+            "Rajasthan": 25,
+            "Andhra Pradesh": 25,
+            "Odisha": 21,
+            "Kerala": 20,
+            "Telangana": 17,
+            "Assam": 14,
+            "Jharkhand": 14,
+            "Punjab": 12,
+            "Chhattisgarh": 11,
+            "Haryana": 10,
+            "Delhi": 7,
+            "Jammu And Kashmir": 5
+          }
+        },
+        "mp_name": {
+          "unique_count": 543,
+          "null_count": 0,
+          "top_value_counts": {
+            "AASHTIKAR PATIL NAGESH BAPURAO": 1,
+            "ABDUL RASHID SHEIKH": 1,
+            "ABHAY KUMAR SINHA": 1,
+            "ABHIJIT GANGOPADHYAY": 1,
+            "Abu Taher Khan": 1,
+            "ADHIKARI SOUMENDU": 1,
+            "ADITYA YADAV": 1,
+            "Adv Adoor Prakash": 1,
+            "Adv Dean Kuriakose": 1,
+            "ADV GOWAAL KAGADA PADAVI": 1,
+            "ADV K FRANCIS GEORGE": 1,
+            "AFZAL ANSARI": 1,
+            "AGA SYED RUHULLAH MEHDI": 1,
+            "Ajay Bhatt": 1,
+            "Ajay Kumar Mandal": 1,
+            "Ajay Tamta": 1,
+            "AJENDRA SINGH LODHI": 1,
+            "AKHILESH YADAV": 1,
+            "AKSHAYA YADAV": 1,
+            "ALFRED KANNGAM S ARTHUR": 1
+          }
+        },
+        "constituency": {
+          "unique_count": 542,
+          "null_count": 0,
+          "top_value_counts": {
+            "NANDED": 2,
+            "AURANGABAD_BR": 1,
+            "TAMLUK": 1,
+            "MURSHIDABAD": 1,
+            "KANTHI": 1,
+            "BADAUN": 1,
+            "ATTINGAL": 1,
+            "IDUKKI": 1,
+            "NANDURBAR(ST)": 1,
+            "KOTTAYAM": 1,
+            "GHAZIPUR": 1,
+            "SRINAGAR": 1,
+            "NAINITAL UDHAM SINGH NAG.": 1,
+            "THENI": 1,
+            "BAHRAICH(SC)": 1,
+            "HINGOLI": 1,
+            "ALMORA(SC)": 1,
+            "HAMIRPUR_UP": 1,
+            "KANNAUJ": 1,
+            "FIROZABAD": 1
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "calamity",
+      "house_name": "Lok Sabha",
+      "source_file": "LokSabha18/Amount consented for Calamity_LokSabha_18.csv",
+      "rows_before": 13,
+      "grand_total_removed": 1,
+      "rows_after": 12,
+      "column_count": 15,
+      "columns": [
+        "sr_no",
+        "calamity_type",
+        "calamity_name",
+        "mp_name",
+        "date_of_consent",
+        "consent_amount_raw",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "consent_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "Calamity Type": "calamity_type",
+        "Calamity Name": "calamity_name",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Date of Consent": "date_of_consent",
+        "Consent Amount ( \u20b9 )": "consent_amount_raw",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "calamity_type": 0,
+        "calamity_name": 0,
+        "mp_name": 0,
+        "date_of_consent": 0,
+        "consent_amount_raw": 0,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 12,
+        "work_type_template": 12,
+        "is_na_recommendation": 0,
+        "consent_amount": 0,
+        "district": 12
+      },
+      "work_id_stats": {
+        "total_rows": 12,
+        "valid_work_ids": 0,
+        "null_work_ids": 12,
+        "na_recommendations": 0
+      },
+      "date_stats": {
+        "date_of_consent": {
+          "success_count": 12,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "consent_amount": {
+          "success_count": 12,
+          "fail_count": 0,
+          "min_value": 500000.0,
+          "max_value": 10000000.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": false,
+        "success_count": 0,
+        "fail_count": 0,
+        "unique_districts": 0
+      },
+      "category_status_stats": {
+        "mp_name": {
+          "unique_count": 10,
+          "null_count": 0,
+          "top_value_counts": {
+            "Shri NK Premachandran": 2,
+            "SHAFI PARAMBIL": 2,
+            "GURMEET SINGH MEET HAYER": 1,
+            "Shri Gurjeet Singh Aujla": 1,
+            "Krishna Prasad Tenneti": 1,
+            "Shri Jual Oram": 1,
+            "DR C N MANJUNATH": 1,
+            "Andimuthu Raja": 1,
+            "K RADHAKRISHNAN": 1,
+            "BIPLAB KUMAR DEB": 1
+          }
+        },
+        "calamity_type": {
+          "unique_count": 2,
+          "null_count": 0,
+          "top_value_counts": {
+            "National Calamity": 7,
+            "State Calamity": 5
+          }
+        },
+        "calamity_name": {
+          "unique_count": 6,
+          "null_count": 0,
+          "top_value_counts": {
+            "Flood 2025 in Punjab": 3,
+            "Meppadi landslides 2024": 3,
+            "Wayanad landslides 2024": 2,
+            "Vilangad Landslides 2024": 2,
+            "Andhra Pradesh rainfall and consequent floods - 2024": 1,
+            "Natural Calamity Affected Area": 1
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "expenditures",
+      "house_name": "Lok Sabha",
+      "source_file": "LokSabha18/Expenditure on Completed and On-going Works as on Date_LokSabha_18.csv",
+      "rows_before": 84172,
+      "grand_total_removed": 1,
+      "rows_after": 84171,
+      "column_count": 20,
+      "columns": [
+        "sr_no",
+        "state",
+        "work_raw",
+        "work_id_raw",
+        "ida",
+        "mp_name",
+        "constituency",
+        "expenditure_date",
+        "vendor_name",
+        "payment_status",
+        "fund_disbursed_amount_raw",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "fund_disbursed_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "State": "state",
+        "Work": "work_raw",
+        "Work ID": "work_id_raw",
+        "IDA": "ida",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Constituency": "constituency",
+        "Expenditure Date": "expenditure_date",
+        "Vendor Name": "vendor_name",
+        "Payment Status": "payment_status",
+        "Fund Disbursed Amount ( \u20b9 )": "fund_disbursed_amount_raw",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "state": 0,
+        "work_raw": 0,
+        "work_id_raw": 0,
+        "ida": 0,
+        "mp_name": 0,
+        "constituency": 0,
+        "expenditure_date": 0,
+        "vendor_name": 0,
+        "payment_status": 0,
+        "fund_disbursed_amount_raw": 0,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 0,
+        "work_type_template": 84171,
+        "is_na_recommendation": 0,
+        "fund_disbursed_amount": 0,
+        "district": 0
+      },
+      "work_id_stats": {
+        "total_rows": 84171,
+        "valid_work_ids": 84171,
+        "null_work_ids": 0,
+        "na_recommendations": 0
+      },
+      "date_stats": {
+        "expenditure_date": {
+          "success_count": 84171,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "fund_disbursed_amount": {
+          "success_count": 84171,
+          "fail_count": 0,
+          "min_value": 1.0,
+          "max_value": 32562250.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": true,
+        "success_count": 84171,
+        "fail_count": 0,
+        "unique_districts": 736
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 35,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 17487,
+            "Punjab": 8445,
+            "Madhya Pradesh": 7429,
+            "Rajasthan": 6055,
+            "Tamil Nadu": 3763,
+            "Bihar": 3723,
+            "Gujarat": 3597,
+            "Odisha": 3500,
+            "Jharkhand": 3180,
+            "Karnataka": 3109,
+            "West Bengal": 3035,
+            "Chhattisgarh": 3005,
+            "Telangana": 2654,
+            "Assam": 2550,
+            "Himachal Pradesh": 1883,
+            "Andhra Pradesh": 1786,
+            "Maharashtra": 1699,
+            "Haryana": 1519,
+            "Uttarakhand": 1457,
+            "Kerala": 1447
+          }
+        },
+        "mp_name": {
+          "unique_count": 531,
+          "null_count": 0,
+          "top_value_counts": {
+            "Smt Harsimrat Kaur Badal": 1509,
+            "DR. RAJ KUMAR CHABBEWAL": 1276,
+            "DR DHARAMVIRA GANDHI": 1196,
+            "PRIYA SAROJ": 1048,
+            "Ajay Bhatt": 916,
+            "PUSHPENDRA SAROJ": 912,
+            "CHANDRA SHEKHAR": 895,
+            "DAMODAR AGARWAL": 854,
+            "SAMBIT PATRA": 847,
+            "MALVINDER SINGH KANG": 797,
+            "SANJNA JATAV": 733,
+            "CHHOTELAL": 728,
+            "SARABJEET SINGH KHALSA": 725,
+            "UTKARSH VERMA MADHUR": 699,
+            "GURMEET SINGH MEET HAYER": 662,
+            "RAJEEV BHARDWAJ": 660,
+            "DR. RAJESH MISHRA": 656,
+            "BABU SINGH KUSHWAHA": 652,
+            "LUMBARAM": 640,
+            "Bhagirath Chaudhary": 626
+          }
+        },
+        "constituency": {
+          "unique_count": 531,
+          "null_count": 0,
+          "top_value_counts": {
+            "BHATINDA": 1509,
+            "HOSHIARPUR(SC)": 1276,
+            "PATIALA": 1196,
+            "MACHHLISHAHR(SC)": 1048,
+            "NAINITAL UDHAM SINGH NAG.": 916,
+            "KAUSHAMBI(SC)": 912,
+            "NAGINA(SC)": 895,
+            "BHILWARA": 854,
+            "PURI": 847,
+            "ANANDPUR SAHIB": 797,
+            "BHARATPUR(SC)": 733,
+            "ROBERTSGANJ(SC)": 728,
+            "FARIDKOT(SC)": 725,
+            "KHERI": 699,
+            "SANGRUR": 662,
+            "KANGRA": 660,
+            "SIDHI": 656,
+            "JAUNPUR": 652,
+            "JALORE": 640,
+            "AJMER": 626
+          }
+        },
+        "payment_status": {
+          "unique_count": 2,
+          "null_count": 0,
+          "top_value_counts": {
+            "Payment Success": 81503,
+            "Payment In-Progress": 2668
+          }
+        },
+        "vendor_name": {
+          "unique_count": 23584,
+          "null_count": 0,
+          "top_value_counts": {
+            "BHAGWATI CHAND": 789,
+            "NATIONAL INFRATECH": 444,
+            "MEMBER SECY OB AND OC WWB BBSR": 401,
+            "Shiv Kumar": 391,
+            "M P AGRO DHAR": 342,
+            "Ajay Kumar Singh": 335,
+            "SOMYA CONSTRUCTION": 331,
+            "Advent Infomax Pvt Ltd": 304,
+            "Gandhi Construction And Supplier": 303,
+            "BAKE BIHARI TRADERS": 296,
+            "Shiv kumar thekedar": 294,
+            "shyam swaroop manufacturere": 282,
+            "MANNAT CONSTRUCTION": 272,
+            "ODISHA DISTRIBUTING AUTHORITY": 266,
+            "SITA RAM PATEL": 262,
+            "BIOLUNAR ENERGY SOLUTION": 258,
+            "MAHI ENTERPRISES": 258,
+            "KRIDL BHUSIRI ACCOUNT WORKS": 253,
+            "UP STATE AGRO INDUSTRIAL CORPORATION LTD BICHPAI URMAURA": 250,
+            "RANJIT SALES CORPORATION": 249
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "works_completed",
+      "house_name": "Lok Sabha",
+      "source_file": "LokSabha18/Works Completed_LokSabha_18.csv",
+      "rows_before": 34440,
+      "grand_total_removed": 1,
+      "rows_after": 34439,
+      "column_count": 20,
+      "columns": [
+        "sr_no",
+        "work_category",
+        "work_raw",
+        "state",
+        "ida",
+        "work_description",
+        "mp_name",
+        "constituency",
+        "image_url",
+        "completion_date",
+        "amount_disbursed_raw",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "amount_disbursed",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "Work Category": "work_category",
+        "Work": "work_raw",
+        "State": "state",
+        "IDA": "ida",
+        "Work Description": "work_description",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Constituency": "constituency",
+        "Image": "image_url",
+        "Completion Date": "completion_date",
+        "Amount Disbursed ( \u20b9 )": "amount_disbursed_raw",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "work_category": 0,
+        "work_raw": 0,
+        "state": 0,
+        "ida": 0,
+        "work_description": 79,
+        "mp_name": 0,
+        "constituency": 0,
+        "image_url": 9303,
+        "completion_date": 0,
+        "amount_disbursed_raw": 80,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 0,
+        "work_type_template": 0,
+        "is_na_recommendation": 0,
+        "amount_disbursed": 80,
+        "district": 0
+      },
+      "work_id_stats": {
+        "total_rows": 34439,
+        "valid_work_ids": 34439,
+        "null_work_ids": 0,
+        "na_recommendations": 0
+      },
+      "date_stats": {
+        "completion_date": {
+          "success_count": 34439,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "amount_disbursed": {
+          "success_count": 34359,
+          "fail_count": 0,
+          "min_value": 8448.0,
+          "max_value": 46470400.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": true,
+        "success_count": 34439,
+        "fail_count": 0,
+        "unique_districts": 667
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 33,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 7372,
+            "Tamil Nadu": 2891,
+            "Gujarat": 2812,
+            "Bihar": 2751,
+            "West Bengal": 2400,
+            "Madhya Pradesh": 2267,
+            "Telangana": 2072,
+            "Punjab": 1519,
+            "Odisha": 1369,
+            "Andhra Pradesh": 1175,
+            "Rajasthan": 997,
+            "Kerala": 958,
+            "Maharashtra": 933,
+            "Chhattisgarh": 896,
+            "Karnataka": 715,
+            "Jharkhand": 663,
+            "Haryana": 463,
+            "Himachal Pradesh": 414,
+            "Jammu And Kashmir": 357,
+            "Meghalaya": 230
+          }
+        },
+        "mp_name": {
+          "unique_count": 503,
+          "null_count": 0,
+          "top_value_counts": {
+            "PRIYA SAROJ": 725,
+            "PUSHPENDRA SAROJ": 610,
+            "SAMBIT PATRA": 548,
+            "BABU SINGH KUSHWAHA": 522,
+            "Arvind Dharmapuri": 476,
+            "CHAMALA KIRAN KUMAR REDDY": 417,
+            "VINOD KUMAR BIND": 407,
+            "SHER SINGH GHUBAYA": 361,
+            "UTKARSH VERMA MADHUR": 347,
+            "Durga Das Uikey": 288,
+            "CHANDRA SHEKHAR": 286,
+            "Ganesan Selvam": 273,
+            "C R Patil": 271,
+            "CHHOTELAL": 262,
+            "ARUN BHARTI": 258,
+            "KAMLESH JANGDE": 254,
+            "Mitesh Rameshbhai Bakabhai Patel": 250,
+            "Devusinh Jesingbhai Chauhan": 247,
+            "Mukesh Rajput": 246,
+            "BALRAM NAIK PORIKA": 239
+          }
+        },
+        "constituency": {
+          "unique_count": 503,
+          "null_count": 0,
+          "top_value_counts": {
+            "MACHHLISHAHR(SC)": 725,
+            "KAUSHAMBI(SC)": 610,
+            "PURI": 548,
+            "JAUNPUR": 522,
+            "NIZAMABAD": 476,
+            "BHONGIR": 417,
+            "BHADOHI": 407,
+            "FIROZPUR": 361,
+            "KHERI": 347,
+            "BETUL(ST)": 288,
+            "NAGINA(SC)": 286,
+            "KANCHEEPURAM(SC)": 273,
+            "NAVSARI": 271,
+            "ROBERTSGANJ(SC)": 262,
+            "JAMUI(SC)": 258,
+            "JANJGIR CHAMPA(SC)": 254,
+            "ANAND": 250,
+            "KHEDA": 247,
+            "FARRUKHABAD": 246,
+            "MAHABUBABAD": 239
+          }
+        },
+        "work_category": {
+          "unique_count": 3,
+          "null_count": 0,
+          "top_value_counts": {
+            "Normal/Others": 33944,
+            "Repair and Renovation": 382,
+            "Trust and Society": 113
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "works_recommended",
+      "house_name": "Lok Sabha",
+      "source_file": "LokSabha18/Works Recommended_LokSabha_18.csv",
+      "rows_before": 107024,
+      "grand_total_removed": 1,
+      "rows_after": 107023,
+      "column_count": 20,
+      "columns": [
+        "sr_no",
+        "work_category",
+        "work_raw",
+        "state",
+        "ida",
+        "mp_name",
+        "constituency",
+        "work_description",
+        "recommended_date",
+        "recommended_amount_raw",
+        "sanction_date",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "recommended_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "Work category": "work_category",
+        "WORK": "work_raw",
+        "State": "state",
+        "IDA": "ida",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Constituency": "constituency",
+        "Work description": "work_description",
+        "Recommended date": "recommended_date",
+        "RECOMMENDED AMOUNT   ( \u20b9 )": "recommended_amount_raw",
+        "Sanction Date": "sanction_date",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "work_category": 0,
+        "work_raw": 0,
+        "state": 0,
+        "ida": 0,
+        "mp_name": 0,
+        "constituency": 0,
+        "work_description": 115,
+        "recommended_date": 0,
+        "recommended_amount_raw": 0,
+        "sanction_date": 28172,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 28172,
+        "work_type_template": 0,
+        "is_na_recommendation": 0,
+        "recommended_amount": 0,
+        "district": 0
+      },
+      "work_id_stats": {
+        "total_rows": 107023,
+        "valid_work_ids": 78851,
+        "null_work_ids": 28172,
+        "na_recommendations": 28172
+      },
+      "date_stats": {
+        "recommended_date": {
+          "success_count": 107023,
+          "fail_count": 0,
+          "failed_samples": []
+        },
+        "sanction_date": {
+          "success_count": 78851,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "recommended_amount": {
+          "success_count": 107023,
+          "fail_count": 0,
+          "min_value": 1.0,
+          "max_value": 99965000.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": true,
+        "success_count": 107023,
+        "fail_count": 0,
+        "unique_districts": 760
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 36,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 20537,
+            "Gujarat": 8487,
+            "Madhya Pradesh": 7458,
+            "Bihar": 5795,
+            "Odisha": 5785,
+            "Tamil Nadu": 5727,
+            "West Bengal": 5660,
+            "Telangana": 5252,
+            "Maharashtra": 4772,
+            "Karnataka": 4740,
+            "Jharkhand": 4380,
+            "Kerala": 4340,
+            "Punjab": 4214,
+            "Andhra Pradesh": 3635,
+            "Rajasthan": 3430,
+            "Chhattisgarh": 2288,
+            "Assam": 2278,
+            "Haryana": 1871,
+            "Himachal Pradesh": 1726,
+            "Jammu And Kashmir": 1064
+          }
+        },
+        "mp_name": {
+          "unique_count": 538,
+          "null_count": 0,
+          "top_value_counts": {
+            "PUSHPENDRA SAROJ": 2589,
+            "PRIYA SAROJ": 1396,
+            "Ram Shiromani": 1357,
+            "Arvind Dharmapuri": 916,
+            "SAMBIT PATRA": 730,
+            "Devusinh Jesingbhai Chauhan": 715,
+            "BABU SINGH KUSHWAHA": 686,
+            "Shri Chandra Prakash Choudhary": 677,
+            "DR. S P SINGH": 639,
+            "SANATAN PANDEY": 637,
+            "Sanjay Kumar Bandi": 634,
+            "RAJEEV BHARDWAJ": 628,
+            "HARIBHAI PATEL": 620,
+            "Suresh Kumar Kashyap": 577,
+            "Saptagiri Sankar Ulaka": 575,
+            "VINOD KUMAR BIND": 551,
+            "RAJPALSINH MAHENDRASINH JADAV": 539,
+            "SARABJEET SINGH KHALSA": 538,
+            "BUNTY VIVEK SAHU": 536,
+            "Mitesh Rameshbhai Bakabhai Patel": 533
+          }
+        },
+        "constituency": {
+          "unique_count": 538,
+          "null_count": 0,
+          "top_value_counts": {
+            "KAUSHAMBI(SC)": 2589,
+            "MACHHLISHAHR(SC)": 1396,
+            "SHRAWASTI": 1357,
+            "NIZAMABAD": 916,
+            "PURI": 730,
+            "KHEDA": 715,
+            "JAUNPUR": 686,
+            "GIRIDIH": 677,
+            "PRATAPGARH": 639,
+            "BALLIA": 637,
+            "KARIMNAGAR": 634,
+            "KANGRA": 628,
+            "MAHESANA": 620,
+            "SHIMLA (SC)": 577,
+            "KORAPUT(ST)": 575,
+            "BHADOHI": 551,
+            "PANCHMAHAL": 539,
+            "FARIDKOT(SC)": 538,
+            "CHHINDWARA": 536,
+            "ANAND": 533
+          }
+        },
+        "work_category": {
+          "unique_count": 4,
+          "null_count": 0,
+          "top_value_counts": {
+            "Normal/Others": 104864,
+            "Repair and Renovation": 1423,
+            "Trust and Society": 725,
+            "Bar and Associations": 11
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "works_sanctioned",
+      "house_name": "Lok Sabha",
+      "source_file": "LokSabha18/Works Sanctioned_LokSabha_18.csv",
+      "rows_before": 79220,
+      "grand_total_removed": 1,
+      "rows_after": 79219,
+      "column_count": 21,
+      "columns": [
+        "sr_no",
+        "work_category",
+        "work_raw",
+        "state",
+        "ida",
+        "mp_name",
+        "constituency",
+        "work_description",
+        "recommended_date",
+        "sanction_date",
+        "sanction_amount_raw",
+        "work_status",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "sanction_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "Work category": "work_category",
+        "Work": "work_raw",
+        "State": "state",
+        "IDA": "ida",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Constituency": "constituency",
+        "Work description": "work_description",
+        "Recommended date": "recommended_date",
+        "Sanction Date": "sanction_date",
+        "Sanction Amount ( \u20b9 )": "sanction_amount_raw",
+        "Work Status": "work_status",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "work_category": 0,
+        "work_raw": 0,
+        "state": 0,
+        "ida": 0,
+        "mp_name": 0,
+        "constituency": 0,
+        "work_description": 98,
+        "recommended_date": 0,
+        "sanction_date": 0,
+        "sanction_amount_raw": 0,
+        "work_status": 0,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 0,
+        "work_type_template": 0,
+        "is_na_recommendation": 0,
+        "sanction_amount": 0,
+        "district": 0
+      },
+      "work_id_stats": {
+        "total_rows": 79219,
+        "valid_work_ids": 79219,
+        "null_work_ids": 0,
+        "na_recommendations": 0
+      },
+      "date_stats": {
+        "recommended_date": {
+          "success_count": 79219,
+          "fail_count": 0,
+          "failed_samples": []
+        },
+        "sanction_date": {
+          "success_count": 79219,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "sanction_amount": {
+          "success_count": 79219,
+          "fail_count": 0,
+          "min_value": 2.46,
+          "max_value": 49740000.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": true,
+        "success_count": 79219,
+        "fail_count": 0,
+        "unique_districts": 751
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 36,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 15039,
+            "Gujarat": 6399,
+            "Madhya Pradesh": 5670,
+            "West Bengal": 4804,
+            "Bihar": 4550,
+            "Odisha": 4197,
+            "Tamil Nadu": 4070,
+            "Telangana": 3774,
+            "Jharkhand": 3666,
+            "Punjab": 3584,
+            "Andhra Pradesh": 3036,
+            "Kerala": 2834,
+            "Karnataka": 2674,
+            "Maharashtra": 2424,
+            "Rajasthan": 2253,
+            "Chhattisgarh": 2121,
+            "Assam": 1619,
+            "Haryana": 1533,
+            "Himachal Pradesh": 1519,
+            "Jammu And Kashmir": 879
+          }
+        },
+        "mp_name": {
+          "unique_count": 536,
+          "null_count": 0,
+          "top_value_counts": {
+            "PRIYA SAROJ": 1383,
+            "PUSHPENDRA SAROJ": 715,
+            "BABU SINGH KUSHWAHA": 679,
+            "SAMBIT PATRA": 678,
+            "Ram Shiromani": 652,
+            "Shri Chandra Prakash Choudhary": 613,
+            "Arvind Dharmapuri": 601,
+            "VINOD KUMAR BIND": 543,
+            "Suresh Kumar Kashyap": 520,
+            "CHANDRA SHEKHAR": 504,
+            "SARABJEET SINGH KHALSA": 499,
+            "Mitesh Rameshbhai Bakabhai Patel": 496,
+            "HARIBHAI PATEL": 495,
+            "RAJEEV BHARDWAJ": 494,
+            "JITENDRA KUMAR DOHARE": 485,
+            "KONDA VISHWESHWAR REDDY": 485,
+            "CHAMALA KIRAN KUMAR REDDY": 469,
+            "Midhun Reddy": 464,
+            "KALI CHARAN SINGH": 461,
+            "Saptagiri Sankar Ulaka": 443
+          }
+        },
+        "constituency": {
+          "unique_count": 536,
+          "null_count": 0,
+          "top_value_counts": {
+            "MACHHLISHAHR(SC)": 1383,
+            "KAUSHAMBI(SC)": 715,
+            "JAUNPUR": 679,
+            "PURI": 678,
+            "SHRAWASTI": 652,
+            "GIRIDIH": 613,
+            "NIZAMABAD": 601,
+            "BHADOHI": 543,
+            "SHIMLA (SC)": 520,
+            "NAGINA(SC)": 504,
+            "FARIDKOT(SC)": 499,
+            "ANAND": 496,
+            "MAHESANA": 495,
+            "KANGRA": 494,
+            "ETAWAH(SC)": 485,
+            "CHELVELLA": 485,
+            "BHONGIR": 469,
+            "RAJAMPET": 464,
+            "CHATRA": 461,
+            "KORAPUT(ST)": 443
+          }
+        },
+        "work_category": {
+          "unique_count": 4,
+          "null_count": 0,
+          "top_value_counts": {
+            "Normal/Others": 77645,
+            "Repair and Renovation": 1102,
+            "Trust and Society": 470,
+            "Bar and Associations": 2
+          }
+        },
+        "work_status": {
+          "unique_count": 6,
+          "null_count": 0,
+          "top_value_counts": {
+            "Physical Inspection": 34383,
+            "Sanction": 20277,
+            "Vendor Identification": 11563,
+            "Work partially Completed": 8004,
+            "Work Completed": 4171,
+            "Time Estimation": 821
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "mp_allocations",
+      "house_name": "Rajya Sabha",
+      "source_file": "RajyaSabha_Sitting/Allocated_Limit_for_Honble_MPs_Rajya_Sabha.csv",
+      "rows_before": 232,
+      "grand_total_removed": 1,
+      "rows_after": 231,
+      "column_count": 14,
+      "columns": [
+        "sr_no",
+        "state",
+        "mp_name",
+        "elected",
+        "allocated_amount_raw",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "allocated_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "State": "state",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Elected/Nominated": "elected",
+        "Allocated AMOUNT ( \u20b9 )": "allocated_amount_raw",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "state": 0,
+        "mp_name": 0,
+        "elected": 0,
+        "allocated_amount_raw": 0,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 231,
+        "work_type_template": 231,
+        "is_na_recommendation": 0,
+        "allocated_amount": 0,
+        "district": 231
+      },
+      "work_id_stats": {
+        "total_rows": 231,
+        "valid_work_ids": 0,
+        "null_work_ids": 231,
+        "na_recommendations": 0
+      },
+      "date_stats": {},
+      "amount_stats": {
+        "allocated_amount": {
+          "success_count": 231,
+          "fail_count": 0,
+          "min_value": 23800006.0,
+          "max_value": 310898953.29,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": false,
+        "success_count": 0,
+        "fail_count": 0,
+        "unique_districts": 0
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 32,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 31,
+            "Tamil Nadu": 19,
+            "Maharashtra": 18,
+            "Bihar": 15,
+            "Karnataka": 14,
+            "Andhra Pradesh": 12,
+            "Madhya Pradesh": 11,
+            "Kerala": 11,
+            "West Bengal": 11,
+            "Rajasthan": 10,
+            "Odisha": 10,
+            "Gujarat": 9,
+            "Punjab": 7,
+            "Assam": 7,
+            "Telangana": 6,
+            "Jharkhand": 5,
+            "Chhattisgarh": 5,
+            "Haryana": 5,
+            "Jammu And Kashmir": 5,
+            "Delhi": 4
+          }
+        },
+        "mp_name": {
+          "unique_count": 231,
+          "null_count": 0,
+          "top_value_counts": {
+            "Dr. Abhishek Manu Singhvi (2026-32) (2026-2032)": 1,
+            "Dr. Ajeet Madhavrao Gopchade (2024-30) (2024-2030)": 1,
+            "Dr. Alka Singh (2026-32) (2026-2032)": 1,
+            "Dr. Anbumani Ramadoss (2026-32) (2026-2032)": 1,
+            "Dr. Anil Sukhdeorao Bonde (2022-28) (2022-2028)": 1,
+            "Dr. Ashok Kumar Mittal (2022-28) (2022-2028)": 1,
+            "Dr. Bhim Singh (2024-30) (2024-2030)": 1,
+            "Dr. Dharmasthala Veerendra Heggade (2022-28) (2022-2028)": 1,
+            "Dr. Dharmshila Gupta (2024-30) (2024-2030)": 1,
+            "Dr. Dinesh Sharma (2023-26) (2023-2026)": 1,
+            "Dr. Faiyaz Ahmad (2022-28) (2022-2028)": 1,
+            "Dr. John Brittas (2021-27) (2021-2027)": 1,
+            "Dr. Jyoti Nagnath Waghmare (2026-32) (2026-2032)": 1,
+            "Dr. K. Laxman (2022-28) (2022-2028)": 1,
+            "Dr. Kalpana Saini (2022-28) (2022-2028)": 1,
+            "Dr. Kavita Patidar (2022-28) (2022-2028)": 1,
+            "Dr. L. Murugan (2024-30) (2024-2030)": 1,
+            "Dr. Laxmikant Bajpayee (2022-28) (2022-2028)": 1,
+            "Dr. M. Dhanapal (2025-31) (2025-2031)": 1,
+            "Dr. M. Thambi Durai (2026-32) (2026-2032)": 1
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "calamity",
+      "house_name": "Rajya Sabha",
+      "source_file": "RajyaSabha_Sitting/Amount_consented_for_Calamity_Rajya_Sitting.csv",
+      "rows_before": 21,
+      "grand_total_removed": 1,
+      "rows_after": 20,
+      "column_count": 15,
+      "columns": [
+        "sr_no",
+        "calamity_type",
+        "calamity_name",
+        "mp_name",
+        "date_of_consent",
+        "consent_amount_raw",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "consent_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "Calamity Type": "calamity_type",
+        "Calamity Name": "calamity_name",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Date of Consent": "date_of_consent",
+        "Consent Amount ( \u20b9 )": "consent_amount_raw",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "calamity_type": 0,
+        "calamity_name": 0,
+        "mp_name": 0,
+        "date_of_consent": 0,
+        "consent_amount_raw": 0,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 20,
+        "work_type_template": 20,
+        "is_na_recommendation": 0,
+        "consent_amount": 0,
+        "district": 20
+      },
+      "work_id_stats": {
+        "total_rows": 20,
+        "valid_work_ids": 0,
+        "null_work_ids": 20,
+        "na_recommendations": 0
+      },
+      "date_stats": {
+        "date_of_consent": {
+          "success_count": 20,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "consent_amount": {
+          "success_count": 20,
+          "fail_count": 0,
+          "min_value": 500000.0,
+          "max_value": 10000000.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": false,
+        "success_count": 0,
+        "fail_count": 0,
+        "unique_districts": 0
+      },
+      "category_status_stats": {
+        "mp_name": {
+          "unique_count": 16,
+          "null_count": 0,
+          "top_value_counts": {
+            "Shri Narain Dass Gupta (2024-30) (2024-2030)": 2,
+            "Smt. P. T. Usha (2022-28) (2022-2028)": 2,
+            "Dr. John Brittas (2021-27) (2021-2027)": 2,
+            "Shri P. P. Suneer (2024-30) (2024-2030)": 2,
+            "Shri Harbhajan Singh (2022-28) (2022-2028)": 1,
+            "Shri Hardeep Singh Puri (2020-26) (2020-2026)": 1,
+            "Dr. Ashok Kumar Mittal (2022-28) (2022-2028)": 1,
+            "Shri Sanjay Singh (2024-30) (2024-2030)": 1,
+            "Dr. Vikramjit Singh Sahney (2022-28) (2022-2028)": 1,
+            "Dr. Parmar Jashvantsinh Salamsinh (2024-30) (2024-2030)": 1,
+            "Dr. Sandeep Kumar Pathak (2022-28) (2022-2028)": 1,
+            "Shri Abdul Wahab (2021-27) (2021-2027)": 1,
+            "Dr. V. Sivadasan (2021-27) (2021-2027)": 1,
+            "Shri A. A. Rahim (2022-28) (2022-2028)": 1,
+            "Shri Jose K. Mani (2024-30) (2024-2030)": 1,
+            "Shri Sandosh Kumar P (2022-28) (2022-2028)": 1
+          }
+        },
+        "calamity_type": {
+          "unique_count": 2,
+          "null_count": 0,
+          "top_value_counts": {
+            "National Calamity": 12,
+            "State Calamity": 8
+          }
+        },
+        "calamity_name": {
+          "unique_count": 4,
+          "null_count": 0,
+          "top_value_counts": {
+            "Flood 2025 in Punjab": 9,
+            "Wayanad landslides 2024": 6,
+            "Meppadi landslides 2024": 3,
+            "Vilangad Landslides 2024": 2
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "expenditures",
+      "house_name": "Rajya Sabha",
+      "source_file": "RajyaSabha_Sitting/Expenditure_on_Completed_and_On-going_Works_as_on_Date_Rajya_Sitting.csv",
+      "rows_before": 25141,
+      "grand_total_removed": 1,
+      "rows_after": 25140,
+      "column_count": 20,
+      "columns": [
+        "sr_no",
+        "state",
+        "work_raw",
+        "work_id_raw",
+        "ida",
+        "mp_name",
+        "elected",
+        "expenditure_date",
+        "vendor_name",
+        "payment_status",
+        "fund_disbursed_amount_raw",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "fund_disbursed_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "State": "state",
+        "Work": "work_raw",
+        "Work ID": "work_id_raw",
+        "IDA": "ida",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Elected/Nominated": "elected",
+        "Expenditure Date": "expenditure_date",
+        "Vendor Name": "vendor_name",
+        "Payment Status": "payment_status",
+        "Fund Disbursed Amount ( \u20b9 )": "fund_disbursed_amount_raw",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "state": 0,
+        "work_raw": 0,
+        "work_id_raw": 0,
+        "ida": 0,
+        "mp_name": 0,
+        "elected": 0,
+        "expenditure_date": 0,
+        "vendor_name": 0,
+        "payment_status": 0,
+        "fund_disbursed_amount_raw": 0,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 0,
+        "work_type_template": 25140,
+        "is_na_recommendation": 0,
+        "fund_disbursed_amount": 0,
+        "district": 0
+      },
+      "work_id_stats": {
+        "total_rows": 25140,
+        "valid_work_ids": 25140,
+        "null_work_ids": 0,
+        "na_recommendations": 0
+      },
+      "date_stats": {
+        "expenditure_date": {
+          "success_count": 25140,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "fund_disbursed_amount": {
+          "success_count": 25140,
+          "fail_count": 0,
+          "min_value": 0.01,
+          "max_value": 31900000.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": true,
+        "success_count": 25140,
+        "fail_count": 0,
+        "unique_districts": 528
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 29,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 6793,
+            "Punjab": 3076,
+            "Madhya Pradesh": 1939,
+            "Rajasthan": 1695,
+            "Jharkhand": 1411,
+            "Bihar": 1382,
+            "Karnataka": 1287,
+            "Tamil Nadu": 1016,
+            "Himachal Pradesh": 903,
+            "Kerala": 634,
+            "Chhattisgarh": 538,
+            "Uttarakhand": 537,
+            "Odisha": 524,
+            "Gujarat": 521,
+            "Andhra Pradesh": 463,
+            "Telangana": 447,
+            "Maharashtra": 410,
+            "Assam": 366,
+            "Haryana": 251,
+            "Jammu And Kashmir": 193
+          }
+        },
+        "mp_name": {
+          "unique_count": 170,
+          "null_count": 0,
+          "top_value_counts": {
+            "Dr. Sandeep Kumar Pathak (2022-28) (2022-2028)": 1154,
+            "Shri Hardeep Singh Puri (2020-26) (2020-2026)": 885,
+            "Shri B.L. Verma (2020-26) (2020-2026)": 804,
+            "Shri Sant Balbir Singh (2022-28) (2022-2028)": 765,
+            "Dr. Dharmasthala Veerendra Heggade (2022-28) (2022-2028)": 644,
+            "Shri Vivek K. Tankha (2022-28) (2022-2028)": 635,
+            "Smt. Mahua Maji (2022-28) (2022-2028)": 598,
+            "Shri Baburam Nishad (2022-28) (2022-2028)": 595,
+            "Shri Harbhajan Singh (2022-28) (2022-2028)": 534,
+            "Shri Harsh Mahajan (2024-30) (2024-2030)": 477,
+            "Smt. Ranjeet Ranjan (2022-28) (2022-2028)": 462,
+            "Shri Mukul Wasnik (2022-28) (2022-2028)": 455,
+            "Dr. Kavita Patidar (2022-28) (2022-2028)": 427,
+            "Dr. Sikander Kumar (2022-28) (2022-2028)": 426,
+            "Smt. Sumitra Balmik (2022-28) (2022-2028)": 419,
+            "Shri Aditya Prasad (2022-28) (2022-2028)": 383,
+            "Dr. Vikramjit Singh Sahney (2022-28) (2022-2028)": 348,
+            "Dr. K. Laxman (2022-28) (2022-2028)": 323,
+            "Smt. Seema Dwivedi (2020-26) (2020-2026)": 314,
+            "Smt. Geeta alias Chandraprabha (2020-26) (2020-2026)": 313
+          }
+        },
+        "payment_status": {
+          "unique_count": 2,
+          "null_count": 0,
+          "top_value_counts": {
+            "Payment Success": 24680,
+            "Payment In-Progress": 460
+          }
+        },
+        "vendor_name": {
+          "unique_count": 6116,
+          "null_count": 0,
+          "top_value_counts": {
+            "shyam swaroop manufacturere": 989,
+            "SHRI NAVKAR METALS LIMITED": 384,
+            "HIDAYA QIRAT ENTERPRISES": 317,
+            "Junior Engineer Zila Parishad Prashant Kumar": 308,
+            "RAHISH WARSI": 218,
+            "SAMEER TOPPO": 203,
+            "PARMANAND PASWAN": 193,
+            "Sahil Kumar Junior Engineer": 185,
+            "Executive engineer": 174,
+            "Vimal Enterprises": 166,
+            "JF JAVID HUSSAIN": 164,
+            "ND CONTRACTOR": 163,
+            "SHRI SAI ENGINEERING WORKS": 160,
+            "BALAJI SUPPLIER": 158,
+            "LUCKY ASSOCIATES": 154,
+            "RMK ENTERPRISES": 153,
+            "EKAANSHA CORPORATION": 148,
+            "SHAIL CONSTRUCTION": 129,
+            "MAA VINDHYAVASINI GREEN SOLAR ENERGY": 126,
+            "R G SUPPLIERS": 126
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "works_completed",
+      "house_name": "Rajya Sabha",
+      "source_file": "RajyaSabha_Sitting/Works_Completed_Rajya_Sitting.csv",
+      "rows_before": 9979,
+      "grand_total_removed": 1,
+      "rows_after": 9978,
+      "column_count": 20,
+      "columns": [
+        "sr_no",
+        "work_category",
+        "work_raw",
+        "state",
+        "ida",
+        "work_description",
+        "mp_name",
+        "elected",
+        "image_url",
+        "completion_date",
+        "amount_disbursed_raw",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "amount_disbursed",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "Work Category": "work_category",
+        "Work": "work_raw",
+        "State": "state",
+        "IDA": "ida",
+        "Work Description": "work_description",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Elected/Nominated": "elected",
+        "Image": "image_url",
+        "Completion Date": "completion_date",
+        "Amount Disbursed ( \u20b9 )": "amount_disbursed_raw",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "work_category": 5,
+        "work_raw": 0,
+        "state": 0,
+        "ida": 0,
+        "work_description": 6,
+        "mp_name": 0,
+        "elected": 0,
+        "image_url": 3458,
+        "completion_date": 0,
+        "amount_disbursed_raw": 23,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 0,
+        "work_type_template": 0,
+        "is_na_recommendation": 0,
+        "amount_disbursed": 23,
+        "district": 0
+      },
+      "work_id_stats": {
+        "total_rows": 9978,
+        "valid_work_ids": 9978,
+        "null_work_ids": 0,
+        "na_recommendations": 0
+      },
+      "date_stats": {
+        "completion_date": {
+          "success_count": 9978,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "amount_disbursed": {
+          "success_count": 9955,
+          "fail_count": 0,
+          "min_value": 10000.0,
+          "max_value": 39955654.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": true,
+        "success_count": 9978,
+        "fail_count": 0,
+        "unique_districts": 426
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 28,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 2996,
+            "Bihar": 1173,
+            "Tamil Nadu": 744,
+            "Karnataka": 614,
+            "Punjab": 486,
+            "Madhya Pradesh": 380,
+            "Kerala": 365,
+            "Rajasthan": 339,
+            "Gujarat": 337,
+            "Jharkhand": 335,
+            "Himachal Pradesh": 328,
+            "Andhra Pradesh": 304,
+            "Telangana": 294,
+            "Maharashtra": 255,
+            "Odisha": 189,
+            "Uttarakhand": 177,
+            "Chhattisgarh": 171,
+            "Jammu And Kashmir": 156,
+            "Sikkim": 85,
+            "West Bengal": 70
+          }
+        },
+        "mp_name": {
+          "unique_count": 156,
+          "null_count": 0,
+          "top_value_counts": {
+            "Shri Baburam Nishad (2022-28) (NaN-NaN)": 436,
+            "Shri B.L. Verma (2020-26) (NaN-NaN)": 350,
+            "Dr. Dharmasthala Veerendra Heggade (2022-28) (NaN-NaN)": 301,
+            "Shri Hardeep Singh Puri (2020-26) (NaN-NaN)": 292,
+            "Dr. K. Laxman (2022-28) (NaN-NaN)": 275,
+            "Dr. Bhim Singh (2024-30) (NaN-NaN)": 233,
+            "Smt. Geeta alias Chandraprabha (2020-26) (NaN-NaN)": 211,
+            "Smt. Seema Dwivedi (2020-26) (NaN-NaN)": 210,
+            "Shri Sant Balbir Singh (2022-28) (NaN-NaN)": 206,
+            "Shri Shambhu Sharan Patel (2022-28) (NaN-NaN)": 199,
+            "Shri Mithlesh Kumar (2022-28) (NaN-NaN)": 196,
+            "Shri R. Dharmar (2022-28) (NaN-NaN)": 193,
+            "Dr. Sikander Kumar (2022-28) (NaN-NaN)": 174,
+            "Shri Khiru Mahto (2022-28) (NaN-NaN)": 171,
+            "Smt. Ranjeet Ranjan (2022-28) (NaN-NaN)": 164,
+            "Shri Satish Chandra Dubey (2022-28) (NaN-NaN)": 162,
+            "Dr. Sandeep Kumar Pathak (2022-28) (NaN-NaN)": 157,
+            "Shri Gulam Ali (2022-28) (NaN-NaN)": 156,
+            "Shri Harsh Mahajan (2024-30) (NaN-NaN)": 154,
+            "Shri Ramji (2020-26) (NaN-NaN)": 154
+          }
+        },
+        "work_category": {
+          "unique_count": 4,
+          "null_count": 5,
+          "top_value_counts": {
+            "Normal/Others": 9810,
+            "Repair and Renovation": 97,
+            "Trust and Society": 65,
+            "Bar and Associations": 1
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "works_recommended",
+      "house_name": "Rajya Sabha",
+      "source_file": "RajyaSabha_Sitting/Works_Recommended_Rajya_Sitting.csv",
+      "rows_before": 25240,
+      "grand_total_removed": 1,
+      "rows_after": 25239,
+      "column_count": 20,
+      "columns": [
+        "sr_no",
+        "work_category",
+        "work_raw",
+        "state",
+        "ida",
+        "mp_name",
+        "elected",
+        "work_description",
+        "recommended_date",
+        "recommended_amount_raw",
+        "sanction_date",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "recommended_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "Work category": "work_category",
+        "WORK": "work_raw",
+        "State": "state",
+        "IDA": "ida",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Elected/Nominated": "elected",
+        "Work description": "work_description",
+        "Recommended date": "recommended_date",
+        "RECOMMENDED AMOUNT   ( \u20b9 )": "recommended_amount_raw",
+        "Sanction Date": "sanction_date",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "work_category": 5,
+        "work_raw": 0,
+        "state": 0,
+        "ida": 0,
+        "mp_name": 0,
+        "elected": 0,
+        "work_description": 23,
+        "recommended_date": 0,
+        "recommended_amount_raw": 0,
+        "sanction_date": 5861,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 5861,
+        "work_type_template": 0,
+        "is_na_recommendation": 0,
+        "recommended_amount": 0,
+        "district": 0
+      },
+      "work_id_stats": {
+        "total_rows": 25239,
+        "valid_work_ids": 19378,
+        "null_work_ids": 5861,
+        "na_recommendations": 5861
+      },
+      "date_stats": {
+        "recommended_date": {
+          "success_count": 25239,
+          "fail_count": 0,
+          "failed_samples": []
+        },
+        "sanction_date": {
+          "success_count": 19378,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "recommended_amount": {
+          "success_count": 25239,
+          "fail_count": 0,
+          "min_value": 3.89,
+          "max_value": 73500000.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": true,
+        "success_count": 25239,
+        "fail_count": 0,
+        "unique_districts": 618
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 30,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 5828,
+            "Bihar": 1828,
+            "Kerala": 1540,
+            "Madhya Pradesh": 1362,
+            "Gujarat": 1327,
+            "Jharkhand": 1305,
+            "Karnataka": 1304,
+            "Tamil Nadu": 1214,
+            "Odisha": 1122,
+            "Maharashtra": 1040,
+            "Rajasthan": 975,
+            "Punjab": 973,
+            "Andhra Pradesh": 861,
+            "Himachal Pradesh": 855,
+            "Telangana": 824,
+            "Uttarakhand": 558,
+            "Assam": 504,
+            "Chhattisgarh": 401,
+            "Haryana": 294,
+            "West Bengal": 290
+          }
+        },
+        "mp_name": {
+          "unique_count": 196,
+          "null_count": 0,
+          "top_value_counts": {
+            "Shri Baburam Nishad (2022-28) (2022-2028)": 649,
+            "Shri Vivek K. Tankha (2022-28) (2022-2028)": 504,
+            "Dr. Dharmasthala Veerendra Heggade (2022-28) (2022-2028)": 474,
+            "Smt. Mahua Maji (2022-28) (2022-2028)": 465,
+            "Shri Harsh Mahajan (2024-30) (2024-2030)": 461,
+            "Shri Hardeep Singh Puri (2020-26) (2020-2026)": 415,
+            "Shri B.L. Verma (2020-26) (2020-2026)": 414,
+            "Smt. Seema Dwivedi (2020-26) (2020-2026)": 408,
+            "Dr. Sikander Kumar (2022-28) (2022-2028)": 394,
+            "Shri Sant Balbir Singh (2022-28) (2022-2028)": 386,
+            "Dr. Sangeeta Balwant (2024-30) (2024-2030)": 385,
+            "Dr. Sarfraz Ahmad (2024-30) (2024-2030)": 377,
+            "Dr. Parmar Jashvantsinh Salamsinh (2024-30) (2024-2030)": 370,
+            "Shri Abdul Wahab (2021-27) (2021-2027)": 368,
+            "Shri Neeraj Shekhar (2020-26) (2020-2026)": 327,
+            "Dr. K. Laxman (2022-28) (2022-2028)": 323,
+            "Dr. Bhim Singh (2024-30) (2024-2030)": 319,
+            "Smt. Sulata Deo (2022-28) (2022-2028)": 315,
+            "Shri Shambhu Sharan Patel (2022-28) (2022-2028)": 308,
+            "Dr. Sasmit Patra (2022-28) (2022-2028)": 305
+          }
+        },
+        "work_category": {
+          "unique_count": 4,
+          "null_count": 5,
+          "top_value_counts": {
+            "Normal/Others": 24457,
+            "Repair and Renovation": 419,
+            "Trust and Society": 350,
+            "Bar and Associations": 8
+          }
+        }
+      }
+    },
+    {
+      "dataset_name": "works_sanctioned",
+      "house_name": "Rajya Sabha",
+      "source_file": "RajyaSabha_Sitting/Works_Sanctioned_Rajya_Sitting.csv",
+      "rows_before": 19607,
+      "grand_total_removed": 1,
+      "rows_after": 19606,
+      "column_count": 21,
+      "columns": [
+        "sr_no",
+        "work_category",
+        "work_raw",
+        "state",
+        "ida",
+        "mp_name",
+        "elected",
+        "work_description",
+        "recommended_date",
+        "sanction_date",
+        "sanction_amount_raw",
+        "work_status",
+        "",
+        "_1",
+        "_2",
+        "_3",
+        "work_id",
+        "work_type_template",
+        "is_na_recommendation",
+        "sanction_amount",
+        "district"
+      ],
+      "source_to_canonical_mapping": {
+        "Sr. No.": "sr_no",
+        "Work category": "work_category",
+        "Work": "work_raw",
+        "State": "state",
+        "IDA": "ida",
+        "Hon'ble Members of Parliament": "mp_name",
+        "Elected/Nominated": "elected",
+        "Work description": "work_description",
+        "Recommended date": "recommended_date",
+        "Sanction Date": "sanction_date",
+        "Sanction Amount ( \u20b9 )": "sanction_amount_raw",
+        "Work Status": "work_status",
+        "source_file": "",
+        "source_dataset": "_1",
+        "source_house": "_2",
+        "source_row_number": "_3"
+      },
+      "null_counts_by_column": {
+        "sr_no": 0,
+        "work_category": 7,
+        "work_raw": 0,
+        "state": 0,
+        "ida": 0,
+        "mp_name": 0,
+        "elected": 0,
+        "work_description": 11,
+        "recommended_date": 0,
+        "sanction_date": 0,
+        "sanction_amount_raw": 0,
+        "work_status": 0,
+        "": 0,
+        "_1": 0,
+        "_2": 0,
+        "_3": 0,
+        "work_id": 0,
+        "work_type_template": 0,
+        "is_na_recommendation": 0,
+        "sanction_amount": 0,
+        "district": 0
+      },
+      "work_id_stats": {
+        "total_rows": 19606,
+        "valid_work_ids": 19606,
+        "null_work_ids": 0,
+        "na_recommendations": 0
+      },
+      "date_stats": {
+        "recommended_date": {
+          "success_count": 19606,
+          "fail_count": 0,
+          "failed_samples": []
+        },
+        "sanction_date": {
+          "success_count": 19606,
+          "fail_count": 0,
+          "failed_samples": []
+        }
+      },
+      "amount_stats": {
+        "sanction_amount": {
+          "success_count": 19606,
+          "fail_count": 0,
+          "min_value": 10000.0,
+          "max_value": 73500000.0,
+          "failed_samples": []
+        }
+      },
+      "geography_stats": {
+        "has_ida_column": true,
+        "success_count": 19606,
+        "fail_count": 0,
+        "unique_districts": 569
+      },
+      "category_status_stats": {
+        "state": {
+          "unique_count": 29,
+          "null_count": 0,
+          "top_value_counts": {
+            "Uttar Pradesh": 4873,
+            "Bihar": 1571,
+            "Madhya Pradesh": 1103,
+            "Karnataka": 1060,
+            "Gujarat": 1055,
+            "Jharkhand": 949,
+            "Tamil Nadu": 944,
+            "Kerala": 920,
+            "Punjab": 863,
+            "Rajasthan": 815,
+            "Himachal Pradesh": 789,
+            "Andhra Pradesh": 740,
+            "Odisha": 703,
+            "Telangana": 636,
+            "Maharashtra": 541,
+            "Uttarakhand": 434,
+            "Chhattisgarh": 370,
+            "Assam": 286,
+            "Jammu And Kashmir": 186,
+            "West Bengal": 181
+          }
+        },
+        "mp_name": {
+          "unique_count": 178,
+          "null_count": 0,
+          "top_value_counts": {
+            "Shri Baburam Nishad (2022-28) (2022-2028)": 496,
+            "Dr. Dharmasthala Veerendra Heggade (2022-28) (2022-2028)": 453,
+            "Shri Harsh Mahajan (2024-30) (2024-2030)": 418,
+            "Shri Hardeep Singh Puri (2020-26) (2020-2026)": 415,
+            "Shri B.L. Verma (2020-26) (2020-2026)": 409,
+            "Smt. Seema Dwivedi (2020-26) (2020-2026)": 395,
+            "Shri Vivek K. Tankha (2022-28) (2022-2028)": 391,
+            "Dr. Sikander Kumar (2022-28) (2022-2028)": 371,
+            "Shri Sant Balbir Singh (2022-28) (2022-2028)": 334,
+            "Smt. Mahua Maji (2022-28) (2022-2028)": 326,
+            "Dr. Bhim Singh (2024-30) (2024-2030)": 309,
+            "Dr. K. Laxman (2022-28) (2022-2028)": 308,
+            "Dr. Sangeeta Balwant (2024-30) (2024-2030)": 304,
+            "Dr. Parmar Jashvantsinh Salamsinh (2024-30) (2024-2030)": 300,
+            "Smt. Sulata Deo (2022-28) (2022-2028)": 285,
+            "Shri Shambhu Sharan Patel (2022-28) (2022-2028)": 281,
+            "Dr. Sandeep Kumar Pathak (2022-28) (2022-2028)": 275,
+            "Smt. Ranjeet Ranjan (2022-28) (2022-2028)": 265,
+            "Shri Damodar Rao Divakonda (2022-28) (2022-2028)": 259,
+            "Shri Ramji (2020-26) (2020-2026)": 239
+          }
+        },
+        "work_category": {
+          "unique_count": 4,
+          "null_count": 7,
+          "top_value_counts": {
+            "Normal/Others": 19071,
+            "Repair and Renovation": 299,
+            "Trust and Society": 227,
+            "Bar and Associations": 2
+          }
+        },
+        "work_status": {
+          "unique_count": 6,
+          "null_count": 0,
+          "top_value_counts": {
+            "Physical Inspection": 9892,
+            "Sanction": 3950,
+            "Vendor Identification": 2810,
+            "Work partially Completed": 1883,
+            "Work Completed": 971,
+            "Time Estimation": 100
+          }
+        }
+      }
+    }
+  ],
+  "cross_dataset_join_validation": {
+    "sanctioned_vs_expenditure": {
+      "unique_expenditure_work_ids": 56604,
+      "unique_sanctioned_work_ids": 79219,
+      "matched_work_ids": 56604,
+      "unmatched_expenditure_work_ids": 0,
+      "expenditure_match_percentage": 100.0
+    },
+    "completed_vs_sanctioned": {
+      "unique_completed_work_ids": 34439,
+      "matched_work_ids": 34439,
+      "unmatched_completed_work_ids": 0,
+      "completed_match_percentage": 100.0
+    },
+    "mp_allocation_vs_sanctioned": {
+      "unique_allocated_mps": 543,
+      "unique_sanctioned_mps": 536,
+      "matched_mps": 536,
+      "unmatched_allocated_mps": 7,
+      "mp_match_percentage": 98.71
+    }
+  }
+}

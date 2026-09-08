@@ -1,0 +1,968 @@
+{
+  "status": "PHASE 3 COMPLETE",
+  "feature_registry": [
+    {
+      "feature_name": "sanction_amount_log",
+      "description": "Log1p transformed sanction amount to handle heavy right skew",
+      "source_dataset": "works_sanctioned",
+      "source_columns": [
+        "sanction_amount"
+      ],
+      "unit_of_analysis": "work",
+      "formula": "log(1 + sanction_amount)",
+      "data_type": "float64",
+      "null_handling": "Fill with 0.0",
+      "normalization": "Log scale",
+      "used_by": "Model 1 (Cost Anomaly)",
+      "leakage_risk": "None (Sanction-time feature)",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "peer_iqr_deviation",
+      "description": "Robust IQR deviation of sanction amount vs fallback peer group median",
+      "source_dataset": "works_sanctioned",
+      "source_columns": [
+        "sanction_amount",
+        "state",
+        "work_type_template"
+      ],
+      "unit_of_analysis": "work",
+      "formula": "(sanction_amount - peer_median) / (peer_iqr / 1.349)",
+      "data_type": "float64",
+      "null_handling": "Computed using fallback peer hierarchy (State->National)",
+      "normalization": "Gaussian-equivalent robust scaling",
+      "used_by": "Model 1 (Cost Anomaly)",
+      "leakage_risk": "None (Sanction-time feature)",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "cost_ratio_vs_peer_median",
+      "description": "Ratio of sanctioned cost vs peer group median cost",
+      "source_dataset": "works_sanctioned",
+      "source_columns": [
+        "sanction_amount",
+        "state",
+        "work_type_template"
+      ],
+      "unit_of_analysis": "work",
+      "formula": "sanction_amount / peer_median_amount",
+      "data_type": "float64",
+      "null_handling": "Computed using fallback peer hierarchy",
+      "normalization": "Ratio scale",
+      "used_by": "Model 1 (Cost Anomaly)",
+      "leakage_risk": "None (Sanction-time feature)",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "is_data_quality_exception",
+      "description": "Boolean flag for sanction amount below 1,000 INR decimal floor exception",
+      "source_dataset": "works_sanctioned",
+      "source_columns": [
+        "sanction_amount"
+      ],
+      "unit_of_analysis": "work",
+      "formula": "0 < sanction_amount < 1000",
+      "data_type": "bool",
+      "null_handling": "False if null",
+      "normalization": "Binary flag",
+      "used_by": "Model 1 (Cost Anomaly) & DQ Routing",
+      "leakage_risk": "None",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "days_diff",
+      "description": "Absolute difference in sanction date between candidate duplicate pair",
+      "source_dataset": "works_sanctioned",
+      "source_columns": [
+        "sanction_date"
+      ],
+      "unit_of_analysis": "work_pair",
+      "formula": "abs(sanction_date_1 - sanction_date_2).days",
+      "data_type": "int64",
+      "null_handling": "Blocked within 90-day window",
+      "normalization": "Days scale",
+      "used_by": "Model 2 (Duplicate Detection)",
+      "leakage_risk": "None",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "amount_ratio",
+      "description": "Ratio of min to max sanction amount between candidate pair",
+      "source_dataset": "works_sanctioned",
+      "source_columns": [
+        "sanction_amount"
+      ],
+      "unit_of_analysis": "work_pair",
+      "formula": "min(amt1, amt2) / max(amt1, amt2)",
+      "data_type": "float64",
+      "null_handling": "0.0 if max_amt is 0",
+      "normalization": "Bounded 0 to 1",
+      "used_by": "Model 2 (Duplicate Detection)",
+      "leakage_risk": "None",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "utilization_ratio",
+      "description": "Ratio of total expenditure disbursed vs sanction amount, capped at 1.00",
+      "source_dataset": "expenditures, works_sanctioned",
+      "source_columns": [
+        "fund_disbursed_amount",
+        "sanction_amount"
+      ],
+      "unit_of_analysis": "work",
+      "formula": "min(1.00, sum(fund_disbursed) / sanction_amount)",
+      "data_type": "float64",
+      "null_handling": "0.0 if no expenditure or 0 sanction",
+      "normalization": "Bounded 0 to 1",
+      "used_by": "Model 3 (Expenditure Anomaly) & Logic 2",
+      "leakage_risk": "Post-sanction (Model 3 only)",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "payment_concentration_hhi",
+      "description": "Herfindahl Index of payment tranche amounts within a work",
+      "source_dataset": "expenditures",
+      "source_columns": [
+        "fund_disbursed_amount"
+      ],
+      "unit_of_analysis": "work",
+      "formula": "sum((tranche_amount / total_disbursed)^2)",
+      "data_type": "float64",
+      "null_handling": "0.0 if no disbursement",
+      "normalization": "Bounded 0 to 1",
+      "used_by": "Model 3 (Expenditure Anomaly)",
+      "leakage_risk": "Post-sanction (Model 3 only)",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "total_disbursed_amount_monthly",
+      "description": "Monthly aggregate expenditure sum for State x Month time series",
+      "source_dataset": "expenditures",
+      "source_columns": [
+        "fund_disbursed_amount",
+        "expenditure_date",
+        "state"
+      ],
+      "unit_of_analysis": "state_month",
+      "formula": "sum(fund_disbursed_amount) per State and Month",
+      "data_type": "float64",
+      "null_handling": "Retained as 0.0 for true zero-spend months",
+      "normalization": "INR Currency scale",
+      "used_by": "Model 4 (Expenditure Forecasting)",
+      "leakage_risk": "None (Historical time series)",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "rec_to_sanc_sla_exceeded_flag",
+      "description": "Boolean flag if recommendation to sanction duration exceeds 75 days policy SLA",
+      "source_dataset": "works_sanctioned",
+      "source_columns": [
+        "recommended_date",
+        "sanction_date"
+      ],
+      "unit_of_analysis": "work",
+      "formula": "rec_to_sanc_days > 75",
+      "data_type": "bool",
+      "null_handling": "False if missing dates",
+      "normalization": "Binary flag",
+      "used_by": "Logic 1 (Delay & SLA Logic)",
+      "leakage_risk": "None",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "entitlement_exceeded_flag",
+      "description": "Boolean flag if MP cumulative sanctioned total exceeds allocated limit",
+      "source_dataset": "mp_allocations, works_sanctioned",
+      "source_columns": [
+        "allocated_amount",
+        "sanction_amount"
+      ],
+      "unit_of_analysis": "mp",
+      "formula": "sum(sanction_amount) > allocated_amount",
+      "data_type": "bool",
+      "null_handling": "False if missing",
+      "normalization": "Binary flag",
+      "used_by": "Logic 3 (Compliance Rule Engine)",
+      "leakage_risk": "None",
+      "status": "INCLUDED"
+    },
+    {
+      "feature_name": "ida_vendor_hhi",
+      "description": "Herfindahl Index of vendor disbursement concentration within a district/IDA",
+      "source_dataset": "expenditures",
+      "source_columns": [
+        "fund_disbursed_amount",
+        "vendor_name",
+        "ida"
+      ],
+      "unit_of_analysis": "ida",
+      "formula": "sum((vendor_ida_disbursed / ida_total_disbursed)^2)",
+      "data_type": "float64",
+      "null_handling": "0.0 if no spend",
+      "normalization": "Bounded 0 to 1",
+      "used_by": "Vendor-Agency Risk Analyzer",
+      "leakage_risk": "None",
+      "status": "INCLUDED"
+    }
+  ],
+  "rejected_features": [
+    {
+      "candidate_feature": "physical_progress_percentage",
+      "status": "REJECTED",
+      "reason_rejected": "No numeric physical-progress percentage field exists in any raw or processed MPLADS dataset."
+    },
+    {
+      "candidate_feature": "intraday_payment_velocity",
+      "status": "REJECTED",
+      "reason_rejected": "Expenditure timestamps supply transaction dates only, not intraday time of day."
+    },
+    {
+      "candidate_feature": "literal_cost_overrun_amount",
+      "status": "REJECTED",
+      "reason_rejected": "Disbursement is strictly capped at sanctioned ceiling (utilization <= 1.00). Replaced by Utilization Gap and Re-sanction rules."
+    },
+    {
+      "candidate_feature": "sc_st_beneficiary_earmark_pct",
+      "status": "REJECTED",
+      "reason_rejected": "No caste or beneficiary category field exists in raw CSV datasets."
+    }
+  ],
+  "feature_quality_diagnostics": {
+    "cost_anomaly_features": {
+      "total_records": 98825,
+      "total_columns": 22,
+      "numeric_feature_diagnostics": {
+        "sanction_amount": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 2.46,
+          "max": 73500000.0,
+          "mean": 596144.4663774349,
+          "median": 358426.0,
+          "std": 1161519.4764822894,
+          "skew": 20.35113796054733
+        },
+        "sanction_amount_log": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.2412685890696329,
+          "max": 18.112795977788508,
+          "mean": 12.750741738526246,
+          "median": 12.789480292066816,
+          "std": 1.0513960763783838,
+          "skew": -0.3264134782964534
+        },
+        "rec_to_sanc_days": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 1100.0,
+          "mean": 106.57788009107007,
+          "median": 77.0,
+          "std": 98.52072054758246,
+          "skew": 1.983001970544753
+        },
+        "desc_char_len": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 500.0,
+          "mean": 90.88434100683025,
+          "median": 84.0,
+          "std": 49.01037913740539,
+          "skew": 1.9221198350929087
+        },
+        "desc_word_count": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 101.0,
+          "mean": 14.25455097394384,
+          "median": 13.0,
+          "std": 7.726610063484164,
+          "skew": 1.913945156639886
+        },
+        "peer_group_size": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 15.0,
+          "max": 98825.0,
+          "mean": 1587.9502656210473,
+          "median": 663.0,
+          "std": 3835.1234337489236,
+          "skew": 18.407848605415055
+        },
+        "peer_median_amount": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 20000.0,
+          "max": 3393546.0,
+          "mean": 444863.7186137111,
+          "median": 399960.0,
+          "std": 350684.989358682,
+          "skew": 1.9783348944768222
+        },
+        "peer_iqr_amount": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 11435075.0,
+          "mean": 328587.90686653176,
+          "median": 220015.0,
+          "std": 381444.0172266549,
+          "skew": 7.23157941181362
+        },
+        "peer_iqr_deviation": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": -8390.0,
+          "max": 216270.0,
+          "mean": 39.3350220438775,
+          "median": 0.0,
+          "std": 1547.713587027382,
+          "skew": 90.44649615674426
+        },
+        "cost_ratio_vs_peer_median": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 8.2e-06,
+          "max": 1111.732057416268,
+          "mean": 1.641193693943323,
+          "median": 1.0,
+          "std": 7.034697388435649,
+          "skew": 76.37865505304335
+        }
+      }
+    },
+    "duplicate_candidate_pairs": {
+      "total_records": 2025667,
+      "total_columns": 22,
+      "numeric_feature_diagnostics": {
+        "days_diff": {
+          "count": 2025667,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 90.0,
+          "mean": 17.720655468050772,
+          "median": 2.0,
+          "std": 25.24998619945008,
+          "skew": 1.284992737260594
+        },
+        "sanction_amount_1": {
+          "count": 2025667,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 10000.0,
+          "max": 73500000.0,
+          "mean": 219216.77773882874,
+          "median": 145000.0,
+          "std": 322778.69762345747,
+          "skew": 26.311647422932438
+        },
+        "sanction_amount_2": {
+          "count": 2025667,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 10000.0,
+          "max": 73500000.0,
+          "mean": 219062.3940761043,
+          "median": 142000.0,
+          "std": 325044.5694011361,
+          "skew": 31.468353407238524
+        },
+        "amount_diff_abs": {
+          "count": 2025667,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 18500000.0,
+          "mean": 12351.531539952024,
+          "median": 0.0,
+          "std": 52230.933987147146,
+          "skew": 42.34625924391676
+        },
+        "amount_ratio": {
+          "count": 2025667,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.7,
+          "max": 1.0,
+          "mean": 0.9739552859809998,
+          "median": 1.0,
+          "std": 0.06751899488014772,
+          "skew": -2.67979754107171
+        }
+      }
+    },
+    "expenditure_anomaly_features": {
+      "total_records": 98825,
+      "total_columns": 30,
+      "numeric_feature_diagnostics": {
+        "sanction_amount": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 2.46,
+          "max": 73500000.0,
+          "mean": 596144.4663774349,
+          "median": 358426.0,
+          "std": 1161519.4764822894,
+          "skew": 20.35113796054733
+        },
+        "total_disbursed_amount": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 71238651.0,
+          "mean": 406979.2323920061,
+          "median": 200000.0,
+          "std": 996888.8762054242,
+          "skew": 24.101944422914652
+        },
+        "transaction_count": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 191.0,
+          "mean": 1.1061067543637744,
+          "median": 1.0,
+          "std": 1.813574621551241,
+          "skew": 20.063003038210823
+        },
+        "max_single_payment": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 3000.0,
+          "max": 32562250.0,
+          "mean": 475638.5026448671,
+          "median": 299170.0,
+          "std": 712672.7422581204,
+          "skew": 11.957505421888968
+        },
+        "mean_single_payment": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 2496.0,
+          "max": 32562250.0,
+          "mean": 435213.8118535223,
+          "median": 250000.0,
+          "std": 636865.5293917534,
+          "skew": 10.85433643481348
+        },
+        "max_payment_ratio": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 0.01764,
+          "max": 1.0,
+          "mean": 0.9057164519463472,
+          "median": 1.0,
+          "std": 0.1772433047782793,
+          "skew": -1.8584814222212462
+        },
+        "vendor_count": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 1.0,
+          "max": 44.0,
+          "mean": 1.1788455121788455,
+          "median": 1.0,
+          "std": 1.1840119467566963,
+          "skew": 11.946502105978213
+        },
+        "payment_concentration_hhi": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 0.00756322991864,
+          "max": 1.0,
+          "mean": 0.8813583533950209,
+          "median": 1.0,
+          "std": 0.21066684307117867,
+          "skew": -1.513481061385481
+        },
+        "spending_window_days": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 0.0,
+          "max": 933.0,
+          "mean": 35.736250139027916,
+          "median": 0.0,
+          "std": 83.11032043756524,
+          "skew": 3.002664706934446
+        },
+        "spending_velocity_per_day": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 73.41176470588235,
+          "max": 35321457.0,
+          "mean": 370892.8315147832,
+          "median": 202016.0,
+          "std": 646602.8390759152,
+          "skew": 12.458848633611888
+        },
+        "payment_success_count": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 0.0,
+          "max": 191.0,
+          "mean": 1.4762401290179068,
+          "median": 1.0,
+          "std": 1.9607610803146456,
+          "skew": 21.0390814200375
+        },
+        "payment_inprogress_count": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 0.0,
+          "max": 32.0,
+          "mean": 0.04348793237682127,
+          "median": 0.0,
+          "std": 0.3600816813428071,
+          "skew": 34.814405570456906
+        },
+        "utilization_ratio": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "mean": 0.6865127528351904,
+          "median": 0.9993636363636363,
+          "std": 0.4362520021853319,
+          "skew": -0.8457371929657485
+        },
+        "remaining_sanction_balance": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 44000000.0,
+          "mean": 189165.2339854288,
+          "median": 250.0,
+          "std": 594898.0041423565,
+          "skew": 19.00150057246672
+        },
+        "days_to_first_disbursement": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 0.0,
+          "max": 900.0,
+          "mean": 104.39283728172617,
+          "median": 72.0,
+          "std": 107.2005032239591,
+          "skew": 1.392496282561559
+        }
+      }
+    },
+    "monthly_forecasting_series": {
+      "total_records": 1365,
+      "total_columns": 6,
+      "numeric_feature_diagnostics": {
+        "total_disbursed_amount": {
+          "count": 1365,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 555625826.0,
+          "mean": 29464998.271897435,
+          "median": 4458289.0,
+          "std": 63808945.974816024,
+          "skew": 4.143483417051774
+        },
+        "transaction_count": {
+          "count": 1365,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 1701.0,
+          "mean": 80.08131868131868,
+          "median": 7.0,
+          "std": 177.25359166400716,
+          "skew": 4.264392819411141
+        },
+        "active_works_count": {
+          "count": 1365,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 1628.0,
+          "mean": 66.03223443223443,
+          "median": 5.0,
+          "std": 152.23503153112375,
+          "skew": 5.115554386804522
+        }
+      }
+    },
+    "deterministic_logic_features": {
+      "total_records": 98825,
+      "total_columns": 18,
+      "numeric_feature_diagnostics": {
+        "sanction_amount": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 2.46,
+          "max": 73500000.0,
+          "mean": 596144.4663774349,
+          "median": 358426.0,
+          "std": 1161519.4764822894,
+          "skew": 20.35113796054733
+        },
+        "total_disbursed_amount": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 71238651.0,
+          "mean": 406979.2323920061,
+          "median": 200000.0,
+          "std": 996888.8762054242,
+          "skew": 24.101944422914652
+        },
+        "utilization_ratio": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 1.0,
+          "mean": 0.6865127528351904,
+          "median": 0.9993636363636363,
+          "std": 0.4362520021853319,
+          "skew": -0.8457371929657485
+        },
+        "rec_to_sanc_days": {
+          "count": 71928,
+          "null_count": 26897,
+          "null_pct": 27.22,
+          "min": 0.0,
+          "max": 900.0,
+          "mean": 104.39283728172617,
+          "median": 72.0,
+          "std": 107.2005032239591,
+          "skew": 1.392496282561559
+        },
+        "rec_to_sanc_sla_delay_days": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 825.0,
+          "mean": 40.22818112825702,
+          "median": 0.0,
+          "std": 78.91910204280298,
+          "skew": 2.5682585214783473
+        },
+        "days_since_sanction_snapshot": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 1157.0,
+          "mean": 349.25736402732105,
+          "median": 344.0,
+          "std": 219.9905346269714,
+          "skew": 0.6149831956573615
+        },
+        "completion_sla_delay_days": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 792.0,
+          "mean": 71.06025803187453,
+          "median": 0.0,
+          "std": 131.88367692588272,
+          "skew": 2.552295525476105
+        },
+        "utilization_gap_amount": {
+          "count": 98825,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 41678747.0,
+          "mean": 18919.95375542626,
+          "median": 0.0,
+          "std": 229607.57730729552,
+          "skew": 79.09674896441915
+        }
+      }
+    },
+    "compliance_rule_features": {
+      "total_records": 774,
+      "total_columns": 11,
+      "numeric_feature_diagnostics": {
+        "allocated_amount": {
+          "count": 774,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 327477390.86,
+          "mean": 151130691.98944446,
+          "median": 147000000.0,
+          "std": 41789171.746990375,
+          "skew": -0.22718022155618706
+        },
+        "cumulative_sanctioned_amount": {
+          "count": 774,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 220854384.0,
+          "mean": 76116249.2115633,
+          "median": 79016199.4,
+          "std": 45348846.564656876,
+          "skew": 0.32904337727279226
+        },
+        "sanctioned_works_count": {
+          "count": 774,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 1383.0,
+          "mean": 127.68087855297158,
+          "median": 91.0,
+          "std": 128.325387764438,
+          "skew": 2.4602339098906705
+        },
+        "entitlement_utilization_pct": {
+          "count": 774,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 99.9619761904762,
+          "mean": 47.25670471280916,
+          "median": 51.13172310820702,
+          "std": 24.777448802864537,
+          "skew": -0.3820106153751741
+        },
+        "entitlement_excess_amount": {
+          "count": 774,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "mean": 0.0,
+          "median": 0.0,
+          "std": 0.0,
+          "skew": 0.0
+        },
+        "calamity_consent_amount": {
+          "count": 774,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.0,
+          "max": 10000000.0,
+          "mean": 187425.58139534883,
+          "median": 0.0,
+          "std": 1225673.403616601,
+          "skew": 7.310243074444003
+        }
+      }
+    },
+    "ida_vendor_pair_features": {
+      "total_records": 30543,
+      "total_columns": 12,
+      "numeric_feature_diagnostics": {
+        "vendor_ida_transaction_count": {
+          "count": 30543,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 789.0,
+          "mean": 3.5789215204793243,
+          "median": 1.0,
+          "std": 13.67811186569359,
+          "skew": 19.82817148094256
+        },
+        "vendor_ida_total_disbursed": {
+          "count": 30543,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 4.0,
+          "max": 158392245.0,
+          "mean": 1316822.9264034312,
+          "median": 399928.0,
+          "std": 4855552.116996255,
+          "skew": 13.781758054522737
+        },
+        "distinct_works_count": {
+          "count": 30543,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 785.0,
+          "mean": 2.776151655043709,
+          "median": 1.0,
+          "std": 10.545597705336101,
+          "skew": 23.840229911509986
+        },
+        "distinct_mps_count": {
+          "count": 30543,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 7.0,
+          "mean": 1.0575581966408014,
+          "median": 1.0,
+          "std": 0.28408167779071963,
+          "skew": 6.650694409377571
+        },
+        "ida_total_disbursed": {
+          "count": 30543,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 164000.0,
+          "max": 611079504.0,
+          "mean": 71433058.21397506,
+          "median": 51601177.0,
+          "std": 65532863.776335396,
+          "skew": 2.504824584046057
+        },
+        "vendor_share_in_ida": {
+          "count": 30543,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 8.475705407533952e-08,
+          "max": 1.0,
+          "mean": 0.025046655534819762,
+          "median": 0.007002652077440992,
+          "std": 0.07072249573102327,
+          "skew": 7.87298626145166
+        },
+        "ida_vendor_hhi": {
+          "count": 30543,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.00854893245770633,
+          "max": 1.0,
+          "mean": 0.08192888381646471,
+          "median": 0.04386434588327378,
+          "std": 0.10680693516104825,
+          "skew": 3.686694453981277
+        }
+      }
+    },
+    "vendor_national_features": {
+      "total_records": 28329,
+      "total_columns": 7,
+      "numeric_feature_diagnostics": {
+        "vendor_total_disbursed_national": {
+          "count": 28329,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 58.0,
+          "max": 254451848.0,
+          "mean": 1419736.7588386459,
+          "median": 400000.0,
+          "std": 6129361.1606540615,
+          "skew": 16.81861548869161
+        },
+        "vendor_total_transactions_national": {
+          "count": 28329,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 1271.0,
+          "mean": 3.8586254368315154,
+          "median": 1.0,
+          "std": 16.94793553449735,
+          "skew": 27.350587463173984
+        },
+        "vendor_distinct_ida_count": {
+          "count": 28329,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 21.0,
+          "mean": 1.0781531293021285,
+          "median": 1.0,
+          "std": 0.466354910362256,
+          "skew": 13.363746274178625
+        },
+        "vendor_distinct_mp_count": {
+          "count": 28329,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 29.0,
+          "mean": 1.120512548978079,
+          "median": 1.0,
+          "std": 0.5631715345016783,
+          "skew": 14.343749590597053
+        },
+        "vendor_distinct_works_count": {
+          "count": 28329,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 785.0,
+          "mean": 2.993116594302658,
+          "median": 1.0,
+          "std": 12.865760953735428,
+          "skew": 24.63728081506006
+        }
+      }
+    },
+    "ida_hhi_summary": {
+      "total_records": 765,
+      "total_columns": 6,
+      "numeric_feature_diagnostics": {
+        "ida_total_disbursed": {
+          "count": 765,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 164000.0,
+          "max": 611079504.0,
+          "mean": 52574800.8380915,
+          "median": 33109962.0,
+          "std": 65053472.957503535,
+          "skew": 3.3990602989376733
+        },
+        "vendor_count_in_ida": {
+          "count": 765,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 1.0,
+          "max": 566.0,
+          "mean": 39.92549019607843,
+          "median": 21.0,
+          "std": 59.550220270089675,
+          "skew": 4.240903631994635
+        },
+        "ida_vendor_hhi": {
+          "count": 765,
+          "null_count": 0,
+          "null_pct": 0.0,
+          "min": 0.00854893245770633,
+          "max": 1.0,
+          "mean": 0.22473429994377703,
+          "median": 0.12782775811531974,
+          "std": 0.24922449896266413,
+          "skew": 1.8260734940693535
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "model_version": "1.0.0",
+  "embedding_model": "all-MiniLM-L6-v2",
+  "embedding_dim": 384,
+  "weights": {
+    "semantic_similarity": 0.65,
+    "structural_score": 0.35
+  },
+  "thresholds": {
+    "high": 0.85,
+    "review": 0.7
+  },
+  "total_pairs_scored": 2025667,
+  "review_pairs_count": 1432848,
+  "benchmark_metrics": {
+    "subset_size": 10000,
+    "unique_works_in_subset": 980,
+    "unique_descriptions_in_subset": 968,
+    "elapsed_benchmark_seconds": 18.43,
+    "peak_ram_mb": 52.55,
+    "embedding_throughput_descs_per_sec": 83.2,
+    "similarity_throughput_pairs_per_sec": 329234.4,
+    "total_candidate_pairs": 2025667,
+    "total_unique_works": 84796,
+    "total_unique_descriptions": 75620,
+    "projected_embedding_time_sec": 908.5,
+    "projected_similarity_time_sec": 6.2,
+    "projected_total_runtime_sec": 944.6,
+    "projected_embedding_memory_mb": 124.21
+  },
+  "evaluation_summary": {
+    "severity_distribution": {
+      "HIGH": 783736,
+      "REVIEW": 649112,
+      "LOW": 592819
+    },
+    "precision_at_50": {
+      "k": 50,
+      "clearly_duplicate": 49,
+      "likely_duplicate": 0,
+      "likely_legitimate": 0,
+      "unclear_generic": 1,
+      "precision_at_k_strict": 0.98,
+      "precision_at_k_broad": 0.98
+    },
+    "synthetic_test_passed": true
+  }
+}
