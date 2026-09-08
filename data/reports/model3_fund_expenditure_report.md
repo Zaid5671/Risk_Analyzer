@@ -14,7 +14,7 @@ Model 3 evaluates the financial flow and expenditure patterns of MPLADS works to
 * **Total Works Analyzed**: 98,825
 * **Active Financial Cohort (Disbursed > 0)**: 71,928 (72.8%)
 * **Zero-Disbursement Cohort**: 26,897 (27.2%)
-* **Execution Runtime**: 4.52 seconds
+* **Execution Runtime**: 4.22 seconds
 
 ## 3. Severity Distribution
 | Severity Tier | Work Count | Share % | Definition / Administrative Action |
