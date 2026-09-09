@@ -151,6 +151,6 @@
       "explanation": "Financial Anomaly Strength: 0.90 (HIGH). Key observations: High transaction fragmentation: 11 payment tranches (HHI=0.091) vs peer median of 1 tranche."
     }
   ],
-  "runtime_seconds": 4.22,
-  "timestamp": "2026-09-08T22:53:15.522900"
+  "runtime_seconds": 20.6,
+  "timestamp": "2026-09-09T21:54:40.025117"
 }

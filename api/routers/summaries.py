@@ -60,18 +60,33 @@ def get_district_summary(
     rows = db.execute(text(sql), params).fetchall()
 
 
+    from pathlib import Path
+    import pandas as pd
+
+    dup_cache = {}
+    trends_file = Path(__file__).resolve().parent.parent.parent / "data" / "model_outputs" / "trends" / "trend_quarterly_rollups.parquet"
+    if trends_file.exists():
+        try:
+            df_dup_t = pd.read_parquet(trends_file, columns=["grain_type", "state", "district", "unique_duplicate_works_count"])
+            dup_dists = df_dup_t[df_dup_t["grain_type"] == "DISTRICT"].groupby(["state", "district"])["unique_duplicate_works_count"].sum()
+            dup_cache = {(str(s).upper(), str(d).upper()): int(v) for (s, d), v in dup_dists.items()}
+        except Exception:
+            dup_cache = {}
+
     results = []
     for r in rows:
+        st, dist = r[0], r[1]
+        dup_count = dup_cache.get((str(st).upper(), str(dist).upper()), 0)
         results.append(DistrictSummaryItem(
-            state=r[0],
-            district=r[1],
+            state=st,
+            district=dist,
             total_works=r[2],
             total_sanctioned_amount=float(r[3]),
             total_disbursed_amount=float(r[4]),
             high_cost_anomalies=r[5],
             high_delays=r[6],
             high_fund_anomalies=r[7],
-            high_duplicate_pairs=0  # duplicates are pair-grain
+            high_duplicate_pairs=dup_count
         ))
     return results
 

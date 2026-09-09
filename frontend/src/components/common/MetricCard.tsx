@@ -8,6 +8,7 @@ interface MetricCardProps {
   icon?: LucideIcon;
   badge?: string;
   variant?: 'default' | 'alert' | 'warning' | 'success';
+  className?: string;
 }
 
 export const MetricCard: React.FC<MetricCardProps> = ({
@@ -17,39 +18,40 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   icon: Icon,
   badge,
   variant = 'default',
+  className = '',
 }) => {
   const borderStyles = {
-    default: 'border-slate-200 hover:border-slate-300',
-    alert: 'border-rose-300 bg-rose-50/20 hover:border-rose-400',
-    warning: 'border-amber-300 bg-amber-50/20 hover:border-amber-400',
-    success: 'border-emerald-300 bg-emerald-50/20 hover:border-emerald-400',
+    default: 'border-slate-200/90 hover:border-slate-300 bg-white',
+    alert: 'border-rose-200 bg-white hover:border-rose-300',
+    warning: 'border-amber-200 bg-white hover:border-amber-300',
+    success: 'border-emerald-200 bg-white hover:border-emerald-300',
   };
 
   const iconColors = {
-    default: 'text-slate-600 bg-slate-100',
-    alert: 'text-rose-600 bg-rose-100',
-    warning: 'text-amber-600 bg-amber-100',
-    success: 'text-emerald-600 bg-emerald-100',
+    default: 'text-slate-600 bg-slate-100 border-slate-200',
+    alert: 'text-rose-700 bg-rose-50 border-rose-200/60',
+    warning: 'text-amber-700 bg-amber-50 border-amber-200/60',
+    success: 'text-emerald-700 bg-emerald-50 border-emerald-200/60',
   };
 
   return (
-    <div className={`p-5 bg-white rounded-xl border shadow-sm transition-all ${borderStyles[variant]}`}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{title}</p>
-          <p className="mt-2 text-2xl font-bold text-slate-900">{value}</p>
+    <div className={`p-4 bg-white rounded-lg border shadow-xs transition-all ${borderStyles[variant]} ${className}`}>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 truncate">{title}</p>
+          <p className="mt-1.5 text-2xl font-bold text-slate-900 tabular-nums tracking-tight">{value}</p>
         </div>
         {Icon && (
-          <div className={`p-2.5 rounded-lg ${iconColors[variant]}`}>
-            <Icon className="w-5 h-5" />
+          <div className={`p-2 rounded-md border shrink-0 ${iconColors[variant]}`}>
+            <Icon className="w-4 h-4" />
           </div>
         )}
       </div>
       {(subtitle || badge) && (
-        <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-2.5">
-          {subtitle && <p className="text-xs text-slate-500 line-clamp-1">{subtitle}</p>}
+        <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-2">
+          {subtitle && <p className="text-[11px] text-slate-500 truncate">{subtitle}</p>}
           {badge && (
-            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-600 shrink-0">
               {badge}
             </span>
           )}

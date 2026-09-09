@@ -1,9 +1,9 @@
 import React from 'react';
-import { ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Inbox } from 'lucide-react';
 import type { PaginationMeta } from '@/types/common';
 
 export interface Column<T> {
-  header: string;
+  header: string | React.ReactNode;
   accessor?: keyof T;
   render?: (item: T) => React.ReactNode;
   className?: string;
@@ -29,13 +29,13 @@ export function DataTable<T>({
   emptyMessage = 'No records found matching criteria.',
 }: DataTableProps<T>) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-slate-200/90 shadow-xs overflow-hidden flex flex-col">
       <div className="overflow-x-auto flex-1">
-        <table className="w-full text-left border-collapse text-sm">
+        <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="bg-slate-100/75 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-600">
+            <tr className="bg-slate-50/90 border-b border-slate-200 text-[11px] font-semibold uppercase tracking-wider text-slate-600">
               {columns.map((col, idx) => (
-                <th key={idx} className={`py-3 px-4 ${col.className || ''}`}>
+                <th key={idx} className={`py-2.5 px-3.5 ${col.className || ''}`}>
                   {col.header}
                 </th>
               ))}
@@ -46,24 +46,24 @@ export function DataTable<T>({
               Array.from({ length: 6 }).map((_, rIdx) => (
                 <tr key={rIdx} className="animate-pulse">
                   {columns.map((_, cIdx) => (
-                    <td key={cIdx} className="py-3 px-4">
-                      <div className="h-4 bg-slate-200 rounded w-3/4"></div>
+                    <td key={cIdx} className="py-2.5 px-3.5">
+                      <div className="h-3.5 bg-slate-200/70 rounded w-3/4"></div>
                     </td>
                   ))}
                 </tr>
               ))
             ) : data.length === 0 ? (
               <tr>
-                <td colSpan={columns.length} className="py-12 text-center text-slate-400">
-                  <Inbox className="w-10 h-10 mx-auto mb-2 text-slate-300" />
-                  <p className="text-sm">{emptyMessage}</p>
+                <td colSpan={columns.length} className="py-10 text-center text-slate-400">
+                  <Inbox className="w-8 h-8 mx-auto mb-2 text-slate-300" />
+                  <p className="text-xs">{emptyMessage}</p>
                 </td>
               </tr>
             ) : (
               data.map((item) => (
-                <tr key={keyExtractor(item)} className="hover:bg-slate-50/80 transition-colors">
+                <tr key={keyExtractor(item)} className="hover:bg-slate-50/70 transition-colors">
                   {columns.map((col, cIdx) => (
-                    <td key={cIdx} className={`py-3 px-4 text-slate-700 ${col.className || ''}`}>
+                    <td key={cIdx} className={`py-2.5 px-3.5 text-slate-700 ${col.className || ''}`}>
                       {col.render ? col.render(item) : col.accessor ? String(item[col.accessor] ?? '—') : '—'}
                     </td>
                   ))}
@@ -75,30 +75,46 @@ export function DataTable<T>({
       </div>
 
       {pagination && (
-        <div className="py-3 px-4 border-t border-slate-200 bg-slate-50/60 flex items-center justify-between text-xs text-slate-600">
-          <div>
+        <div className="py-2.5 px-3.5 border-t border-slate-200/80 bg-slate-50/50 flex items-center justify-between text-xs text-slate-600">
+          <div className="tabular-nums">
             Showing Page <strong>{pagination.page}</strong> of <strong>{pagination.total_pages}</strong> (
             <strong>{pagination.total_records.toLocaleString()}</strong> total records)
           </div>
           <div className="flex items-center gap-1">
             <button
+              onClick={() => onPageChange?.(1)}
+              disabled={pagination.page <= 1 || isLoading}
+              className="p-1 rounded border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              title="First Page"
+            >
+              <ChevronsLeft className="w-3.5 h-3.5" />
+            </button>
+            <button
               onClick={() => onPageChange?.(pagination.page - 1)}
               disabled={!pagination.has_prev || isLoading}
-              className="p-1.5 rounded border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="p-1 rounded border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               title="Previous Page"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className="w-3.5 h-3.5" />
             </button>
-            <span className="px-2 font-medium">
+            <span className="px-2 font-medium tabular-nums text-xs">
               {pagination.page} / {pagination.total_pages || 1}
             </span>
             <button
               onClick={() => onPageChange?.(pagination.page + 1)}
               disabled={!pagination.has_next || isLoading}
-              className="p-1.5 rounded border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              className="p-1 rounded border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
               title="Next Page"
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onPageChange?.(pagination.total_pages)}
+              disabled={pagination.page >= pagination.total_pages || isLoading}
+              className="p-1 rounded border border-slate-300 bg-white hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              title="Last Page"
+            >
+              <ChevronsRight className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>

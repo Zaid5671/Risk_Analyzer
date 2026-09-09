@@ -84,13 +84,15 @@ export const analyticsService = {
   },
 
   // Summaries
-  async getDistrictSummaries(params?: { state?: string }): Promise<DistrictSummaryItem[]> {
-    const { data } = await apiClient.get<DistrictSummaryItem[]>('/analytics/district-summary', { params });
+  async getDistrictSummaries(params?: { state?: string; limit?: number }): Promise<DistrictSummaryItem[]> {
+    const queryParams = { limit: 500, ...params };
+    const { data } = await apiClient.get<DistrictSummaryItem[]>('/analytics/district-summary', { params: queryParams });
     return data;
   },
 
-  async getMPSummaries(params?: { state?: string; house?: string }): Promise<MPSummaryItem[]> {
-    const { data } = await apiClient.get<MPSummaryItem[]>('/analytics/mp-summary', { params });
+  async getMPSummaries(params?: { state?: string; house?: string; limit?: number; mp_name?: string }): Promise<MPSummaryItem[]> {
+    const queryParams = { limit: 500, ...params };
+    const { data } = await apiClient.get<MPSummaryItem[]>('/analytics/mp-summary', { params: queryParams });
     return data;
   },
 };

@@ -16,30 +16,34 @@ export const Badge: React.FC<BadgeProps> = ({
   className = '',
 }) => {
   const variantStyles: Record<BadgeVariant, string> = {
-    high: 'bg-rose-100 text-rose-800 border-rose-200',
-    medium: 'bg-amber-100 text-amber-800 border-amber-200',
-    low: 'bg-slate-100 text-slate-700 border-slate-200',
-    review: 'bg-indigo-100 text-indigo-800 border-indigo-200',
-    info: 'bg-blue-100 text-blue-800 border-blue-200',
-    success: 'bg-emerald-100 text-emerald-800 border-emerald-200',
-    neutral: 'bg-gray-100 text-gray-700 border-gray-200',
+    high: 'bg-rose-50 text-rose-700 border-rose-200/80 font-semibold',
+    medium: 'bg-amber-50 text-amber-700 border-amber-200/80 font-semibold',
+    low: 'bg-slate-50 text-slate-600 border-slate-200 font-medium',
+    review: 'bg-indigo-50 text-indigo-700 border-indigo-200/80 font-semibold',
+    info: 'bg-blue-50 text-blue-700 border-blue-200/80 font-medium',
+    success: 'bg-emerald-50 text-emerald-700 border-emerald-200/80 font-medium',
+    neutral: 'bg-slate-100 text-slate-700 border-slate-200 font-medium',
   };
 
   const sizeStyles = {
-    sm: 'px-2 py-0.5 text-xs font-semibold',
-    md: 'px-2.5 py-1 text-sm font-medium',
+    sm: 'px-2 py-0.5 text-[11px] leading-tight tracking-wide',
+    md: 'px-2.5 py-1 text-xs tracking-wide',
   };
 
   return (
     <span
-      className={`inline-flex items-center rounded-full border ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={`inline-flex items-center rounded-md border ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
     >
       {children}
     </span>
   );
 };
 
-export const SeverityBadge: React.FC<{ severity: string; prefix?: string }> = ({ severity, prefix }) => {
+export const SeverityBadge: React.FC<{ severity: string; prefix?: string; className?: string }> = ({
+  severity,
+  prefix,
+  className,
+}) => {
   const upper = severity?.toUpperCase() || 'NONE';
   let variant: BadgeVariant = 'neutral';
   let label = upper;
@@ -58,5 +62,5 @@ export const SeverityBadge: React.FC<{ severity: string; prefix?: string }> = ({
     label = prefix ? `${prefix}: REVIEW` : 'REVIEW';
   }
 
-  return <Badge variant={variant}>{label}</Badge>;
+  return <Badge variant={variant} className={className}>{label}</Badge>;
 };
