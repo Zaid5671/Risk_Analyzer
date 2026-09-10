@@ -19,11 +19,13 @@ class ExplanationGenerator:
         disbursed_amt = float(row.get("total_disbursed_amount", 0.0))
         util_ratio = float(row.get("utilization_ratio", 0.0))
         tx_cnt = int(row.get("transaction_count", 0))
+        vendor_cnt = int(row.get("vendor_count", 1))
         hhi = float(row.get("payment_concentration_hhi", 0.0))
         days_first = row.get("days_to_first_disbursement", None)
         score = float(row.get("fund_anomaly_score", 0.0))
         severity = str(row.get("severity", "LOW"))
         category = str(row.get("audit_category", "ACTIVE_EXPENDITURE"))
+        peer_median = getattr(self.config, "peer_median_tranches", 1)
 
         # Case 1: Status-Expenditure Mismatch (Late status + zero expenditure)
         if category == "STATUS_EXPENDITURE_MISMATCH":
@@ -56,7 +58,18 @@ class ExplanationGenerator:
             )
             return reasons, explanation
 
-        # Case 4: Active works checks
+        # Case 4: Healthy multi-vendor phased construction execution
+        if row.get("is_healthy_phased", False):
+            reasons.append("MULTI_VENDOR_PHASED_EXPENDITURE")
+            spending_win = int(row.get("spending_window_days", 0))
+            explanation = (
+                f"Healthy multi-vendor phased disbursement: {tx_cnt} payment tranches distributed across {vendor_cnt} vendors "
+                f"over {spending_win} days ({util_ratio*100:.1f}% utilization, Vendor HHI={hhi:.3f}). "
+                f"Phased milestone-based execution consistent with healthy construction works."
+            )
+            return reasons, explanation
+
+        # Case 5: Active works checks
         # Work Completed with low utilization (< 50%)
         if row.get("is_completed_low_util", False):
             reasons.append("LOW_UTILIZATION_COMPLETED")
@@ -72,11 +85,18 @@ class ExplanationGenerator:
                 f"Disbursement of ₹{disbursed_amt:,.2f} recorded while work status is still in '{status}' stage."
             )
 
-        # Extreme transaction count (slicing/fragmentation)
-        if tx_cnt >= 10:
+        # Extreme transaction count (voucher fragmentation / splitting)
+        frag_thresh = getattr(self.config, "fragmentation_threshold", 10)
+        is_fragmented = (
+            tx_cnt >= frag_thresh and
+            not row.get("is_healthy_phased", False) and
+            (vendor_cnt <= 2 or hhi >= 0.70 or tx_cnt >= 20)
+        )
+        if is_fragmented:
             reasons.append("EXTREME_TRANCHE_FRAGMENTATION")
             explanation_parts.append(
-                f"High transaction fragmentation: {tx_cnt} payment tranches (HHI={hhi:.3f}) vs peer median of 1 tranche."
+                f"High transaction fragmentation: {tx_cnt} payment tranches across {vendor_cnt} vendor(s) "
+                f"(Vendor HHI={hhi:.3f}) vs peer median of {peer_median} tranche."
             )
 
         # Abnormal disbursement latency (> 300 days)
@@ -103,11 +123,24 @@ class ExplanationGenerator:
 
         # Default normal explanation if no specific trigger fired
         if not reasons:
-            reasons.append("NORMAL_EXPENDITURE_PATTERN")
-            explanation = (
-                f"Disbursed ₹{disbursed_amt:,.2f} across {tx_cnt} tranche(s) ({util_ratio*100:.1f}% utilization). "
-                f"Consistent with typical MPLADS financial flow."
-            )
+            if score >= self.config.high_threshold:
+                reasons.append("MULTI_VARIATE_FINANCIAL_OUTLIER")
+                explanation = (
+                    f"Financial Anomaly Strength: {score:.2f} ({severity}). "
+                    f"Multi-variate financial outlier across disbursement timeline, tranche distribution, and fund concentration."
+                )
+            elif score >= self.config.medium_threshold:
+                reasons.append("ELEVATED_FINANCIAL_VARIANCE")
+                explanation = (
+                    f"Financial Anomaly Strength: {score:.2f} ({severity}). "
+                    f"Elevated variance in disbursement pacing and tranche concentration."
+                )
+            else:
+                reasons.append("NORMAL_EXPENDITURE_PATTERN")
+                explanation = (
+                    f"Disbursed ₹{disbursed_amt:,.2f} across {tx_cnt} tranche(s) ({util_ratio*100:.1f}% utilization). "
+                    f"Consistent with typical MPLADS financial flow."
+                )
         else:
             factors = " | ".join(explanation_parts)
             explanation = (

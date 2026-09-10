@@ -70,10 +70,20 @@ export const WorkDetail: React.FC = () => {
   }
 
   const profiles = work.independent_risk_profiles;
-  const utilization =
-    work.sanction_amount && work.amount_disbursed
-      ? Math.min(100, Math.round((work.amount_disbursed / work.sanction_amount) * 100))
+  const voucherDisbursed =
+    work.expenditures && work.expenditures.length > 0
+      ? work.expenditures.reduce((sum, e) => sum + (e.fund_disbursed_amount || 0), 0)
+      : null;
+  const effectiveDisbursed =
+    work.amount_disbursed != null
+      ? (work.amount_disbursed === 0 && voucherDisbursed && voucherDisbursed > 0 ? voucherDisbursed : work.amount_disbursed)
+      : voucherDisbursed;
+
+  const utilizationRate =
+    work.sanction_amount && effectiveDisbursed != null && work.sanction_amount > 0
+      ? (effectiveDisbursed / work.sanction_amount) * 100
       : 0;
+  const utilization = Math.min(100, Math.round(utilizationRate));
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
@@ -116,7 +126,7 @@ export const WorkDetail: React.FC = () => {
             <div className="border-l border-slate-200 pl-3">
               <p className="text-[10px] uppercase font-bold text-slate-500">Disbursed Amount</p>
               <p className="text-base font-bold text-slate-900 font-mono mt-0.5">
-                {work.amount_disbursed != null ? `₹${work.amount_disbursed.toLocaleString()}` : '₹0'}
+                {effectiveDisbursed != null ? `₹${effectiveDisbursed.toLocaleString()}` : '₹0'}
               </p>
             </div>
             <div className="border-l border-slate-200 pl-3">

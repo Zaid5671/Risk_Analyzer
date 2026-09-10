@@ -64,6 +64,23 @@ class CalibratedScorer:
         )
         df_active["is_early_high_disb"] = is_early_high_disb
 
+        # 3. Legitimate Multi-Vendor Phased Construction Adjustment
+        # Projects with high fund utilization (>= 85%), multiple vendors (>= 3),
+        # distributed payments (HHI <= 0.80), and reasonable first-disbursement latency (<= 300d)
+        # reflect standard milestone-based civil works execution, not suspicious fragmentation.
+        is_healthy_phased = (
+            (df_active["utilization_ratio"] >= self.config.phased_utilization_min) &
+            (df_active["vendor_count"] >= self.config.phased_min_vendors) &
+            (df_active["payment_concentration_hhi"] <= self.config.phased_max_hhi) &
+            (df_active["transaction_count"] >= self.config.phased_min_tranches) &
+            (df_active["days_to_first_disbursement"].fillna(0.0) <= 300)
+        )
+        df_active.loc[is_healthy_phased, "fund_anomaly_score"] = np.minimum(
+            df_active.loc[is_healthy_phased, "fund_anomaly_score"],
+            self.config.phased_max_score_cap
+        )
+        df_active["is_healthy_phased"] = is_healthy_phased
+
         df_active["severity"] = self.assign_severity(df_active["fund_anomaly_score"].values)
         df_active["audit_category"] = "ACTIVE_EXPENDITURE"
 
@@ -86,6 +103,7 @@ class CalibratedScorer:
         df_zero["audit_category"] = df_zero["zero_spend_category"]
         df_zero["is_completed_low_util"] = False
         df_zero["is_early_high_disb"] = False
+        df_zero["is_healthy_phased"] = False
 
         # Combine
         combined = pd.concat([df_active, df_zero], ignore_index=True)

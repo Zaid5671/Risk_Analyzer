@@ -49,3 +49,14 @@ class Model3Config:
     dormant_sanction_score: float = 0.55
     status_mismatch_score: float = 0.85
     low_utilization_completed_score: float = 0.75
+
+    # Phased Multi-Vendor Construction Execution Parameters
+    phased_utilization_min: float = 0.85
+    phased_min_vendors: int = 3
+    phased_max_hhi: float = 0.80
+    phased_min_tranches: int = 5
+    phased_max_score_cap: float = 0.45
+
+    # Context & Explanation Parameters
+    peer_median_tranches: int = 1
+    fragmentation_threshold: int = 10

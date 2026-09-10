@@ -321,6 +321,7 @@ def get_mp_trends(
 
 
 @router.get("/early-warnings", response_model=EarlyWarningsResponse)
+@router.get("/trends/early-warnings", response_model=EarlyWarningsResponse)
 def get_early_warnings(
     warning_type: Optional[str] = Query(None, description="Filter by warning type: SLA_SANCTION_CLIFF, STAGNATION_INCUBATION, BATCH_DUPLICATE_CLUSTER"),
     urgency_level: Optional[str] = Query(None, description="Filter by urgency: CRITICAL, WATCHLIST"),

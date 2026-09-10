@@ -3,25 +3,25 @@
   "active_works_count": 71928,
   "zero_spend_works_count": 26897,
   "severity_counts": {
-    "LOW": 91519,
-    "MEDIUM": 5569,
-    "HIGH": 1737
+    "LOW": 92469,
+    "MEDIUM": 5023,
+    "HIGH": 1333
   },
   "severity_pct": {
-    "LOW": 92.61,
-    "MEDIUM": 5.64,
-    "HIGH": 1.76
+    "LOW": 93.57,
+    "MEDIUM": 5.08,
+    "HIGH": 1.35
   },
   "active_score_percentiles": {
-    "p0": 0.0079,
-    "p25": 0.0113,
-    "p50": 0.0306,
-    "p75": 0.0814,
-    "p90": 0.2001,
-    "p95": 0.3497,
-    "p97": 0.5016,
-    "p99": 0.7136,
-    "p100": 0.9292
+    "p0": 0.0062,
+    "p25": 0.0087,
+    "p50": 0.0215,
+    "p75": 0.0525,
+    "p90": 0.1442,
+    "p95": 0.302,
+    "p97": 0.45,
+    "p99": 0.6049,
+    "p100": 0.9205
   },
   "audit_category_counts": {
     "ACTIVE_EXPENDITURE": 71928,
@@ -38,33 +38,21 @@
       "total_disbursed_amount": 7821253.0,
       "utilization_ratio": 0.15800511111111112,
       "transaction_count": 14,
-      "fund_anomaly_score": 0.9292472785018663,
+      "fund_anomaly_score": 0.92051299866291,
       "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.93 (HIGH). Key observations: High transaction fragmentation: 14 payment tranches (HHI=0.184) vs peer median of 1 tranche. | Low fund absorption: only 15.8% utilized (\u20b97,821,253.00 / \u20b949,500,000.00)."
+      "explanation": "Financial Anomaly Strength: 0.92 (HIGH). Key observations: Low fund absorption: only 15.8% utilized (\u20b97,821,253.00 / \u20b949,500,000.00)."
     },
     {
-      "work_id": "WS/MP140/2024-2025/164182",
-      "state": "Punjab",
-      "work_status": "Work partially Completed",
-      "sanction_amount": 1600000.0,
-      "total_disbursed_amount": 826634.0,
-      "utilization_ratio": 0.51664625,
-      "transaction_count": 23,
-      "fund_anomaly_score": 0.9186433192432053,
-      "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.92 (HIGH). Key observations: High transaction fragmentation: 23 payment tranches (HHI=0.060) vs peer median of 1 tranche."
-    },
-    {
-      "work_id": "WS/MP201/2025-2026/162408",
-      "state": "Uttar Pradesh",
+      "work_id": "WS/MP719/2025-2026/230890",
+      "state": "Rajasthan",
       "work_status": "Physical Inspection",
-      "sanction_amount": 19044000.0,
-      "total_disbursed_amount": 19044000.0,
-      "utilization_ratio": 1.0,
-      "transaction_count": 42,
-      "fund_anomaly_score": 0.9124823344945941,
+      "sanction_amount": 499974.0,
+      "total_disbursed_amount": 285163.0,
+      "utilization_ratio": 0.5703556584942417,
+      "transaction_count": 25,
+      "fund_anomaly_score": 0.9083246927582959,
       "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.91 (HIGH). Key observations: High transaction fragmentation: 42 payment tranches (HHI=0.034) vs peer median of 1 tranche."
+      "explanation": "Financial Anomaly Strength: 0.91 (HIGH). Key observations: High transaction fragmentation: 25 payment tranches across 25 vendor(s) (Vendor HHI=0.287) vs peer median of 1 tranche."
     },
     {
       "work_id": "WS/MP843/2025-2026/219625",
@@ -74,9 +62,9 @@
       "total_disbursed_amount": 2163133.0,
       "utilization_ratio": 0.7210443333333333,
       "transaction_count": 29,
-      "fund_anomaly_score": 0.9109521185646735,
+      "fund_anomaly_score": 0.9067420305393059,
       "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.91 (HIGH). Key observations: High transaction fragmentation: 29 payment tranches (HHI=0.056) vs peer median of 1 tranche."
+      "explanation": "Financial Anomaly Strength: 0.91 (HIGH). Key observations: High transaction fragmentation: 29 payment tranches across 11 vendor(s) (Vendor HHI=0.168) vs peer median of 1 tranche."
     },
     {
       "work_id": "WS/MP18328/2025-2026/252741",
@@ -86,21 +74,9 @@
       "total_disbursed_amount": 335094.0,
       "utilization_ratio": 0.335094,
       "transaction_count": 16,
-      "fund_anomaly_score": 0.9089434630117815,
+      "fund_anomaly_score": 0.9048548916089807,
       "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.91 (HIGH). Key observations: High transaction fragmentation: 16 payment tranches (HHI=0.106) vs peer median of 1 tranche."
-    },
-    {
-      "work_id": "WS/MP18425/2025-2026/202245",
-      "state": "Haryana",
-      "work_status": "Vendor Identification",
-      "sanction_amount": 2622000.0,
-      "total_disbursed_amount": 524025.0,
-      "utilization_ratio": 0.19985697940503433,
-      "transaction_count": 11,
-      "fund_anomaly_score": 0.9069478503874413,
-      "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.91 (HIGH). Key observations: High transaction fragmentation: 11 payment tranches (HHI=0.113) vs peer median of 1 tranche. | Delayed first payout: 348 days elapsed between sanction and initial disbursement. | Low fund absorption: only 20.0% utilized (\u20b9524,025.00 / \u20b92,622,000.00)."
+      "explanation": "Financial Anomaly Strength: 0.90 (HIGH). Multi-variate financial outlier across disbursement timeline, tranche distribution, and fund concentration."
     },
     {
       "work_id": "WS/MP18162/2025-2026/187436",
@@ -110,9 +86,33 @@
       "total_disbursed_amount": 83750.0,
       "utilization_ratio": 0.1675,
       "transaction_count": 8,
-      "fund_anomaly_score": 0.9057467438185813,
+      "fund_anomaly_score": 0.8988462994147899,
       "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.91 (HIGH). Key observations: Work marked 'Work Completed' with only 16.8% fund utilization (\u20b983,750.00 spent of \u20b9500,000.00 sanctioned). | Delayed first payout: 324 days elapsed between sanction and initial disbursement."
+      "explanation": "Financial Anomaly Strength: 0.90 (HIGH). Key observations: Work marked 'Work Completed' with only 16.8% fund utilization (\u20b983,750.00 spent of \u20b9500,000.00 sanctioned). | Delayed first payout: 324 days elapsed between sanction and initial disbursement."
+    },
+    {
+      "work_id": "WS/MP18155/2025-2026/183794",
+      "state": "Punjab",
+      "work_status": "Vendor Identification",
+      "sanction_amount": 500000.0,
+      "total_disbursed_amount": 388927.0,
+      "utilization_ratio": 0.777854,
+      "transaction_count": 13,
+      "fund_anomaly_score": 0.8963611000250041,
+      "severity": "HIGH",
+      "explanation": "Financial Anomaly Strength: 0.90 (HIGH). Multi-variate financial outlier across disbursement timeline, tranche distribution, and fund concentration."
+    },
+    {
+      "work_id": "WS/MP140/2024-2025/135348",
+      "state": "Punjab",
+      "work_status": "Vendor Identification",
+      "sanction_amount": 1100000.0,
+      "total_disbursed_amount": 895347.0,
+      "utilization_ratio": 0.8139518181818182,
+      "transaction_count": 22,
+      "fund_anomaly_score": 0.8932432407766828,
+      "severity": "HIGH",
+      "explanation": "Financial Anomaly Strength: 0.89 (HIGH). Key observations: High transaction fragmentation: 22 payment tranches across 5 vendor(s) (Vendor HHI=0.278) vs peer median of 1 tranche."
     },
     {
       "work_id": "WS/MP18328/2025-2026/252745",
@@ -122,35 +122,35 @@
       "total_disbursed_amount": 325285.0,
       "utilization_ratio": 0.325285,
       "transaction_count": 20,
-      "fund_anomaly_score": 0.9041844218079187,
+      "fund_anomaly_score": 0.8915525537932214,
       "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.90 (HIGH). Key observations: High transaction fragmentation: 20 payment tranches (HHI=0.066) vs peer median of 1 tranche."
+      "explanation": "Financial Anomaly Strength: 0.89 (HIGH). Key observations: High transaction fragmentation: 20 payment tranches across 19 vendor(s) (Vendor HHI=0.069) vs peer median of 1 tranche."
     },
     {
-      "work_id": "WS/MP507/2026-2027/290535",
-      "state": "Uttar Pradesh",
+      "work_id": "WS/MP140/2024-2025/164182",
+      "state": "Punjab",
       "work_status": "Work partially Completed",
-      "sanction_amount": 49740000.0,
-      "total_disbursed_amount": 35321457.0,
-      "utilization_ratio": 0.7101217732207479,
-      "transaction_count": 8,
-      "fund_anomaly_score": 0.9033367101055126,
+      "sanction_amount": 1600000.0,
+      "total_disbursed_amount": 826634.0,
+      "utilization_ratio": 0.51664625,
+      "transaction_count": 23,
+      "fund_anomaly_score": 0.8901329276930341,
       "severity": "HIGH",
-      "explanation": "Disbursed \u20b935,321,457.00 across 8 tranche(s) (71.0% utilization). Consistent with typical MPLADS financial flow."
+      "explanation": "Financial Anomaly Strength: 0.89 (HIGH). Key observations: High transaction fragmentation: 23 payment tranches across 5 vendor(s) (Vendor HHI=0.576) vs peer median of 1 tranche."
     },
     {
-      "work_id": "WS/MP195/2026-2027/299885",
-      "state": "Uttar Pradesh",
+      "work_id": "WS/MP18152/2024-2025/158093",
+      "state": "Punjab",
       "work_status": "Vendor Identification",
-      "sanction_amount": 15255000.0,
-      "total_disbursed_amount": 11193611.0,
-      "utilization_ratio": 0.7337666994428056,
-      "transaction_count": 11,
-      "fund_anomaly_score": 0.9022843493682495,
+      "sanction_amount": 1200000.0,
+      "total_disbursed_amount": 718382.0,
+      "utilization_ratio": 0.5986516666666667,
+      "transaction_count": 15,
+      "fund_anomaly_score": 0.8886033611359823,
       "severity": "HIGH",
-      "explanation": "Financial Anomaly Strength: 0.90 (HIGH). Key observations: High transaction fragmentation: 11 payment tranches (HHI=0.091) vs peer median of 1 tranche."
+      "explanation": "Financial Anomaly Strength: 0.89 (HIGH). Multi-variate financial outlier across disbursement timeline, tranche distribution, and fund concentration."
     }
   ],
-  "runtime_seconds": 20.6,
-  "timestamp": "2026-09-09T21:54:40.025117"
+  "runtime_seconds": 4.59,
+  "timestamp": "2026-09-10T09:53:05.606654"
 }

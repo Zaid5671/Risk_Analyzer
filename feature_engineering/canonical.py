@@ -108,6 +108,19 @@ def build_canonical_layer(
     df_comp_subset = df_comp_all[["work_id", "completion_date", "amount_disbursed", "image_url"]].drop_duplicates(subset=["work_id"])
     canonical_works = pd.merge(df_sanc_all, df_comp_subset, on="work_id", how="left", suffixes=("", "_comp"))
     
+    # Reconcile amount_disbursed with actual line-item expenditure vouchers from df_exp_all
+    # Completed works retain their certificate amount_disbursed; ongoing works populate from voucher sum.
+    # Works with zero vouchers legitimately retain NaN/None.
+    if not df_exp_all.empty and "work_id" in df_exp_all.columns:
+        exp_valid = df_exp_all[df_exp_all["work_id"].notna()].copy()
+        exp_valid["exp_amt"] = pd.to_numeric(exp_valid["fund_disbursed_amount"], errors="coerce").fillna(0.0)
+        exp_totals = exp_valid.groupby("work_id")["exp_amt"].sum().reset_index().rename(
+            columns={"exp_amt": "exp_total_disbursed"}
+        )
+        canonical_works = pd.merge(canonical_works, exp_totals, on="work_id", how="left")
+        canonical_works["amount_disbursed"] = canonical_works["amount_disbursed"].combine_first(canonical_works["exp_total_disbursed"])
+        canonical_works.drop(columns=["exp_total_disbursed"], inplace=True)
+    
     # Mark is_completed_flag
     canonical_works["is_completed_flag"] = canonical_works["completion_date"].notna()
     

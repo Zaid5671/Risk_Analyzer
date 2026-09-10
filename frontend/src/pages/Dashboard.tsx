@@ -350,121 +350,129 @@ const MinistryDashboard: React.FC = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
           {/* Model 1: Cost Anomalies */}
-          <div className="bg-white rounded-lg border border-slate-200/90 p-4 shadow-xs flex flex-col justify-between hover:border-rose-300 transition-all">
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
             <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200/80">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
                   Model 1: Cost Anomalies
                 </span>
-                <AlertTriangle className="w-4 h-4 text-rose-600" />
+                <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                </div>
               </div>
-              <div className="mt-2.5">
-                <p className="text-2xl font-black text-rose-700 tabular-nums tracking-tight">
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-rose-700 tabular-nums tracking-tight">
                   {modelCounts.costHigh.toLocaleString()}
                 </p>
-                <p className="text-[11px] font-semibold text-slate-700 mt-0.5">High Cost Outliers</p>
-                <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                  Estimates &gt;300% above historical category-district peer median.
-                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Cost Outliers</p>
               </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] text-slate-400 font-mono">Isolation Forest</span>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Isolation Forest
+              </span>
               <Link
                 to="/analytics/cost-anomalies?severity=HIGH"
-                className="text-[11px] font-bold text-rose-700 hover:text-rose-900 flex items-center gap-1"
+                className="text-xs font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
               >
-                Inspect Outliers <ArrowRight className="w-3 h-3" />
+                <span>Inspect Outliers</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
 
           {/* Model 2: Duplicate Works */}
-          <div className="bg-white rounded-lg border border-slate-200/90 p-4 shadow-xs flex flex-col justify-between hover:border-indigo-300 transition-all">
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
             <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
                   Model 2: Duplicate Works
                 </span>
-                <Copy className="w-4 h-4 text-indigo-600" />
+                <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
+                  <Copy className="w-3.5 h-3.5" />
+                </div>
               </div>
-              <div className="mt-2.5">
-                <p className="text-2xl font-black text-indigo-700 tabular-nums tracking-tight">
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-indigo-700 tabular-nums tracking-tight">
                   {modelCounts.duplicateHigh.toLocaleString()}
                 </p>
-                <p className="text-[11px] font-semibold text-slate-700 mt-0.5">Flagged Candidate Pairs</p>
-                <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                  Dense semantic text similarity with spatial-temporal proximity.
-                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">Flagged Candidate Pairs</p>
               </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] text-slate-400 font-mono">MiniLM Embeddings</span>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                MiniLM Embeddings
+              </span>
               <Link
                 to="/analytics/duplicate-works?severity=HIGH"
-                className="text-[11px] font-bold text-indigo-700 hover:text-indigo-900 flex items-center gap-1"
+                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
               >
-                Review Pairs <ArrowRight className="w-3 h-3" />
+                <span>Review Pairs</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
 
           {/* Model 3: Fund Anomalies */}
-          <div className="bg-white rounded-lg border border-slate-200/90 p-4 shadow-xs flex flex-col justify-between hover:border-amber-300 transition-all">
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
             <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/80">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
                   Model 3: Fund & Expenditure
                 </span>
-                <BadgePercent className="w-4 h-4 text-amber-600" />
+                <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
+                  <BadgePercent className="w-3.5 h-3.5" />
+                </div>
               </div>
-              <div className="mt-2.5">
-                <p className="text-2xl font-black text-amber-700 tabular-nums tracking-tight">
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-amber-700 tabular-nums tracking-tight">
                   {modelCounts.fundHigh.toLocaleString()}
                 </p>
-                <p className="text-[11px] font-semibold text-slate-700 mt-0.5">High Disbursement Flags</p>
-                <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                  Dormant sanctions (&gt;180d zero spend) and payee concentration.
-                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Disbursement Flags</p>
               </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] text-slate-400 font-mono">Vendor HHI Index</span>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Vendor HHI Index
+              </span>
               <Link
                 to="/analytics/fund-anomalies?severity=HIGH"
-                className="text-[11px] font-bold text-amber-700 hover:text-amber-900 flex items-center gap-1"
+                className="text-xs font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
               >
-                Audit Pacing <ArrowRight className="w-3 h-3" />
+                <span>Audit Pacing</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>
 
           {/* Model 4: Statutory Delays */}
-          <div className="bg-white rounded-lg border border-slate-200/90 p-4 shadow-xs flex flex-col justify-between hover:border-blue-300 transition-all">
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
             <div>
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200/80">
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
                   Model 4: Statutory Delays
                 </span>
-                <Clock className="w-4 h-4 text-blue-600" />
+                <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
+                  <Clock className="w-3.5 h-3.5" />
+                </div>
               </div>
-              <div className="mt-2.5">
-                <p className="text-2xl font-black text-blue-700 tabular-nums tracking-tight">
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-blue-700 tabular-nums tracking-tight">
                   {modelCounts.delayHigh.toLocaleString()}
                 </p>
-                <p className="text-[11px] font-semibold text-slate-700 mt-0.5">High SLA Violations</p>
-                <p className="text-[10px] text-slate-500 mt-1 leading-relaxed">
-                  Para 3.12 breaches: &gt;75d recommendation-to-sanction timeline.
-                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High SLA Violations</p>
               </div>
             </div>
-            <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] text-slate-400 font-mono">MoSPI 2023 SLA</span>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                MoSPI 2023 SLA
+              </span>
               <Link
                 to="/analytics/delays?severity=HIGH"
-                className="text-[11px] font-bold text-blue-700 hover:text-blue-900 flex items-center gap-1"
+                className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
               >
-                Triage Delays <ArrowRight className="w-3 h-3" />
+                <span>Triage Delays</span>
+                <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           </div>

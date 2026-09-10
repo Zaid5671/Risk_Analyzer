@@ -95,4 +95,37 @@ export const analyticsService = {
     const { data } = await apiClient.get<MPSummaryItem[]>('/analytics/mp-summary', { params: queryParams });
     return data;
   },
+
+  // Trend & Aggregate Analytics (Module 5)
+  async getNationalTrends(): Promise<import('@/types/trends').NationalTrendsResponse> {
+    const { data } = await apiClient.get<import('@/types/trends').NationalTrendsResponse>('/analytics/trends/national');
+    return data;
+  },
+
+  async getStateTrends(params?: { state?: string }): Promise<import('@/types/trends').StateTrendsResponse> {
+    const { data } = await apiClient.get<import('@/types/trends').StateTrendsResponse>('/analytics/trends/state', { params });
+    return data;
+  },
+
+  async getDistrictTrends(params?: { state?: string; district?: string }): Promise<import('@/types/trends').DistrictTrendsResponse> {
+    const { data } = await apiClient.get<import('@/types/trends').DistrictTrendsResponse>('/analytics/trends/district', { params });
+    return data;
+  },
+
+  async getMPTrends(params?: { mp_name?: string }): Promise<import('@/types/trends').MPTrendsResponse> {
+    const { data } = await apiClient.get<import('@/types/trends').MPTrendsResponse>('/analytics/trends/mp', { params });
+    return data;
+  },
+
+  async getEarlyWarnings(params?: {
+    urgency_level?: string;
+    warning_type?: string;
+    state?: string;
+    district?: string;
+    mp_name?: string;
+    limit?: number;
+  }): Promise<import('@/types/trends').EarlyWarningsResponse> {
+    const { data } = await apiClient.get<import('@/types/trends').EarlyWarningsResponse>('/analytics/trends/early-warnings', { params });
+    return data;
+  }
 };

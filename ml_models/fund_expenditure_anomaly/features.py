@@ -26,6 +26,13 @@ class FeatureEngineer:
         df_active = df[is_active].copy()
         df_zero = df[~is_active].copy()
 
+        if "vendor_count" in df.columns:
+            df_active["vendor_count"] = df_active["vendor_count"].fillna(1.0).astype(float)
+            df_zero["vendor_count"] = 0.0
+        else:
+            df_active["vendor_count"] = 1.0
+            df_zero["vendor_count"] = 0.0
+
         # Feature transformations for active cohort
         df_active["log_disbursed_amount"] = np.log1p(df_active["total_disbursed_amount"].astype(float))
         df_active["transaction_count_log"] = np.log1p(df_active["transaction_count"].astype(float))

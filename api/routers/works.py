@@ -132,6 +132,12 @@ def get_work_detail(
         if work_dict.get(dcol):
             work_dict[dcol] = str(work_dict[dcol])
 
+    # Defensive runtime reconciliation: if amount_disbursed is None/0 but vouchers exist, coalesce with voucher sum
+    if (work_dict.get("amount_disbursed") is None or float(work_dict.get("amount_disbursed") or 0.0) == 0.0) and exp_items:
+        voucher_total = sum(float(e.fund_disbursed_amount or 0.0) for e in exp_items)
+        if voucher_total > 0:
+            work_dict["amount_disbursed"] = voucher_total
+
     return WorkDetail(
         **work_dict,
         expenditures=exp_items,

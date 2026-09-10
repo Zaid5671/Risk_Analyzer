@@ -16,6 +16,7 @@ import { FundAnomalies } from '@/pages/FundAnomalies';
 import { StatutoryDelays } from '@/pages/StatutoryDelays';
 import { DistrictSummary } from '@/pages/DistrictSummary';
 import { MPSummary } from '@/pages/MPSummary';
+import { TrendAnalytics } from '@/pages/TrendAnalytics';
 import { AdminUsers } from '@/pages/AdminUsers';
 
 const queryClient = new QueryClient({
@@ -51,6 +52,7 @@ export const App: React.FC = () => {
                 <Route path="/analytics/delays" element={<StatutoryDelays />} />
                 <Route path="/analytics/district-summary" element={<DistrictSummary />} />
                 <Route path="/analytics/mp-summary" element={<MPSummary />} />
+                <Route path="/analytics/trends" element={<TrendAnalytics />} />
 
                 {/* Ministry Admin Only */}
                 <Route element={<ProtectedRoute allowedRoles={['MINISTRY']} />}>

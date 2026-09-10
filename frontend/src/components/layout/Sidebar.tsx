@@ -13,6 +13,7 @@ import {
   UserCog,
   ShieldCheck,
   Building2,
+  TrendingUp,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -102,6 +103,13 @@ export const Sidebar: React.FC = () => {
                 <span>Statutory Delay Tracking</span>
               </div>
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+            </NavLink>
+            <NavLink to="/analytics/trends" className={moduleNavClass}>
+              <div className="flex items-center gap-2.5">
+                <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
+                <span>Trend & Aggregate Analytics</span>
+              </div>
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500"></span>
             </NavLink>
           </div>
         </div>

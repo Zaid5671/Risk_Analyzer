@@ -56,15 +56,26 @@ def compute_expenditure_model_features(
         tot_amt
     )
     
-    # Calculate Herfindahl Index (HHI) for payment tranches per work_id
+    # Calculate Herfindahl Index (HHI) across payee vendors per work_id (SRS § 5.3)
+    exp_valid["vendor_clean"] = exp_valid["vendor_name"].fillna("UNKNOWN_VENDOR").astype(str).str.strip()
+    vendor_exp = exp_valid.groupby(["work_id", "vendor_clean"])["amount"].sum().reset_index()
+    work_vendor_tot = vendor_exp.groupby("work_id")["amount"].transform("sum")
+    vendor_exp["vendor_share"] = np.where(work_vendor_tot > 0, vendor_exp["amount"] / work_vendor_tot, 0.0)
+    vendor_exp["vendor_share_sq"] = vendor_exp["vendor_share"] ** 2
+    vendor_hhi_df = vendor_exp.groupby("work_id")["vendor_share_sq"].sum().reset_index().rename(
+        columns={"vendor_share_sq": "payment_concentration_hhi"}
+    )
+    
+    # Also calculate tranche-level HHI for auditing reference
     work_tot = exp_valid.groupby("work_id")["amount"].transform("sum")
     exp_valid["tranche_share"] = np.where(work_tot > 0, exp_valid["amount"] / work_tot, 0.0)
     exp_valid["tranche_share_sq"] = exp_valid["tranche_share"] ** 2
-    
-    hhi_df = exp_valid.groupby("work_id")["tranche_share_sq"].sum().reset_index().rename(
-        columns={"tranche_share_sq": "payment_concentration_hhi"}
+    tranche_hhi_df = exp_valid.groupby("work_id")["tranche_share_sq"].sum().reset_index().rename(
+        columns={"tranche_share_sq": "tranche_concentration_hhi"}
     )
-    exp_agg = pd.merge(exp_agg, hhi_df, on="work_id", how="left")
+    
+    exp_agg = pd.merge(exp_agg, vendor_hhi_df, on="work_id", how="left")
+    exp_agg = pd.merge(exp_agg, tranche_hhi_df, on="work_id", how="left")
     
     # Format date strings
     exp_agg["first_expenditure_date"] = first_dt.dt.strftime("%Y-%m-%d")
@@ -77,7 +88,9 @@ def compute_expenditure_model_features(
     # Fill zero expenditures for sanctioned works that have no expenditure transactions yet
     df_out["total_disbursed_amount"] = df_out["total_disbursed_amount"].fillna(0.0)
     df_out["transaction_count"] = df_out["transaction_count"].fillna(0).astype(int)
+    df_out["vendor_count"] = df_out["vendor_count"].fillna(0).astype(int)
     df_out["payment_concentration_hhi"] = df_out["payment_concentration_hhi"].fillna(0.0)
+    df_out["tranche_concentration_hhi"] = df_out["tranche_concentration_hhi"].fillna(0.0)
     
     sanc_amt = df_out["sanction_amount"].fillna(0.0)
     disb_amt = df_out["total_disbursed_amount"]
