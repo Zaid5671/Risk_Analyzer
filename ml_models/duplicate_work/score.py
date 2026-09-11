@@ -22,6 +22,12 @@ def compute_duplicate_score(df_scored: pd.DataFrame) -> pd.DataFrame:
     )
     df["duplicate_score"] = np.clip(df["duplicate_score"], 0.0, 1.0)
     
+    # Confidence penalty: If both works are in DIFFERENT constituencies AND different MPs,
+    # reduce the score by 20% — these cannot be physical duplicates
+    if "is_same_constituency" in df.columns and "is_same_mp" in df.columns:
+        different_location = (~df["is_same_constituency"].astype(bool)) & (~df["is_same_mp"].astype(bool))
+        df.loc[different_location, "duplicate_score"] *= 0.80
+    
     # Assign screening category
     score = df["duplicate_score"].values
     conf = df["confidence"].values

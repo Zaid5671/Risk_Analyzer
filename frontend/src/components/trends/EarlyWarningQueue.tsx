@@ -105,15 +105,27 @@ export const EarlyWarningQueue: React.FC<EarlyWarningQueueProps> = ({
           </button>
 
           <button
-            onClick={() => onSelectWarningType('SLA_SANCTION_CLIFF')}
+            onClick={() => onSelectWarningType('SLA_NEAR_MISS')}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
-              warningTypeFilter === 'SLA_SANCTION_CLIFF'
+              warningTypeFilter === 'SLA_NEAR_MISS' || warningTypeFilter === 'SLA_SANCTION_CLIFF'
                 ? 'bg-blue-600 text-white font-semibold'
                 : 'bg-slate-800/60 text-slate-400 hover:text-slate-200'
             }`}
           >
             <Clock className="w-3.5 h-3.5 text-blue-400" />
-            <span>SLA Sanction Cliff (45–74d Countdown)</span>
+            <span>SLA Near Miss (45–74d Window)</span>
+          </button>
+
+          <button
+            onClick={() => onSelectWarningType('APPROACHING_DORMANCY')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium transition-all ${
+              warningTypeFilter === 'APPROACHING_DORMANCY'
+                ? 'bg-rose-600 text-white font-semibold'
+                : 'bg-slate-800/60 text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
+            <span>Approaching Dormancy (270–364d ₹0 Spend)</span>
           </button>
 
           <button
@@ -191,7 +203,8 @@ export const EarlyWarningQueue: React.FC<EarlyWarningQueueProps> = ({
                     <td className="py-2.5 px-3">
                       <div className="flex flex-col gap-0.5">
                         <span className="font-semibold text-slate-200">
-                          {alert.warning_type === 'SLA_SANCTION_CLIFF' && 'SLA Sanction Cliff'}
+                          {(alert.warning_type === 'SLA_NEAR_MISS' || alert.warning_type === 'SLA_SANCTION_CLIFF') && 'SLA Near Miss'}
+                          {alert.warning_type === 'APPROACHING_DORMANCY' && 'Approaching Dormancy'}
                           {alert.warning_type === 'STAGNATION_INCUBATION' && 'Stagnation Incubation'}
                           {alert.warning_type === 'BATCH_DUPLICATE_CLUSTER' && 'Batch Duplicate Cluster'}
                         </span>
@@ -218,7 +231,7 @@ export const EarlyWarningQueue: React.FC<EarlyWarningQueueProps> = ({
 
                     {/* Breach Countdown */}
                     <td className="py-2.5 px-3 text-center">
-                      {alert.warning_type === 'SLA_SANCTION_CLIFF' ? (
+                      {(alert.warning_type === 'SLA_NEAR_MISS' || alert.warning_type === 'SLA_SANCTION_CLIFF') ? (
                         <div className="inline-flex flex-col items-center">
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
@@ -231,6 +244,21 @@ export const EarlyWarningQueue: React.FC<EarlyWarningQueueProps> = ({
                           </span>
                           <span className="text-[9px] text-slate-400 mt-0.5 font-mono">
                             {alert.days_elapsed}d elapsed (of 75d)
+                          </span>
+                        </div>
+                      ) : alert.warning_type === 'APPROACHING_DORMANCY' ? (
+                        <div className="inline-flex flex-col items-center">
+                          <span
+                            className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                              alert.days_to_statutory_breach !== null && alert.days_to_statutory_breach <= 35
+                                ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40'
+                                : 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                            }`}
+                          >
+                            {alert.days_to_statutory_breach}d to lapse
+                          </span>
+                          <span className="text-[9px] text-slate-400 mt-0.5 font-mono">
+                            {alert.days_elapsed}d elapsed (of 365d)
                           </span>
                         </div>
                       ) : (

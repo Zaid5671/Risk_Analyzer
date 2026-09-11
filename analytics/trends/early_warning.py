@@ -16,13 +16,13 @@ import numpy as np
 FIXED_REFERENCE_DATE = pd.to_datetime("2026-09-05")
 
 
-def generate_sla_cliff_alerts(
+def generate_sla_near_miss_alerts(
     df_works: pd.DataFrame,
     ref_date: pd.Timestamp = FIXED_REFERENCE_DATE
 ) -> List[Dict[str, Any]]:
     """
-    Statutory Early-Warning: Identifies works recommended between 45 and 74 days ago
-    that have not yet been sanctioned.
+    Statutory Early-Warning: Identifies works sanctioned between 45 and 74 days after recommendation,
+    barely complying before the 75-day statutory SLA (retrospective near-miss analysis).
     Official Basis: MPLADS Guidelines Para 3.12 (75-day sanction SLA, 45-day rejection deadline).
     """
     alerts = []
@@ -49,12 +49,66 @@ def generate_sla_cliff_alerts(
             "mp_name": str(row.get("mp_name", "N/A")),
             "sanction_amount": float(row.get("sanction_amount", 0.0) or 0.0),
             "work_type_template": str(row.get("work_type_template", "N/A")),
-            "warning_type": "SLA_SANCTION_CLIFF",
+            "warning_type": "SLA_NEAR_MISS",
             "paradigm": "STATUTORY",
             "days_elapsed": elapsed,
             "days_to_statutory_breach": days_rem,
             "urgency_level": urgency,
-            "action_recommended": f"Expedite administrative sanction before 75-day statutory SLA expires ({days_rem} days remaining)."
+            "action_recommended": f"District Authority sanctioned this work at day {elapsed} of 75-day SLA. Pattern indicates systemic near-deadline processing — recommend capacity review."
+        })
+
+    return alerts
+
+
+# Backward compatibility alias
+generate_sla_cliff_alerts = generate_sla_near_miss_alerts
+
+
+def generate_approaching_dormancy_alerts(
+    df_consolidated: pd.DataFrame,
+    ref_date: pd.Timestamp = FIXED_REFERENCE_DATE
+) -> List[Dict[str, Any]]:
+    """
+    Predictive Forward-Looking Early-Warning: Identifies open/incomplete works
+    sanctioned between 270 and 364 days ago with zero fund disbursement.
+    Official Basis: MPLADS Guidelines statutory 1-year (365-day) completion limit.
+    Works at 270+ days with zero disbursement are on the brink of statutory dormancy.
+    """
+    alerts = []
+    sanc_dt = pd.to_datetime(df_consolidated["sanction_date"], errors="coerce")
+    aging_days = (ref_date - sanc_dt).dt.days
+
+    disbursed = df_consolidated["amount_disbursed"].fillna(0)
+    status = df_consolidated["work_status"].fillna("")
+
+    # Incomplete works with zero disbursement aged 270-364 days
+    mask = (
+        (disbursed == 0) &
+        (aging_days >= 270) &
+        (aging_days <= 364) &
+        (status != "Work Completed")
+    )
+
+    dormancy_df = df_consolidated[mask]
+
+    for idx, row in dormancy_df.iterrows():
+        elapsed = int(aging_days.loc[idx])
+        days_to_dormant = max(1, 365 - elapsed)
+        urgency = "CRITICAL" if elapsed >= 330 else "WATCHLIST"
+
+        alerts.append({
+            "work_id": str(row["work_id"]),
+            "state": str(row["state"]),
+            "district": str(row["district"]),
+            "mp_name": str(row.get("mp_name", "N/A")),
+            "sanction_amount": float(row.get("sanction_amount", 0.0) or 0.0),
+            "work_type_template": str(row.get("work_type_template", "N/A")),
+            "warning_type": "APPROACHING_DORMANCY",
+            "paradigm": "PREDICTIVE",
+            "days_elapsed": elapsed,
+            "days_to_statutory_breach": days_to_dormant,
+            "urgency_level": urgency,
+            "action_recommended": f"Sanctioned {elapsed} days ago with zero disbursement ({days_to_dormant} days until statutory 1-year dormancy limit). Immediate intervention required to prevent statutory lapse."
         })
 
     return alerts
@@ -163,11 +217,12 @@ def compile_all_early_warnings(
     ref_date: pd.Timestamp = FIXED_REFERENCE_DATE
 ) -> List[Dict[str, Any]]:
     """
-    Compiles all early warning alerts across the three distinct paradigms.
+    Compiles all early warning alerts across statutory, predictive, and statistical paradigms.
     """
-    alerts_sla = generate_sla_cliff_alerts(df_consolidated, ref_date)
+    alerts_sla = generate_sla_near_miss_alerts(df_consolidated, ref_date)
+    alerts_dormancy = generate_approaching_dormancy_alerts(df_consolidated, ref_date)
     alerts_stagnation = generate_stagnation_incubation_alerts(df_consolidated, ref_date)
     alerts_batch = generate_batch_duplicate_cluster_alerts(df_dup, df_consolidated)
 
-    all_alerts = alerts_sla + alerts_stagnation + alerts_batch
+    all_alerts = alerts_sla + alerts_dormancy + alerts_stagnation + alerts_batch
     return all_alerts

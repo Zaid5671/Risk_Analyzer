@@ -1,4 +1,6 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
+from pathlib import Path
+import pandas as pd
 from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text
@@ -7,6 +9,25 @@ from api.auth import CurrentUser
 from api.schemas.summaries import DistrictSummaryItem, MPSummaryItem
 
 router = APIRouter(prefix="/analytics", tags=["Aggregations & Governance Summaries"])
+
+TRENDS_FILE = Path(__file__).resolve().parent.parent.parent / "data" / "model_outputs" / "trends" / "trend_quarterly_rollups.parquet"
+_DUP_CACHE: Optional[Dict] = None
+
+
+def get_duplicate_district_cache() -> Dict:
+    global _DUP_CACHE
+    if _DUP_CACHE is not None:
+        return _DUP_CACHE
+    if TRENDS_FILE.exists():
+        try:
+            df_dup_t = pd.read_parquet(TRENDS_FILE, columns=["grain_type", "state", "district", "unique_duplicate_works_count"])
+            dup_dists = df_dup_t[df_dup_t["grain_type"] == "DISTRICT"].groupby(["state", "district"])["unique_duplicate_works_count"].sum()
+            _DUP_CACHE = {(str(s).upper(), str(d).upper()): int(v) for (s, d), v in dup_dists.items()}
+        except Exception:
+            _DUP_CACHE = {}
+    else:
+        _DUP_CACHE = {}
+    return _DUP_CACHE
 
 @router.get("/district-summary", response_model=List[DistrictSummaryItem])
 def get_district_summary(
@@ -60,18 +81,7 @@ def get_district_summary(
     rows = db.execute(text(sql), params).fetchall()
 
 
-    from pathlib import Path
-    import pandas as pd
-
-    dup_cache = {}
-    trends_file = Path(__file__).resolve().parent.parent.parent / "data" / "model_outputs" / "trends" / "trend_quarterly_rollups.parquet"
-    if trends_file.exists():
-        try:
-            df_dup_t = pd.read_parquet(trends_file, columns=["grain_type", "state", "district", "unique_duplicate_works_count"])
-            dup_dists = df_dup_t[df_dup_t["grain_type"] == "DISTRICT"].groupby(["state", "district"])["unique_duplicate_works_count"].sum()
-            dup_cache = {(str(s).upper(), str(d).upper()): int(v) for (s, d), v in dup_dists.items()}
-        except Exception:
-            dup_cache = {}
+    dup_cache = get_duplicate_district_cache()
 
     results = []
     for r in rows:

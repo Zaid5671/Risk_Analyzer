@@ -4,6 +4,7 @@ from api.schemas.cost_anomaly import CostAnomalyItem
 from api.schemas.fund_anomaly import FundAnomalyItem
 from api.schemas.delay import DelayItem
 from api.schemas.duplicate_work import DuplicatePairItem
+from api.schemas.prediction import DelayPredictionItem
 
 class WorkExpenditureItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -41,6 +42,7 @@ class IndependentModelProfiles(BaseModel):
     duplicate_pairs: List[DuplicatePairItem] = []
     fund_anomaly: Optional[FundAnomalyItem] = None
     delay: Optional[DelayItem] = None
+    delay_prediction: Optional[DelayPredictionItem] = None
 
 class WorkDetail(WorkListItem):
     expenditures: List[WorkExpenditureItem] = []

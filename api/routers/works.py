@@ -3,7 +3,7 @@ import math
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import text, or_
-from database.models import Work, WorkExpenditure, CostAnomalyResult, FundExpenditureResult, DelayResult, DuplicateWorkResult
+from database.models import Work, WorkExpenditure, CostAnomalyResult, FundExpenditureResult, DelayResult, DuplicateWorkResult, DelayPredictionResult
 from api.dependencies import get_db, PaginationParams
 from api.auth import CurrentUser, apply_jurisdiction_scope, verify_work_jurisdiction
 from api.schemas.works import WorkListItem, WorkDetail, WorkExpenditureItem, IndependentModelProfiles
@@ -12,6 +12,7 @@ from api.schemas.cost_anomaly import CostAnomalyItem
 from api.schemas.fund_anomaly import FundAnomalyItem
 from api.schemas.delay import DelayItem
 from api.schemas.duplicate_work import DuplicatePairItem
+from api.schemas.prediction import DelayPredictionItem
 
 router = APIRouter(prefix="/works", tags=["Works Master Registry"])
 
@@ -127,6 +128,10 @@ def get_work_detail(
     delay_res = db.query(DelayResult).filter(DelayResult.work_id == work_id.strip()).first()
     delay_item = DelayItem.model_validate(delay_res) if delay_res else None
 
+    # Model 5: Predictive Delay Risk
+    pred_res = db.query(DelayPredictionResult).filter(DelayPredictionResult.work_id == work_id.strip()).first()
+    pred_item = DelayPredictionItem.model_validate(pred_res) if pred_res else None
+
     work_dict = {c.name: getattr(work, c.name) for c in work.__table__.columns}
     for dcol in ["sanction_date", "recommended_date", "completion_date"]:
         if work_dict.get(dcol):
@@ -145,6 +150,7 @@ def get_work_detail(
             cost_anomaly=cost_item,
             duplicate_pairs=dup_items,
             fund_anomaly=fund_item,
-            delay=delay_item
+            delay=delay_item,
+            delay_prediction=pred_item
         )
     )

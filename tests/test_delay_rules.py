@@ -156,9 +156,11 @@ def test_negative_and_missing_date_handling(config):
     rec_days, rec_del, rec_sev, _ = engine.evaluate_recommendation_delay(corrupt_data)
     comp_days, comp_del, comp_sev, _ = engine.evaluate_completion_delay(corrupt_data)
 
-    # Negative days handled gracefully without exception
+    # Negative days handled as DATA_QUALITY_EXCEPTION with score 0.90
     assert rec_del[0] == 0
-    assert rec_sev[0] == "NONE"
+    assert rec_sev[0] == "DATA_QUALITY_EXCEPTION"
+    _, _, _, rec_score = engine.evaluate_recommendation_delay(corrupt_data)
+    assert rec_score[0] == 0.90
 
 
 def test_severity_hierarchy_and_scores(config, sample_test_works):
@@ -217,7 +219,7 @@ def test_full_pipeline_contract_and_determinism(config):
         assert c in scored_df.columns
 
     # 3. Severity only contains valid tiers
-    valid_tiers = {"NONE", "LOW", "MEDIUM", "HIGH"}
+    valid_tiers = {"NONE", "LOW", "MEDIUM", "HIGH", "DATA_QUALITY_EXCEPTION"}
     assert set(scored_df["severity"].unique()).issubset(valid_tiers)
 
     # 4. Scores bounded in [0.0, 1.0]
@@ -228,3 +230,34 @@ def test_full_pipeline_contract_and_determinism(config):
     # 5. Output files exist
     assert config.scores_output_path.exists()
     assert config.report_output_path.exists()
+
+
+def test_negative_delay_rule_and_explanation(config):
+    """Verifies that negative delay triggers DATA_QUALITY_EXCEPTION with score 0.90 and correct narrative."""
+    corrupt_df = pd.DataFrame({
+        "work_id": ["WS/NEG/001"],
+        "house": ["Lok Sabha"],
+        "state": ["Delhi"],
+        "district": ["New Delhi"],
+        "ida": ["IDA_1"],
+        "mp_name": ["MP Test"],
+        "work_status": ["Work Completed"],
+        "sanction_amount": [500000.0],
+        "recommended_date": ["2025-06-01"],
+        "sanction_date": ["2025-05-15"],  # 17 days before recommendation
+        "completion_date": ["2025-08-01"],
+        "is_completed_flag": [True]
+    })
+    scorer = DelayScorer(config)
+    scored = scorer.compute_all_scores(corrupt_df)
+    
+    assert scored.loc[0, "rec_to_sanc_severity"] == "DATA_QUALITY_EXCEPTION"
+    assert scored.loc[0, "severity"] == "DATA_QUALITY_EXCEPTION"
+    assert scored.loc[0, "rec_to_sanc_score"] == 0.90
+    assert scored.loc[0, "delay_score"] >= 0.90
+    
+    explainer = DelayExplanationGenerator(config)
+    narrative = explainer.generate_explanation(scored.iloc[0])
+    assert "Sanction date precedes recommendation date by 17 days" in narrative
+    assert "possible data entry error or backdated sanction requiring audit" in narrative
+

@@ -9,7 +9,7 @@ import type { CostAnomalyItem } from '@/types/cost_anomaly';
 import type { DuplicatePairItem } from '@/types/duplicate_work';
 import type { FundAnomalyItem } from '@/types/fund_anomaly';
 import type { DelayItem } from '@/types/delay';
-import type { DistrictSummaryItem } from '@/types/summaries';
+import type { DistrictSummaryItem, MPSummaryItem } from '@/types/summaries';
 import { MetricCard } from '@/components/common/MetricCard';
 import { SeverityBadge, Badge } from '@/components/common/Badge';
 import {
@@ -353,7 +353,7 @@ const MinistryDashboard: React.FC = () => {
           <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
             <div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
                   Model 1: Cost Anomalies
                 </span>
                 <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
@@ -385,7 +385,7 @@ const MinistryDashboard: React.FC = () => {
           <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
             <div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
                   Model 2: Duplicate Works
                 </span>
                 <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
@@ -417,7 +417,7 @@ const MinistryDashboard: React.FC = () => {
           <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
             <div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
                   Model 3: Fund & Expenditure
                 </span>
                 <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
@@ -449,7 +449,7 @@ const MinistryDashboard: React.FC = () => {
           <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
             <div>
               <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
                   Model 4: Statutory Delays
                 </span>
                 <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
@@ -817,7 +817,13 @@ const StateDashboard: React.FC<{ stateName: string }> = ({ stateName }) => {
 
   const stateWorks = districts.reduce((acc, d) => acc + d.total_works, 0);
   const stateOutlay = districts.reduce((acc, d) => acc + d.total_sanctioned_amount, 0);
-  const stateHighDelays = districts.reduce((acc, d) => acc + d.high_delays, 0);
+  const stateDisbursed = districts.reduce((acc, d) => acc + (d.total_disbursed_amount || 0), 0);
+  const stateUtilization = stateOutlay > 0 ? ((stateDisbursed / stateOutlay) * 100).toFixed(1) : '0.0';
+
+  const stateHighCost = districts.reduce((acc, d) => acc + (d.high_cost_anomalies || 0), 0);
+  const stateHighDuplicates = districts.reduce((acc, d) => acc + (d.high_duplicate_pairs || 0), 0);
+  const stateHighFund = districts.reduce((acc, d) => acc + (d.high_fund_anomalies || 0), 0);
+  const stateHighDelays = districts.reduce((acc, d) => acc + (d.high_delays || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -839,8 +845,8 @@ const StateDashboard: React.FC<{ stateName: string }> = ({ stateName }) => {
         </span>
       </div>
 
-      {/* State KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+      {/* SECTION 1: State Macro Portfolio KPI Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <MetricCard
           title="State Sanctioned Works"
           value={stateWorks.toLocaleString()}
@@ -848,18 +854,168 @@ const StateDashboard: React.FC<{ stateName: string }> = ({ stateName }) => {
           icon={FolderKanban}
         />
         <MetricCard
-          title="Sanction Outlay"
+          title="State Sanctioned Outlay"
           value={`₹${(stateOutlay / 1e7).toFixed(1)} Cr`}
           subtitle="Allocated State Outlay"
           icon={TrendingUp}
         />
         <MetricCard
-          title="HIGH Statutory Delays"
-          value={stateHighDelays}
-          subtitle="75d Sanction SLA Breaches"
-          icon={Clock}
-          variant="alert"
+          title="Cumulative Disbursed Capital"
+          value={`₹${(stateDisbursed / 1e7).toFixed(1)} Cr`}
+          subtitle="Reconciled Bank Vouchers"
+          icon={Landmark}
         />
+        <MetricCard
+          title="State Fund Utilization"
+          value={`${stateUtilization}%`}
+          subtitle="Capital Disbursed / Sanctioned"
+          icon={CheckCircle}
+          variant="success"
+        />
+      </div>
+
+      {/* SECTION 2: Four Independent Module Summary Cards */}
+      <div>
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Independent Analytical Surveillance (4 Modules)
+            </h2>
+            <span className="text-[10px] text-slate-500">
+              Decoupled algorithmic pipelines • No synthetic blended scores
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Model 1: Cost Anomalies */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
+                  Model 1: Cost Anomalies
+                </span>
+                <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-rose-700 tabular-nums tracking-tight">
+                  {stateHighCost.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Cost Outliers</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Isolation Forest
+              </span>
+              <Link
+                to={`/analytics/cost-anomalies?severity=HIGH&state=${encodeURIComponent(stateName)}`}
+                className="text-xs font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Inspect Outliers</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 2: Duplicate Works */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                  Model 2: Duplicate Works
+                </span>
+                <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
+                  <Copy className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-indigo-700 tabular-nums tracking-tight">
+                  {stateHighDuplicates.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">Flagged Candidate Pairs</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                MiniLM Embeddings
+              </span>
+              <Link
+                to="/analytics/duplicate-works?severity=HIGH"
+                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Review Pairs</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 3: Fund Anomalies */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
+                  Model 3: Fund & Expenditure
+                </span>
+                <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
+                  <BadgePercent className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-amber-700 tabular-nums tracking-tight">
+                  {stateHighFund.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Disbursement Flags</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Vendor HHI Index
+              </span>
+              <Link
+                to={`/analytics/fund-anomalies?severity=HIGH&state=${encodeURIComponent(stateName)}`}
+                className="text-xs font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Audit Pacing</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 4: Statutory Delays */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
+                  Model 4: Statutory Delays
+                </span>
+                <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
+                  <Clock className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-blue-700 tabular-nums tracking-tight">
+                  {stateHighDelays.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High SLA Violations</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                MoSPI 2023 SLA
+              </span>
+              <Link
+                to={`/analytics/delays?severity=HIGH&state=${encodeURIComponent(stateName)}`}
+                className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Triage Delays</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Inter-District Table */}
@@ -917,6 +1073,7 @@ const StateDashboard: React.FC<{ stateName: string }> = ({ stateName }) => {
  * ------------------------------------------------------------- */
 const DistrictDashboard: React.FC<{ districtName: string; stateName: string }> = ({ districtName, stateName }) => {
   const [activeTab, setActiveTab] = useState<'cost' | 'duplicates' | 'funds' | 'delays'>('cost');
+  const [districtSummary, setDistrictSummary] = useState<DistrictSummaryItem | null>(null);
   const [costAnomalies, setCostAnomalies] = useState<CostAnomalyItem[]>([]);
   const [duplicatePairs, setDuplicatePairs] = useState<DuplicatePairItem[]>([]);
   const [fundAnomalies, setFundAnomalies] = useState<FundAnomalyItem[]>([]);
@@ -926,18 +1083,35 @@ const DistrictDashboard: React.FC<{ districtName: string; stateName: string }> =
   useEffect(() => {
     setLoading(true);
     Promise.allSettled([
-      analyticsService.getCostAnomalies({ severity: 'HIGH', page: 1, page_size: 10 }),
+      analyticsService.getDistrictSummaries({ state: stateName }),
+      analyticsService.getCostAnomalies({ severity: 'HIGH', district: districtName, state: stateName, page: 1, page_size: 10 }),
       analyticsService.getDuplicateWorks({ severity: 'HIGH', page: 1, page_size: 10 }),
-      analyticsService.getFundAnomalies({ severity: 'HIGH', page: 1, page_size: 10 }),
-      analyticsService.getDelays({ severity: 'HIGH', page: 1, page_size: 10 }),
-    ]).then(([resC, resD, resF, resL]) => {
+      analyticsService.getFundAnomalies({ severity: 'HIGH', district: districtName, state: stateName, page: 1, page_size: 10 }),
+      analyticsService.getDelays({ severity: 'HIGH', district: districtName, state: stateName, page: 1, page_size: 10 }),
+    ]).then(([resDist, resC, resD, resF, resL]) => {
+      if (resDist.status === 'fulfilled') {
+        const match = resDist.value.find(
+          (d) => d.district.trim().toUpperCase() === districtName.trim().toUpperCase()
+        );
+        setDistrictSummary(match || null);
+      }
       if (resC.status === 'fulfilled') setCostAnomalies(resC.value.items);
       if (resD.status === 'fulfilled') setDuplicatePairs(resD.value.items);
       if (resF.status === 'fulfilled') setFundAnomalies(resF.value.items);
       if (resL.status === 'fulfilled') setDelays(resL.value.items);
       setLoading(false);
     });
-  }, [districtName]);
+  }, [districtName, stateName]);
+
+  const districtWorks = districtSummary?.total_works || 0;
+  const districtOutlay = districtSummary?.total_sanctioned_amount || 0;
+  const districtDisbursed = districtSummary?.total_disbursed_amount || 0;
+  const districtUtilization = districtOutlay > 0 ? ((districtDisbursed / districtOutlay) * 100).toFixed(1) : '0.0';
+
+  const districtHighCost = districtSummary?.high_cost_anomalies ?? costAnomalies.length;
+  const districtHighDuplicates = districtSummary?.high_duplicate_pairs ?? duplicatePairs.length;
+  const districtHighFund = districtSummary?.high_fund_anomalies ?? fundAnomalies.length;
+  const districtHighDelays = districtSummary?.high_delays ?? delays.length;
 
   return (
     <div className="space-y-6">
@@ -961,162 +1135,346 @@ const DistrictDashboard: React.FC<{ districtName: string; stateName: string }> =
         </span>
       </div>
 
-      {/* 4 Operational Queue Counters */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <button
-          onClick={() => setActiveTab('cost')}
-          className={`p-3 rounded-lg border text-left transition-all ${
-            activeTab === 'cost' ? 'bg-rose-50 border-rose-400 ring-2 ring-rose-200' : 'bg-white border-slate-200'
-          }`}
-        >
-          <span className="text-[10px] uppercase font-bold text-slate-500">High Cost Queue</span>
-          <p className="text-xl font-extrabold text-rose-700 font-mono tabular-nums mt-1">{costAnomalies.length}</p>
-          <span className="text-[10px] text-slate-400">Peer median outliers</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('duplicates')}
-          className={`p-3 rounded-lg border text-left transition-all ${
-            activeTab === 'duplicates'
-              ? 'bg-indigo-50 border-indigo-400 ring-2 ring-indigo-200'
-              : 'bg-white border-slate-200'
-          }`}
-        >
-          <span className="text-[10px] uppercase font-bold text-slate-500">Duplicate Queue</span>
-          <p className="text-xl font-extrabold text-indigo-700 font-mono tabular-nums mt-1">
-            {duplicatePairs.length}
-          </p>
-          <span className="text-[10px] text-slate-400">Candidate pairs</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('funds')}
-          className={`p-3 rounded-lg border text-left transition-all ${
-            activeTab === 'funds' ? 'bg-amber-50 border-amber-400 ring-2 ring-amber-200' : 'bg-white border-slate-200'
-          }`}
-        >
-          <span className="text-[10px] uppercase font-bold text-slate-500">Fund Anomaly Queue</span>
-          <p className="text-xl font-extrabold text-amber-700 font-mono tabular-nums mt-1">
-            {fundAnomalies.length}
-          </p>
-          <span className="text-[10px] text-slate-400">Disbursement flags</span>
-        </button>
-
-        <button
-          onClick={() => setActiveTab('delays')}
-          className={`p-3 rounded-lg border text-left transition-all ${
-            activeTab === 'delays' ? 'bg-blue-50 border-blue-400 ring-2 ring-blue-200' : 'bg-white border-slate-200'
-          }`}
-        >
-          <span className="text-[10px] uppercase font-bold text-slate-500">Statutory Delays</span>
-          <p className="text-xl font-extrabold text-blue-700 font-mono tabular-nums mt-1">{delays.length}</p>
-          <span className="text-[10px] text-slate-400">Overdue SLA items</span>
-        </button>
+      {/* SECTION 1: District Macro Portfolio KPI Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <MetricCard
+          title="District Sanctioned Works"
+          value={districtWorks.toLocaleString()}
+          subtitle={`Sanctioned in ${districtName}, ${stateName}`}
+          icon={FolderKanban}
+        />
+        <MetricCard
+          title="District Sanctioned Outlay"
+          value={`₹${(districtOutlay / 1e7).toFixed(1)} Cr`}
+          subtitle="Allocated District Outlay"
+          icon={TrendingUp}
+        />
+        <MetricCard
+          title="Cumulative Disbursed Capital"
+          value={`₹${(districtDisbursed / 1e7).toFixed(1)} Cr`}
+          subtitle="Reconciled Bank Vouchers"
+          icon={Landmark}
+        />
+        <MetricCard
+          title="District Fund Utilization"
+          value={`${districtUtilization}%`}
+          subtitle="Capital Disbursed / Sanctioned"
+          icon={CheckCircle}
+          variant="success"
+        />
       </div>
 
-      {/* Active Operational Review Queue Table */}
+      {/* SECTION 2: Four Independent Module Summary Cards */}
+      <div>
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Independent Analytical Surveillance (4 Modules)
+            </h2>
+            <span className="text-[10px] text-slate-500">
+              Decoupled algorithmic pipelines • No synthetic blended scores
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Model 1: Cost Anomalies */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
+                  Model 1: Cost Anomalies
+                </span>
+                <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-rose-700 tabular-nums tracking-tight">
+                  {districtHighCost.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Cost Outliers</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Isolation Forest
+              </span>
+              <Link
+                to={`/analytics/cost-anomalies?severity=HIGH&district=${encodeURIComponent(districtName)}&state=${encodeURIComponent(stateName)}`}
+                className="text-xs font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Inspect Outliers</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 2: Duplicate Works */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                  Model 2: Duplicate Works
+                </span>
+                <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
+                  <Copy className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-indigo-700 tabular-nums tracking-tight">
+                  {districtHighDuplicates.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">Flagged Candidate Pairs</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                MiniLM Embeddings
+              </span>
+              <Link
+                to="/analytics/duplicate-works?severity=HIGH"
+                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Review Pairs</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 3: Fund Anomalies */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
+                  Model 3: Fund & Expenditure
+                </span>
+                <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
+                  <BadgePercent className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-amber-700 tabular-nums tracking-tight">
+                  {districtHighFund.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Disbursement Flags</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Vendor HHI Index
+              </span>
+              <Link
+                to={`/analytics/fund-anomalies?severity=HIGH&district=${encodeURIComponent(districtName)}&state=${encodeURIComponent(stateName)}`}
+                className="text-xs font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Audit Pacing</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 4: Statutory Delays */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
+                  Model 4: Statutory Delays
+                </span>
+                <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
+                  <Clock className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-blue-700 tabular-nums tracking-tight">
+                  {districtHighDelays.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High SLA Violations</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                MoSPI 2023 SLA
+              </span>
+              <Link
+                to={`/analytics/delays?severity=HIGH&district=${encodeURIComponent(districtName)}&state=${encodeURIComponent(stateName)}`}
+                className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Triage Delays</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 3: Active Operational Review Queue Table */}
       <div className="bg-white rounded-lg border border-slate-200/90 p-5 shadow-xs">
-        <h3 className="text-sm font-bold text-slate-900 mb-1">
-          Operational Action Queue — {activeTab.toUpperCase()} (Simple Rule-Based HIGH Severity)
-        </h3>
-        <p className="text-xs text-slate-500 mb-4">
-          Filtered strictly by Model Severity = HIGH. Zero composite scoring or artificial prioritization.
-        </p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">
+              Operational Action Queue ({districtName})
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Filtered strictly by Model Severity = HIGH. Zero composite scoring or artificial prioritization.
+            </p>
+          </div>
+
+          {/* Queue Filter Pill Switcher */}
+          <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg shrink-0">
+            <button
+              onClick={() => setActiveTab('cost')}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                activeTab === 'cost'
+                  ? 'bg-white text-rose-700 shadow-xs border border-slate-200/80'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Cost ({costAnomalies.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('duplicates')}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                activeTab === 'duplicates'
+                  ? 'bg-white text-indigo-700 shadow-xs border border-slate-200/80'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Duplicates ({duplicatePairs.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('funds')}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                activeTab === 'funds'
+                  ? 'bg-white text-amber-700 shadow-xs border border-slate-200/80'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Funds ({fundAnomalies.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('delays')}
+              className={`px-3 py-1.5 rounded-md text-xs font-bold transition-all ${
+                activeTab === 'delays'
+                  ? 'bg-white text-blue-700 shadow-xs border border-slate-200/80'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Delays ({delays.length})
+            </button>
+          </div>
+        </div>
 
         {activeTab === 'cost' && (
           <div className="divide-y divide-slate-100 text-xs">
-            {costAnomalies.map((c) => (
-              <div key={c.work_id} className="py-3 flex items-center justify-between">
-                <div>
-                  <Link
-                    to={`/works/${encodeURIComponent(c.work_id)}`}
-                    className="font-mono font-bold text-blue-600 hover:underline"
-                  >
-                    {c.work_id}
-                  </Link>
-                  <p className="text-[11px] text-slate-500 mt-0.5">{c.explanation}</p>
+            {costAnomalies.length === 0 ? (
+              <p className="py-6 text-center text-slate-400">No high cost anomalies in queue for {districtName}.</p>
+            ) : (
+              costAnomalies.map((c) => (
+                <div key={c.work_id} className="py-3 flex items-center justify-between">
+                  <div>
+                    <Link
+                      to={`/works/${encodeURIComponent(c.work_id)}`}
+                      className="font-mono font-bold text-blue-600 hover:underline"
+                    >
+                      {c.work_id}
+                    </Link>
+                    <p className="text-[11px] text-slate-500 mt-0.5">{c.explanation}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono tabular-nums font-bold text-rose-700">
+                      {(c.cost_anomaly_score * 100).toFixed(1)}%
+                    </span>
+                    <p className="text-[10px] text-slate-400">Score</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="font-mono tabular-nums font-bold text-rose-700">
-                    {(c.cost_anomaly_score * 100).toFixed(1)}%
-                  </span>
-                  <p className="text-[10px] text-slate-400">Score</p>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
 
         {activeTab === 'duplicates' && (
           <div className="divide-y divide-slate-100 text-xs">
-            {duplicatePairs.map((p) => (
-              <div key={p.id} className="py-3 flex items-center justify-between">
-                <div>
-                  <p className="font-mono font-bold text-slate-800">
-                    {p.work_id_1} ⟷ {p.work_id_2}
-                  </p>
-                  <p className="text-[11px] text-slate-500 mt-0.5">
-                    Semantic Match:{' '}
-                    {p.semantic_similarity != null ? `${(p.semantic_similarity * 100).toFixed(1)}%` : '—'} • Days:{' '}
-                    {p.days_diff}d
-                  </p>
+            {duplicatePairs.length === 0 ? (
+              <p className="py-6 text-center text-slate-400">No high duplicate pairs in queue for {districtName}.</p>
+            ) : (
+              duplicatePairs.map((p) => (
+                <div key={p.id} className="py-3 flex items-center justify-between">
+                  <div>
+                    <p className="font-mono font-bold text-slate-800">
+                      {p.work_id_1} ⟷ {p.work_id_2}
+                    </p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      Semantic Match:{' '}
+                      {p.semantic_similarity != null ? `${(p.semantic_similarity * 100).toFixed(1)}%` : '—'} • Days:{' '}
+                      {p.days_diff}d
+                    </p>
+                  </div>
+                  <Link
+                    to={`/duplicates/compare?id1=${encodeURIComponent(p.work_id_1)}&id2=${encodeURIComponent(
+                      p.work_id_2
+                    )}`}
+                    className="px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded text-xs"
+                  >
+                    Inspect Pair →
+                  </Link>
                 </div>
-                <Link
-                  to={`/duplicates/compare?id1=${encodeURIComponent(p.work_id_1)}&id2=${encodeURIComponent(
-                    p.work_id_2
-                  )}`}
-                  className="px-3 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded text-xs"
-                >
-                  Inspect Pair →
-                </Link>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
 
         {activeTab === 'funds' && (
           <div className="divide-y divide-slate-100 text-xs">
-            {fundAnomalies.map((f) => (
-              <div key={f.work_id} className="py-3 flex items-center justify-between">
-                <div>
-                  <Link
-                    to={`/works/${encodeURIComponent(f.work_id)}`}
-                    className="font-mono font-bold text-blue-600 hover:underline"
-                  >
-                    {f.work_id}
-                  </Link>
-                  <p className="text-[11px] text-slate-500 mt-0.5">Category: {f.audit_category.replace(/_/g, ' ')}</p>
+            {fundAnomalies.length === 0 ? (
+              <p className="py-6 text-center text-slate-400">No high fund anomalies in queue for {districtName}.</p>
+            ) : (
+              fundAnomalies.map((f) => (
+                <div key={f.work_id} className="py-3 flex items-center justify-between">
+                  <div>
+                    <Link
+                      to={`/works/${encodeURIComponent(f.work_id)}`}
+                      className="font-mono font-bold text-blue-600 hover:underline"
+                    >
+                      {f.work_id}
+                    </Link>
+                    <p className="text-[11px] text-slate-500 mt-0.5">Category: {f.audit_category.replace(/_/g, ' ')}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono tabular-nums font-semibold text-slate-800">
+                      {f.total_disbursed_amount != null ? `₹${f.total_disbursed_amount.toLocaleString()}` : '₹0'}
+                    </span>
+                    <p className="text-[10px] text-slate-400">Disbursed</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="font-mono tabular-nums font-semibold text-slate-800">
-                    {f.total_disbursed_amount != null ? `₹${f.total_disbursed_amount.toLocaleString()}` : '₹0'}
-                  </span>
-                  <p className="text-[10px] text-slate-400">Disbursed</p>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
 
         {activeTab === 'delays' && (
           <div className="divide-y divide-slate-100 text-xs">
-            {delays.map((l) => (
-              <div key={l.work_id} className="py-3 flex items-center justify-between">
-                <div>
-                  <Link
-                    to={`/works/${encodeURIComponent(l.work_id)}`}
-                    className="font-mono font-bold text-blue-600 hover:underline"
-                  >
-                    {l.work_id}
-                  </Link>
-                  <p className="text-[11px] text-slate-500 mt-0.5">{l.explanation}</p>
+            {delays.length === 0 ? (
+              <p className="py-6 text-center text-slate-400">No statutory delays in queue for {districtName}.</p>
+            ) : (
+              delays.map((l) => (
+                <div key={l.work_id} className="py-3 flex items-center justify-between">
+                  <div>
+                    <Link
+                      to={`/works/${encodeURIComponent(l.work_id)}`}
+                      className="font-mono font-bold text-blue-600 hover:underline"
+                    >
+                      {l.work_id}
+                    </Link>
+                    <p className="text-[11px] text-slate-500 mt-0.5">{l.explanation}</p>
+                  </div>
+                  <div className="text-right">
+                    <span className="font-mono tabular-nums font-bold text-rose-700">{l.open_work_overdue_days || 0}d</span>
+                    <p className="text-[10px] text-slate-400">Overdue</p>
+                  </div>
                 </div>
-                <div className="text-right">
-                  <span className="font-mono tabular-nums font-bold text-rose-700">{l.open_work_overdue_days || 0}d</span>
-                  <p className="text-[10px] text-slate-400">Overdue</p>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         )}
       </div>
@@ -1128,28 +1486,81 @@ const DistrictDashboard: React.FC<{ districtName: string; stateName: string }> =
  * 4. MP DASHBOARD (Constituency Portfolio & Verified 5 Stages)
  * ------------------------------------------------------------- */
 const MPDashboard: React.FC<{ mpName: string }> = ({ mpName }) => {
-  const [works, setWorks] = useState<any[]>([]);
+  const [mpSummary, setMpSummary] = useState<MPSummaryItem | null>(null);
+  const [allWorks, setAllWorks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setLoading(true);
+
+    // 1. Fetch authoritative MP summary aggregates
+    analyticsService
+      .getMPSummaries({ mp_name: mpName })
+      .then((summaries) => {
+        if (summaries && summaries.length > 0) {
+          const match =
+            summaries.find((s) => s.mp_name.trim().toLowerCase() === mpName.trim().toLowerCase()) || summaries[0];
+          setMpSummary(match);
+        }
+      })
+      .catch((err) => console.error('Failed to load MP summary:', err));
+
+    // 2. Fetch full works dataset with pagination batching for lifecycle pipeline & disbursed sums
     worksService
       .getWorks({ mp_name: mpName, page: 1, page_size: 100 })
-      .then((res) => setWorks(res.items))
+      .then((resPage1) => {
+        const totalPages = resPage1.pagination.total_pages;
+        if (totalPages > 1) {
+          const pagePromises = [];
+          for (let p = 2; p <= totalPages; p++) {
+            pagePromises.push(worksService.getWorks({ mp_name: mpName, page: p, page_size: 100 }));
+          }
+          Promise.all(pagePromises)
+            .then((remainingPages) => {
+              const merged = [...resPage1.items, ...remainingPages.flatMap((r) => r.items)];
+              setAllWorks(merged);
+            })
+            .catch(() => {
+              setAllWorks(resPage1.items);
+            });
+        } else {
+          setAllWorks(resPage1.items);
+        }
+      })
+      .catch((err) => console.error('Failed to load MP works:', err))
       .finally(() => setLoading(false));
   }, [mpName]);
 
-  const totalWorks = works.length;
-  const totalSanctioned = works.reduce((sum, w) => sum + (w.sanction_amount || 0), 0);
-  const totalDisbursed = works.reduce((sum, w) => sum + (w.amount_disbursed || 0), 0);
-  const utilization = totalSanctioned > 0 ? Math.round((totalDisbursed / totalSanctioned) * 100) : 0;
+  const totalWorks = mpSummary?.total_works ?? (allWorks.length > 0 ? allWorks.length : 0);
+  const totalSanctioned =
+    mpSummary?.total_sanctioned_amount ?? allWorks.reduce((sum, w) => sum + (w.sanction_amount || 0), 0);
+  const totalDisbursed = allWorks.reduce((sum, w) => sum + (w.amount_disbursed || 0), 0);
+  const utilization =
+    totalSanctioned > 0
+      ? totalDisbursed > 0
+        ? ((totalDisbursed / totalSanctioned) * 100).toFixed(1)
+        : mpSummary?.completion_rate != null
+        ? mpSummary.completion_rate.toFixed(1)
+        : '0.0'
+      : '0.0';
 
-  // The 5 Verified Database Statuses
+  const mpHighCost = mpSummary?.high_cost_anomalies ?? 0;
+  const mpHighFund = mpSummary?.high_fund_anomalies ?? 0;
+  const mpHighDelays = mpSummary?.high_delays ?? 0;
+  const mpCompletedWorks =
+    mpSummary?.completed_works ??
+    allWorks.filter((w) => w.work_status === 'Work Completed' || w.is_completed_flag).length;
+
+  // The 5 Verified Database Statuses across all works
   const statusCounts = {
-    Sanction: works.filter((w) => w.work_status === 'Sanction').length,
-    'Vendor Identification': works.filter((w) => w.work_status === 'Vendor Identification').length,
-    'Work partially Completed': works.filter((w) => w.work_status === 'Work partially Completed').length,
-    'Physical Inspection': works.filter((w) => w.work_status === 'Physical Inspection').length,
-    'Work Completed': works.filter((w) => w.work_status === 'Work Completed' || w.is_completed_flag).length,
+    Sanction: allWorks.filter((w) => w.work_status === 'Sanction').length,
+    'Vendor Identification': allWorks.filter((w) => w.work_status === 'Vendor Identification').length,
+    'Work partially Completed': allWorks.filter(
+      (w) => w.work_status === 'Work partially Completed' || w.work_status === 'Time Estimation'
+    ).length,
+    'Physical Inspection': allWorks.filter((w) => w.work_status === 'Physical Inspection').length,
+    'Work Completed':
+      allWorks.filter((w) => w.work_status === 'Work Completed' || w.is_completed_flag).length || mpCompletedWorks,
   };
 
   return (
@@ -1161,9 +1572,14 @@ const MPDashboard: React.FC<{ mpName: string }> = ({ mpName }) => {
             <Landmark className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-slate-900">Hon'ble MP Portfolio • {mpName}</h1>
+            <h1 className="text-lg font-bold text-slate-900">
+              Hon'ble MP Portfolio • {mpName}
+              {mpSummary?.constituency && mpSummary.constituency !== 'Unknown'
+                ? ` (${mpSummary.constituency})`
+                : ''}
+            </h1>
             <p className="text-xs text-slate-600">
-              Constituency Recommended Works &amp; Statutory Execution Lifecycle Monitoring
+              {mpSummary?.house || 'Lok Sabha'} • {mpSummary?.state || 'State'} Jurisdiction • Constituency Recommended Works &amp; Statutory Lifecycle Monitoring
             </p>
           </div>
         </div>
@@ -1172,37 +1588,196 @@ const MPDashboard: React.FC<{ mpName: string }> = ({ mpName }) => {
         </span>
       </div>
 
-      {/* Financial Outlay KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+      {/* SECTION 1: MP Macro Portfolio KPI Bar */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <MetricCard
           title="Recommended Works"
-          value={totalWorks}
+          value={totalWorks.toLocaleString()}
           subtitle={`Works under ${mpName}`}
           icon={FolderKanban}
         />
         <MetricCard
           title="Total Sanction Outlay"
           value={`₹${(totalSanctioned / 1e7).toFixed(2)} Cr`}
-          subtitle={`Disbursed: ₹${(totalDisbursed / 1e7).toFixed(2)} Cr`}
+          subtitle="Allocated Parliamentary Outlay"
           icon={TrendingUp}
         />
         <MetricCard
-          title="Expenditure Utilization"
+          title="Cumulative Disbursed Capital"
+          value={totalDisbursed > 0 ? `₹${(totalDisbursed / 1e7).toFixed(2)} Cr` : 'Reconciling...'}
+          subtitle="Reconciled Bank Vouchers"
+          icon={Landmark}
+        />
+        <MetricCard
+          title="Constituency Fund Utilization"
           value={`${utilization}%`}
-          subtitle="Disbursed / Sanctioned Outlay"
+          subtitle="Capital Disbursed / Sanctioned"
           icon={CheckCircle}
           variant="success"
         />
       </div>
 
-      {/* 5-Stage Verified Lifecycle Funnel */}
+      {/* SECTION 2: Four Independent Module Summary Cards */}
+      <div>
+        <div className="flex items-center justify-between mb-2.5">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
+              Independent Analytical Surveillance (4 Modules)
+            </h2>
+            <span className="text-[10px] text-slate-500">
+              Decoupled algorithmic pipelines • No synthetic blended scores
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+          {/* Model 1: Cost Anomalies */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
+                  Model 1: Cost Anomalies
+                </span>
+                <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-rose-700 tabular-nums tracking-tight">
+                  {mpHighCost.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Cost Outliers</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Isolation Forest
+              </span>
+              <Link
+                to={`/analytics/cost-anomalies?severity=HIGH${mpSummary?.state ? `&state=${encodeURIComponent(mpSummary.state)}` : ''}`}
+                className="text-xs font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Inspect Outliers</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 2: Duplicate Works */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
+                  Model 2: Duplicate Works
+                </span>
+                <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
+                  <Copy className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-indigo-700 tabular-nums tracking-tight">
+                  Candidate Pairs
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">Flagged Candidate Pairs</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                MiniLM Embeddings
+              </span>
+              <Link
+                to="/analytics/duplicate-works?severity=HIGH"
+                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Review Pairs</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 3: Fund Anomalies */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
+                  Model 3: Fund & Expenditure
+                </span>
+                <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
+                  <BadgePercent className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-amber-700 tabular-nums tracking-tight">
+                  {mpHighFund.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Disbursement Flags</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Vendor HHI Index
+              </span>
+              <Link
+                to={`/analytics/fund-anomalies?severity=HIGH${mpSummary?.state ? `&state=${encodeURIComponent(mpSummary.state)}` : ''}`}
+                className="text-xs font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Audit Pacing</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 4: Statutory Delays */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
+                  Model 4: Statutory Delays
+                </span>
+                <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
+                  <Clock className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-blue-700 tabular-nums tracking-tight">
+                  {mpHighDelays.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High SLA Violations</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                MoSPI 2023 SLA
+              </span>
+              <Link
+                to={`/analytics/delays?severity=HIGH${mpSummary?.state ? `&state=${encodeURIComponent(mpSummary.state)}` : ''}`}
+                className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Triage Delays</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION 3: 5-Stage Verified Lifecycle Funnel */}
       <div className="bg-white rounded-lg border border-slate-200/90 p-5 shadow-xs">
-        <h3 className="text-sm font-bold text-slate-900 mb-1">
-          Constituency Work Lifecycle Pipeline (5 Verified DB Statuses)
-        </h3>
-        <p className="text-xs text-slate-500 mb-4">
-          Tracking physical and administrative progression directly matching database records.
-        </p>
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">
+              Constituency Work Lifecycle Pipeline (5 Verified DB Statuses)
+            </h3>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Tracking physical and administrative progression directly matching database records across all {totalWorks.toLocaleString()} works.
+            </p>
+          </div>
+          {loading && (
+            <span className="text-xs text-amber-600 font-medium animate-pulse">
+              Reconciling full dataset...
+            </span>
+          )}
+        </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
           {Object.entries(statusCounts).map(([status, count], idx) => (

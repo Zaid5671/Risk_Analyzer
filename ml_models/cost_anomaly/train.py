@@ -42,6 +42,10 @@ def train_peer_isolation_forests(
             skipped_count += 1
             continue
             
+        if "peer_group_level" in group_data.columns and (group_data["peer_group_level"] == "INSUFFICIENT_PEER_DATA").all():
+            skipped_count += 1
+            continue
+            
         X_group = prepare_features(group_data)
         
         # Fit Isolation Forest (n_jobs=1 avoids thread pool recreation overhead inside loop)

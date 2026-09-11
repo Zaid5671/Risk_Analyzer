@@ -107,7 +107,7 @@ def get_national_trends(
 
     latest = quarter_items[-1] if quarter_items else None
     summary = {
-        "total_canonical_works": 98825,
+        "total_canonical_works": int(nat_df["total_sanctioned_works"].sum()),
         "latest_quarter": latest.year_quarter if latest else "N/A",
         "latest_cost_anomaly_rate": latest.cost_anomaly_rate if latest else None,
         "latest_delay_rate": latest.delay_rate if latest else None,
@@ -323,7 +323,7 @@ def get_mp_trends(
 @router.get("/early-warnings", response_model=EarlyWarningsResponse)
 @router.get("/trends/early-warnings", response_model=EarlyWarningsResponse)
 def get_early_warnings(
-    warning_type: Optional[str] = Query(None, description="Filter by warning type: SLA_SANCTION_CLIFF, STAGNATION_INCUBATION, BATCH_DUPLICATE_CLUSTER"),
+    warning_type: Optional[str] = Query(None, description="Filter by warning type: SLA_NEAR_MISS, APPROACHING_DORMANCY, STAGNATION_INCUBATION, BATCH_DUPLICATE_CLUSTER"),
     urgency_level: Optional[str] = Query(None, description="Filter by urgency: CRITICAL, WATCHLIST"),
     limit: int = Query(50, ge=1, le=500, description="Max alerts to return"),
     current_user: CurrentUser = None

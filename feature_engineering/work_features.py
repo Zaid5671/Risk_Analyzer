@@ -99,10 +99,10 @@ def compute_cost_model_features(df_works: pd.DataFrame) -> pd.DataFrame:
             peer_median.append(float(row["coarse_median"]))
             peer_iqr.append(float(max(1.0, row["coarse_iqr"])))
         else:
-            peer_level.append("NATIONAL_ALL")
-            peer_count.append(len(df))
-            peer_median.append(nat_median)
-            peer_iqr.append(nat_iqr)
+            peer_level.append("INSUFFICIENT_PEER_DATA")
+            peer_count.append(0)
+            peer_median.append(np.nan)
+            peer_iqr.append(np.nan)
             
     df["peer_level_used"] = peer_level
     df["peer_group_size"] = peer_count

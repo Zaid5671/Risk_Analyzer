@@ -45,13 +45,16 @@ class DelayScorer:
         delay_score = np.maximum(rec_score, execution_score)
         df["delay_score"] = np.round(delay_score, 4)
 
-        # Standardized Severity Hierarchy: HIGH > MEDIUM > LOW > NONE
+        # Standardized Severity Hierarchy: DATA_QUALITY_EXCEPTION > HIGH > MEDIUM > LOW > NONE
         # A work's severity is determined by the highest active severity among applicable rules
         severities = np.where(
-            (rec_sev == "HIGH") | (comp_sev == "HIGH") | (aging_sev == "HIGH"), "HIGH",
+            (rec_sev == "DATA_QUALITY_EXCEPTION"), "DATA_QUALITY_EXCEPTION",
             np.where(
-                (rec_sev == "MEDIUM") | (comp_sev == "MEDIUM") | (aging_sev == "MEDIUM"), "MEDIUM",
-                np.where((rec_sev == "LOW"), "LOW", "NONE")
+                (rec_sev == "HIGH") | (comp_sev == "HIGH") | (aging_sev == "HIGH"), "HIGH",
+                np.where(
+                    (rec_sev == "MEDIUM") | (comp_sev == "MEDIUM") | (aging_sev == "MEDIUM"), "MEDIUM",
+                    np.where((rec_sev == "LOW"), "LOW", "NONE")
+                )
             )
         )
         df["severity"] = severities
@@ -60,7 +63,9 @@ class DelayScorer:
         primary_types = []
         for idx, row in df.iterrows():
             types = []
-            if row["rec_to_sanc_delay_days"] > 0:
+            if row["rec_to_sanc_severity"] == "DATA_QUALITY_EXCEPTION":
+                types.append("DATA_QUALITY_EXCEPTION")
+            elif row["rec_to_sanc_delay_days"] > 0:
                 types.append("RECOMMENDATION_SANCTION_DELAY")
             if row["is_completed_flag"] and row["sanc_to_comp_delay_days"] > 0:
                 types.append("COMPLETION_DELAY")

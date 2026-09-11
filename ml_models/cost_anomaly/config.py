@@ -48,8 +48,6 @@ MODEL_FEATURE_COLS = [
     "sanction_amount_log",
     "peer_iqr_deviation",
     "cost_ratio_vs_peer_median",
-    "rec_to_sanc_days",
-    "desc_word_count",
 ]
 
 # Severity Thresholds

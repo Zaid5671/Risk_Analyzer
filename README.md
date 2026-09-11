@@ -2,8 +2,8 @@
 ### Smart India Hackathon (SIH) 2026 — Problem Statement ID: 26102
 **Team**: Code Blooded  
 **Repository**: `Zaid5671/CodeBlooded`  
-**Current Phase**: Phase 6.3 Complete (Authentication, RBAC & Backend Security Verified)  
-**Overall Validation Status**: **85/85 Passing Tests (100% Pass Rate)**
+**Current Phase**: Phase 8 Complete (Predictive Delay Risk Model & Production Hardening Verified)  
+**Overall Validation Status**: **110/110 Passing Tests (100% Pass Rate)**
 
 ---
 
@@ -12,26 +12,27 @@
 2. [Problem Statement (PS 26102)](#2-problem-statement-ps-26102)
 3. [Complete System Architecture](#3-complete-system-architecture)
 4. [Data Pipeline & Ingestion](#4-data-pipeline--ingestion)
-5. [Analytical & AI Components (The 4 Models)](#5-analytical--ai-components-the-4-models)
+5. [Analytical & AI Components (The 5 Engines)](#5-analytical--ai-components-the-5-engines)
 6. [Model 1: Cost Anomaly Detector](#6-model-1-cost-anomaly-detector)
 7. [Model 2: Duplicate Work Detector](#7-model-2-duplicate-work-detector)
 8. [Model 3: Fund & Expenditure Anomaly Detector](#8-model-3-fund--expenditure-anomaly-detector)
-9. [Phase 5: Delay & Statutory SLA Rule Engine](#9-phase-5-delay--statutory-sla-rule-engine)
-10. [Database Architecture (Supabase PostgreSQL)](#10-database-architecture-supabase-postgresql)
-11. [FastAPI Backend Application Gateway](#11-fastapi-backend-application-gateway)
-12. [Authentication & Cryptography](#12-authentication--cryptography)
-13. [Role-Based Access Control (RBAC) & Jurisdictional Scoping](#13-role-based-access-control-rbac--jurisdictional-scoping)
-14. [Canonical Demo Stakeholder Accounts](#14-canonical-demo-stakeholder-accounts)
-15. [Security Architecture & Hardening](#15-security-architecture--hardening)
-16. [Testing, Validation & Quality Assurance](#16-testing-validation--quality-assurance)
-17. [Project Directory Structure](#17-project-directory-structure)
-18. [Generated Outputs & Persistent Artifacts](#18-generated-outputs--persistent-artifacts)
-19. [End-to-End Work Lifecycle Walkthrough](#19-end-to-end-work-lifecycle-walkthrough)
-20. [Current Platform Capabilities](#20-current-platform-capabilities)
-21. [Current Data & Analytical Limitations](#21-current-data--analytical-limitations)
-22. [Important Architectural & Design Decisions](#22-important-architectural--design-decisions)
-23. [Project Implementation Status & Roadmap](#23-project-implementation-status--roadmap)
-24. [Executive Summary: What Exactly Have We Built?](#24-executive-summary-what-exactly-have-we-built)
+9. [Model 4: Delay & Statutory SLA Rule Engine](#9-model-4-delay--statutory-sla-rule-engine)
+10. [Model 5: Predictive Delay Risk Model](#10-model-5-predictive-delay-risk-model)
+11. [Database Architecture (Supabase PostgreSQL)](#11-database-architecture-supabase-postgresql)
+12. [FastAPI Backend Application Gateway](#12-fastapi-backend-application-gateway)
+13. [Authentication & Cryptography](#13-authentication--cryptography)
+14. [Role-Based Access Control (RBAC) & Jurisdictional Scoping](#14-role-based-access-control-rbac--jurisdictional-scoping)
+15. [Canonical Demo Stakeholder Accounts](#15-canonical-demo-stakeholder-accounts)
+16. [Security Architecture & Hardening](#16-security-architecture--hardening)
+17. [Testing, Validation & Quality Assurance](#17-testing-validation--quality-assurance)
+18. [Project Directory Structure](#18-project-directory-structure)
+19. [Generated Outputs & Persistent Artifacts](#19-generated-outputs--persistent-artifacts)
+20. [End-to-End Work Lifecycle Walkthrough](#20-end-to-end-work-lifecycle-walkthrough)
+21. [Current Platform Capabilities](#21-current-platform-capabilities)
+22. [Current Data & Analytical Limitations](#22-current-data--analytical-limitations)
+23. [Important Architectural & Design Decisions](#23-important-architectural--design-decisions)
+24. [Project Implementation Status & Roadmap](#24-project-implementation-status--roadmap)
+25. [Executive Summary: What Exactly Have We Built?](#25-executive-summary-what-exactly-have-we-built)
 
 ---
 
@@ -57,7 +58,7 @@ The platform empowers four governmental stakeholder tiers recognized under the o
 4. **Members of Parliament (Lok Sabha & Rajya Sabha MPs)**: Real-time scrutiny of their recommended works, tracking execution velocity, fund disbursements, and delays.
 
 ### End-to-End Operation
-The platform ingests multi-source administrative CSVs, performs automated normalization and reconciliation, extracts multi-dimensional feature registries, runs **four strictly independent analytical models**, persists the canonical data and model results into a cloud PostgreSQL database (Supabase), and exposes high-performance REST APIs via FastAPI secured by an enterprise OAuth2/JWT authentication and server-side RBAC scoping engine.
+The platform ingests multi-source administrative CSVs, performs automated normalization and reconciliation, extracts multi-dimensional feature registries, runs **five strictly independent analytical and predictive models**, persists the canonical data and model results into a cloud PostgreSQL database (Supabase), and exposes high-performance REST APIs via FastAPI secured by an enterprise OAuth2/JWT authentication and server-side RBAC scoping engine.
 
 ```
 Raw Portal CSVs (12 Files)
@@ -68,24 +69,24 @@ Automated Data Pipeline (Cleaning, Ingestion, Normalization)
     ▼
 Feature Engineering Registry (Canonical Works Layer: 98,825 Works)
     │
-    ├───────────────────┬───────────────────┬───────────────────┐
-    ▼                   ▼                   ▼                   ▼
-Model 1             Model 2             Model 3             Phase 5
-Cost Anomaly        Duplicate Work      Fund & Expenditure  Delay & SLA
-Isolation Forest    MiniLM-L6-v2 + Sim  Isolation Forest    Rule Engine
-    │                   │                   │                   │
-    └───────────────────┼───────────────────┴───────────────────┘
-                        ▼
-    Supabase PostgreSQL 17.6 Relational Storage (RLS Enabled)
-                        │
-                        ▼
-      FastAPI Production Backend (REST Application Gateway)
-      - Rate Limiting (SlowAPI)
-      - Timing Attack Defense (Bcrypt 12 Rounds)
-      - Hybrid Real-time RBAC Scoping (4 Governance Tiers)
-                        │
-                        ▼
-      Authenticated Decision-Support API / Swagger / Postman
+    ├───────────────────┬───────────────────┬───────────────────┬───────────────────┐
+    ▼                   ▼                   ▼                   ▼                   ▼
+Model 1             Model 2             Model 3             Model 4             Model 5
+Cost Anomaly        Duplicate Work      Fund & Expenditure  Delay & SLA         Predictive Delay Risk
+Isolation Forest    MiniLM-L6-v2 + Sim  Isolation Forest    Rule Engine         Gradient Boosting
+    │                   │                   │                   │                   │
+    └───────────────────┴───────────────────┼───────────────────┴───────────────────┘
+                                            ▼
+        Supabase PostgreSQL 17.6 Relational Storage (RLS Enabled)
+                                            │
+                                            ▼
+          FastAPI Production Backend (REST Application Gateway)
+          - Rate Limiting (SlowAPI)
+          - Timing Attack Defense (Bcrypt 12 Rounds)
+          - Hybrid Real-time RBAC Scoping (4 Governance Tiers)
+                                            │
+                                            ▼
+          Authenticated Decision-Support API / Swagger / Postman
 ```
 
 ---
@@ -102,11 +103,12 @@ Isolation Forest    MiniLM-L6-v2 + Sim  Isolation Forest    Rule Engine
 
 | Dimension | Explicitly Mandated by PS 26102 | Our Engineering Implementation Choice |
 |---|---|---|
-| **Anomaly Detection Domains** | Cost estimates, duplicate works, fund utilization, project delays. | Divided into **4 strictly independent analytical modules** with zero cross-model score averaging. |
+| **Anomaly Detection Domains** | Cost estimates, duplicate works, fund utilization, project delays. | Divided into **5 strictly independent analytical modules** with zero cross-model score averaging. |
 | **Cost Analysis** | Detect unusual patterns and cost overruns. | Unsupervised **Hierarchical Peer-Grouped Isolation Forest** (State $\to$ National fallback) evaluated strictly at sanction time with **zero post-sanction leakage**. |
 | **Duplicate Detection** | Identify duplicate works. | Hybrid Transformer (`all-MiniLM-L6-v2`) semantic similarity (0.65) + structural proximity signals (0.35) with candidate blocking. |
 | **Fund Monitoring** | Identify unusual patterns in expenditures and payments. | Multi-variate Isolation Forest on active spenders + deterministic segmentation for dormant sanctions and voucher mismatches. |
 | **Delay Tracking** | Detect delayed projects and deviations from norms. | Deterministic **Rule Engine** grounded directly in official MPLADS statutory guidelines (Para 3.12 75-day sanction SLA, 365-day execution limit). |
+| **Predictive Insights** | Generate forward-looking risk-based alerts & predictions. | Supervised **Gradient Boosting Classifier (Model 5)** trained on 44,417 completed works (AUC-ROC: **0.9366**) predicting completion breach probability on 54,408 open works. |
 | **Stakeholder Access** | Decision-support dashboards for MPs, States, Districts, Ministry. | Enterprise **FastAPI Application Gateway** with OAuth2 Bearer JWTs and **server-side SQL predicate injection** for true data segregation. |
 | **Database Architecture** | Cloud relational database for analytics. | **Supabase PostgreSQL 17.6** with full relational integrity (0 orphaned FKs) and **Row Level Security (RLS)**. |
 
@@ -123,13 +125,15 @@ flowchart TD
         CANON --> FEAT1[Cost Features\nPeer Group Medians & IQR]
         CANON --> FEAT2[Duplicate Candidate Pairs\n2,025,667 Blocked Pairs]
         VOUCH --> FEAT3[Financial Features\nUtilization, HHI, Velocity]
+        CANON & VOUCH --> FEAT5[Predictive Features\nAging, Spend, Utilization]
     end
 
     subgraph Analytics_Layer ["Independent Analytical Core"]
         FEAT1 --> M1[Model 1: Cost Anomaly\nIsolation Forest + Sigmoid]
         FEAT2 --> M2[Model 2: Duplicate Work\nSentence Transformer + Structural]
         FEAT3 --> M3[Model 3: Fund Anomaly\nIsolation Forest + Cohorts]
-        CANON --> M4[Phase 5: Delay Rule Engine\nStatutory SLAs: 75d & 365d]
+        CANON --> M4[Model 4: Delay Rule Engine\nStatutory SLAs: 75d & 365d]
+        FEAT5 --> M5[Model 5: Predictive Delay Risk\nGradient Boosting Classifier]
     end
 
     subgraph Storage_Layer ["Relational Storage (Supabase PostgreSQL 17.6)"]
@@ -137,6 +141,7 @@ flowchart TD
         M2 --> T_DUP[(duplicate_work_results\nTop 50,000 pairs)]
         M3 --> T_FUND[(fund_expenditure_results\n98,825 rows)]
         M4 --> T_DELAY[(delay_results\n98,825 rows)]
+        M5 --> T_PRED[(delay_prediction_results\n54,408 rows)]
         CANON --> T_WORKS[(works\n98,825 rows)]
         VOUCH --> T_EXP[(work_expenditures\n109,311 rows)]
         AUTH_SEED[seed_users.py] --> T_USERS[(users\nStakeholder Accounts)]
@@ -144,7 +149,7 @@ flowchart TD
 
     subgraph Backend_Gateway ["FastAPI Application Gateway"]
         T_USERS -.-> AUTH_MOD[Authentication Module\nBcrypt + PyJWT + Dummy Hash]
-        T_WORKS & T_COST & T_DUP & T_FUND & T_DELAY & T_EXP -.-> RBAC_MOD[Server-Side Scoping Engine\nPredicate Injection]
+        T_WORKS & T_COST & T_DUP & T_FUND & T_DELAY & T_PRED & T_EXP -.-> RBAC_MOD[Server-Side Scoping Engine\nPredicate Injection]
         AUTH_MOD --> API_ROUTES[Protected REST Routers\n/works, /analytics/*, /auth/*]
         RBAC_MOD --> API_ROUTES
     end
@@ -186,7 +191,7 @@ The pipeline unifies disparate datasets into `canonical_works.parquet`:
 
 ---
 
-## 5. Analytical & AI Components (The 4 Models)
+## 5. Analytical & AI Components (The 5 Models)
 
 ### Core Architectural Principle: Strict Model Independence
 The platform enforces **zero composite risk scoring** and **zero artificial averaging across models**.
@@ -305,7 +310,7 @@ Model 3 detects anomalies in **recorded expenditure vouchers on the national por
 
 ---
 
-## 9. Phase 5: Delay & Statutory SLA Rule Engine
+## 9. Model 4: Delay & Statutory SLA Rule Engine
 
 ### Purpose & Methodology: Why a Rule Engine?
 Unlike cost estimation (which is statistical), statutory deadlines in the MPLAD Scheme are **codified legal mandates**:
@@ -341,7 +346,40 @@ The official MPLADS guideline mandates that if a work is rejected, the District 
 
 ---
 
-## 10. Database Architecture (Supabase PostgreSQL)
+## 10. Model 5: Predictive Delay Risk Model
+
+### Purpose
+Provides genuinely forward-looking, supervised predictive insights by forecasting the probability that an **incomplete/open developmental work** ($N = 54,408$) will exceed the statutory 365-day execution deadline. This fulfills the explicit SIH PS 26102 mandate for predictive insights.
+
+### Supervised Learning Methodology
+* **Training Corpus**: The 44,417 *completed* works serve as ground-truth historical training data.
+* **Target Definition**: Binary indicator $y \in \{0, 1\}$ where $y = 1$ if the completed work exceeded the statutory 365-day execution duration (`sanction_to_completion_days > 365`), and $y = 0$ otherwise.
+* **Algorithm**: `sklearn.ensemble.GradientBoostingClassifier` (`n_estimators=100`, `max_depth=5`, `random_state=42`).
+* **Validation Performance**: Evaluated on a 20% stratified hold-out test set ($N = 8,884$), achieving a test **AUC-ROC of 0.9366**, demonstrating exceptional discrimination between on-time and delayed works.
+
+### Feature Specification
+The model consumes 6 predictive operational signals engineered from sanction and transaction milestones:
+1. `days_since_sanction`: Elapsed calendar duration since administrative sanction date.
+2. `utilization_ratio`: Fraction of sanctioned budget disbursed to date ($\text{disbursed} / \text{sanction}$).
+3. `transaction_count`: Cumulative number of expenditure transactions recorded on the portal.
+4. `work_category_encoded`: Frequency-encoded representation of the developmental work domain.
+5. `state_encoded`: Frequency-encoded geographical jurisdiction capturing state-level administrative velocity.
+6. `has_first_disbursement`: Binary flag indicating whether initial mobilization advances or milestone payments have been released.
+
+### Open Works Scoring & Risk Categorization ($N = 54,408$)
+The trained model predicts completion breach probabilities strictly for active, incomplete works:
+* **`HIGH`** ($\text{risk} \ge 0.75$): **255 works (0.47%)** — Imminent completion failure; urgent administrative intervention required.
+* **`MEDIUM`** ($0.50 \le \text{risk} < 0.75$): **963 works (1.77%)** — Elevated delivery risk requiring enhanced monitoring.
+* **`LOW`** ($\text{risk} < 0.50$): **53,190 works (97.76%)** — On track or within expected progress tolerances.
+
+### API Delivery & Stakeholder Scoping
+* `GET /api/v1/analytics/predictions/delay-risk`: Paginated, priority-sorted list of open works with highest predicted completion breach risk, with automated RBAC jurisdictional scoping.
+* `GET /api/v1/analytics/predictions/delay-risk/{work_id}`: Granular prediction details including feature values and generated explanation narrative.
+* **Integrated Work Dossier**: Surfaced in `GET /api/v1/works/{work_id}` alongside the 4 retrospective risk profiles.
+
+---
+
+## 11. Database Architecture (Supabase PostgreSQL)
 
 ### Hosting & Infrastructure
 * **Engine**: PostgreSQL 17.6 on Supabase (`ap-northeast-1`).
@@ -355,17 +393,18 @@ The official MPLADS guideline mandates that if a work is rejected, the District 
 | **`works`** | `work_id` | Master | **98,825** | Canonical master catalog. Indexed on `state`, `district`, `mp_name`, `work_type`, `work_status`, `sanction_date`. |
 | **`cost_anomaly_results`** | `work_id` | `works.work_id` (CASCADE) | **98,825** | Model 1 estimates. Indexed on `cost_anomaly_score`, `severity`. |
 | **`fund_expenditure_results`** | `work_id` | `works.work_id` (CASCADE) | **98,825** | Model 3 financials. Indexed on `fund_anomaly_score`, `severity`, `audit_category`. |
-| **`delay_results`** | `work_id` | `works.work_id` (CASCADE) | **98,825** | Phase 5 SLA metrics. Indexed on `delay_score`, `severity`, `primary_delay_type`. |
+| **`delay_results`** | `work_id` | `works.work_id` (CASCADE) | **98,825** | Model 4 SLA metrics. Indexed on `delay_score`, `severity`, `primary_delay_type`. |
+| **`delay_prediction_results`** | `work_id` | `works.work_id` (CASCADE) | **54,408** | Model 5 predictive completion risk. Indexed on `predicted_completion_risk`, `predicted_risk_severity`. |
 | **`work_expenditures`** | `id` (BIGSERIAL) | `works.work_id` (CASCADE) | **109,311** | Transaction payment vouchers. Indexed on `work_id`, `expenditure_date`. |
 | **`duplicate_work_results`** | `id` (BIGSERIAL) | `work_id_1`, `work_id_2` | **50,000** | Model 2 candidate pairs. Indexed on `(work_id_1, work_id_2)`, `duplicate_score`, `severity`. |
 | **`users`** | `id` (SERIAL) | Internal | **4 seeded** | Stakeholder accounts. Indexed on `email`, `role`. |
 
 ### Foreign Key Integrity
-* **0 Orphaned Foreign Keys**: Every record in `cost_anomaly_results`, `fund_expenditure_results`, `delay_results`, `work_expenditures`, and `duplicate_work_results` strictly references a valid, existing `work_id` in `works`.
+* **0 Orphaned Foreign Keys**: Every record in `cost_anomaly_results`, `fund_expenditure_results`, `delay_results`, `delay_prediction_results`, `work_expenditures`, and `duplicate_work_results` strictly references a valid, existing `work_id` in `works`.
 
 ---
 
-## 11. FastAPI Backend Application Gateway
+## 12. FastAPI Backend Application Gateway
 
 ### Framework Architecture
 * **Framework**: FastAPI (`fastapi>=0.115.0`) with ASGI server Uvicorn.
@@ -399,7 +438,7 @@ The official MPLADS guideline mandates that if a work is rejected, the District 
 
 ---
 
-## 12. Authentication & Cryptography
+## 13. Authentication & Cryptography
 
 ### Standardized Security Stack
 * **Token Standard**: RFC 7519 compliant JSON Web Token (JWT) signed using HMAC-SHA256 (`HS256`).
@@ -438,7 +477,7 @@ Configured using **SlowAPI** (`slowapi>=0.1.9`):
 
 ---
 
-## 13. Role-Based Access Control (RBAC) & Jurisdictional Scoping
+## 14. Role-Based Access Control (RBAC) & Jurisdictional Scoping
 
 ### The 4 Stakeholder Roles & Jurisdictions
 
@@ -488,7 +527,7 @@ Therefore, District Officers are scoped on a composite tuple: `(assigned_state, 
 
 ---
 
-## 14. Canonical Demo Stakeholder Accounts
+## 15. Canonical Demo Stakeholder Accounts
 
 The platform includes four pre-seeded demo accounts in Supabase PostgreSQL created via `database/seed_users.py`:
 
@@ -502,15 +541,16 @@ The platform includes four pre-seeded demo accounts in Supabase PostgreSQL creat
 *Standard Demo Password*: `Mplads@Demo2026#`
 
 ### Why Sarabjeet Singh Khalsa Was Selected for the MP Demo
-Live database verification proved that MP Sarabjeet Singh Khalsa has active anomaly detections across **all four independent models**:
+Live database verification proved that MP Sarabjeet Singh Khalsa has active anomaly detections across **all independent models**:
 * **Model 1 (Cost Anomalies)**: 3 High, 10 Medium detections
 * **Model 2 (Duplicate Works)**: 151 flagged candidate review pairs
 * **Model 3 (Fund Anomalies)**: 8 High, 6 Medium detections
-* **Phase 5 (Delay Rule Engine)**: 11 High, 7 Medium statutory delay detections
+* **Model 4 (Delay Rule Engine)**: 11 High, 7 Medium statutory delay detections
+* **Model 5 (Delay Risk Predictor)**: High-risk incomplete works flagged for completion breach
 
 ---
 
-## 15. Security Architecture & Hardening
+## 16. Security Architecture & Hardening
 
 ### Currently Implemented Security Controls
 * **FastAPI Application Gateway**: True security boundary; client browsers and mobile apps never communicate directly with database credentials.
@@ -519,9 +559,9 @@ Live database verification proved that MP Sarabjeet Singh Khalsa has active anom
 * **Hybrid Token Authorization**: Live database re-verification prevents zombie tokens.
 * **Server-Side SQL Predicate Injection**: RBAC enforced at the query level before execution.
 * **Parameterized Queries**: 100% of database interactions execute via SQLAlchemy parameterized queries, rendering SQL injection impossible.
-* **Row Level Security (RLS)**: Enabled across all 7 public Supabase tables, completely blocking unauthorized direct access via Supabase's public PostgREST anon key.
+* **Row Level Security (RLS)**: Enabled across all public Supabase tables, completely blocking unauthorized direct access via Supabase's public PostgREST anon key.
 * **SlowAPI Rate Limiting**: Protects against brute-force password guessing.
-* **CORS & Environment Hygiene**: Credentials and JWT secrets strictly managed via `.env` with `.env.example` templates.
+* **CORS & Environment Hygiene**: Specific origins allowed without wildcard (`*`), JWT secret strictly enforced on server startup with loud runtime errors if unset.
 
 ### Potential Future Hardening (Post-Hackathon Roadmap)
 * Refresh token rotation with Redis revocation blocklists.
@@ -530,27 +570,31 @@ Live database verification proved that MP Sarabjeet Singh Khalsa has active anom
 
 ---
 
-## 16. Testing, Validation & Quality Assurance
+## 17. Testing, Validation & Quality Assurance
 
-The platform features a test suite of **85 automated tests** across 9 dedicated test suites:
+The platform features a comprehensive test suite of **110 automated tests** across 13 dedicated test suites:
 
 ```bash
 & "C:\Program Files\Python312\python.exe" -m pytest tests/ -v
 ```
 
-### Complete Test Results Breakdown: 85/85 PASSED (100%)
+### Complete Test Results Breakdown: 110/110 PASSED (100%)
 
 | Test Suite File | Test Count | Status | Key Coverage Areas |
 |---|---|---|---|
 | **`tests/test_api.py`** | 15 | **PASSED** | Core REST endpoints, health check, pagination, filtering, single-work dossiers, summary aggregations. |
 | **`tests/test_auth_rbac.py`** | 19 | **PASSED** | Login success/failure, timing defense, JWT validation, instant deactivation, 4 stakeholder scopes, 404 vs 403 authorization, duplicate pair scoping, user provisioning. |
 | **`tests/test_database_ingestion.py`** | 6 | **PASSED** | Supabase connection, table existence, 98,825 row counts, foreign key referential integrity (0 orphans), model independence. |
-| **`tests/test_delay_rules.py`** | 7 | **PASSED** | 75-day sanction SLA, 365-day completion limit, open work aging, reference date determinism, explanation generation. |
+| **`tests/test_delay_rules.py`** | 8 | **PASSED** | 75-day sanction SLA, 365-day completion limit, open work aging, reference date determinism, negative delay exceptions, explanation generation. |
+| **`tests/test_early_warnings.py`** | 4 | **PASSED** | SLA near-miss alerts (45–74d), approaching dormancy predictive alerts (270–364d ₹0 spend), stagnation incubation (180–365d), dataset schema invariants. |
 | **`tests/test_feature_engineering.py`**| 10 | **PASSED** | Canonical layer building, zero leakage, duplicate candidate blocking window, expenditure reconciliation, HHI calculation. |
-| **`tests/test_model1_cost_anomaly.py`**| 6 | **PASSED** | Input schema validation, zero-leakage assertion, peer group hierarchy & fallback, score bounds, data quality exception routing. |
-| **`tests/test_model2_duplicate_work.py`**| 6 | **PASSED** | Semantic + structural score bounds, generic text penalties, pair uniqueness, embedding cache lookup. |
-| **`tests/test_model3_fund_expenditure.py`**| 6 | **PASSED** | Active vs zero-spend cohorting, calibrated scorer bounds, dormant sanctions, status-expenditure mismatch rules. |
+| **`tests/test_model1_cost_anomaly.py`**| 8 | **PASSED** | Input schema validation, zero-leakage assertion, peer group hierarchy & fallback, score bounds, reduced 3-feature cost set, INSUFFICIENT_PEER_DATA handling. |
+| **`tests/test_model2_duplicate_work.py`**| 7 | **PASSED** | Semantic + structural score bounds, date proximity decay (60d), location confidence penalty, generic text penalties, pair uniqueness, embedding cache lookup. |
+| **`tests/test_model3_fund_expenditure.py`**| 7 | **PASSED** | Active vs zero-spend cohorting, calibrated scorer bounds, 30-day minimum velocity window, dormant sanctions, status-expenditure mismatch rules. |
+| **`tests/test_model5_delay_predictor.py`**| 7 | **PASSED** | Supervised Gradient Boosting Classifier, score bounds [0.0, 1.0], severity mapping, open-works-only prediction contract, feature completeness, API 200, RBAC scoping, dossier integration. |
 | **`tests/test_pipeline.py`** | 10 | **PASSED** | Indian currency parsing, date normalization, tab scrubbing, grand total removal, district extraction. |
+| **`tests/test_trend_api.py`** | 5 | **PASSED** | Macro national quarterly trends, state quarterly trends, district benchmarks, MP longitudinal profiles, early warning alert queue API. |
+| **`tests/test_trend_rollups.py`** | 4 | **PASSED** | Credibility tier boundaries, Empirical Bayes shrinkage math, trajectory classification logic, parquet conservation invariants. |
 
 ---
 
@@ -640,26 +684,30 @@ CodeBlooded/
 
 ---
 
-## 18. Generated Outputs & Persistent Artifacts
+## 19. Generated Outputs & Persistent Artifacts
 
 1. **Scored Datasets (Parquet)**:
    * `data/model_outputs/cost_anomaly/cost_anomaly_scores.parquet` (98,825 rows)
    * `data/model_outputs/duplicate_work/duplicate_review.parquet` (2,025,667 scored pairs)
    * `data/model_outputs/fund_expenditure_anomaly/fund_expenditure_scores.parquet` (98,825 rows)
    * `data/model_outputs/delay_rules/delay_scores.parquet` (98,825 rows)
+   * `data/model_outputs/delay_predictor/delay_predictions.parquet` (54,408 open works scored)
+   * `data/model_outputs/trends/trend_quarterly_rollups.parquet` (7,196 rollup rows across National, State, District, and MP grains)
+   * `data/model_outputs/trends/early_warnings_active.parquet` (Active pre-breach alerts)
 2. **Trained Machine Learning Models**:
    * `models/fund_expenditure_anomaly/isolation_forest.joblib`
    * `models/fund_expenditure_anomaly/robust_scaler.joblib`
    * `models/duplicate_work/embeddings_cache.npz` (84,796 cached MiniLM dense vectors)
    * `models/cost_anomaly/peer_models/*.joblib` (Trained state-level Isolation Forest estimators)
+   * `models/delay_predictor/delay_predictor_gbm.joblib` (Gradient Boosting Classifier, AUC: 0.9366)
 3. **Database Tables (PostgreSQL on Supabase)**:
-   * Populated relational tables: `works`, `cost_anomaly_results`, `duplicate_work_results`, `fund_expenditure_results`, `delay_results`, `work_expenditures`, `users`.
+   * Populated relational tables: `works`, `cost_anomaly_results`, `duplicate_work_results`, `fund_expenditure_results`, `delay_results`, `delay_prediction_results`, `work_expenditures`, `users`.
 4. **Postman Collection**:
    * `MPLADS_Postman_Collection.json` with pre-configured requests, environment variables, and auto-saving test scripts for all stakeholder tiers.
 
 ---
 
-## 19. End-to-End Work Lifecycle Walkthrough
+## 20. End-to-End Work Lifecycle Walkthrough
 
 To understand how data flows through the entire system, let us trace a real work record: **`WS/MP18219/2025-2026/137958`**:
 
@@ -675,32 +723,35 @@ To understand how data flows through the entire system, let us trace a real work
    * **Model 1 (Cost)**: `cost_anomaly_score: 0.88` (`HIGH`). Sanctioned amount is +300% above UP peer median.
    * **Model 2 (Duplicate)**: Identified 2 candidate duplicate pairs in same district within 90 days.
    * **Model 3 (Fund)**: Utilization ratio `0.00` (Zero vouchers issued for $>300$ days) $\to$ Flagged as `DORMANT_SANCTION` (`MEDIUM`).
-   * **Phase 5 (Delay)**: `rec_to_sanc_delay_days: 71` $\to$ Flagged as `LOW` severity delay.
+   * **Model 4 (Delay)**: `rec_to_sanc_delay_days: 71` $\to$ Flagged as `LOW` severity delay.
+   * **Model 5 (Delay Predictor)**: `predicted_completion_risk: 0.68` (`MEDIUM`) on active execution trajectory.
 4. **Relational Storage**:
-   * Record stored in Supabase `works` table; independent assessments stored in `cost_anomaly_results`, `fund_expenditure_results`, `delay_results`.
+   * Record stored in Supabase `works` table; independent assessments stored in `cost_anomaly_results`, `fund_expenditure_results`, `delay_results`, `delay_prediction_results`.
 5. **API & RBAC Enforcement**:
-   * **State Officer (Uttar Pradesh)** logs in $\to$ Calls `/api/v1/works/WS/MP18219/2025-2026/137958` $\to$ **`200 OK`**. Receives complete dossier with all 4 independent risk profiles.
+   * **State Officer (Uttar Pradesh)** logs in $\to$ Calls `/api/v1/works/WS/MP18219/2025-2026/137958` $\to$ **`200 OK`**. Receives complete dossier with all 5 independent risk and predictive profiles.
    * **District Officer (Patna, Bihar)** logs in $\to$ Calls `/api/v1/works/WS/MP18219/2025-2026/137958` $\to$ **`403 Forbidden`** (Work is in Uttar Pradesh, outside Bihar jurisdiction).
    * **Ministry Officer** logs in $\to$ Calls `/api/v1/analytics/cost-anomalies` $\to$ Discovers work in national high-priority audit list.
 
 ---
 
-## 20. Current Platform Capabilities
+## 21. Current Platform Capabilities
 
 * **Complete Data Lifecycle**: Automated cleaning, schema reconciliation, and ingestion across 98,825 works and 109,311 transaction vouchers.
 * **Cost Estimating Reasonableness Audits**: Hierarchical peer-grouped Isolation Forest detecting inflated project estimates at sanction time.
 * **Cross-Border Duplicate Work Detection**: Sentence Transformers combined with structural proximity to flag candidate project duplications across time, boundaries, and MPs.
 * **Financial Flow & Voucher Diagnostics**: Isolation Forest detecting tranche fragmentation, dormant unspent sanctions, and completed works with zero vouchers.
 * **Statutory SLA Compliance Tracking**: Deterministic rule engine monitoring 75-day recommendation-to-sanction limits and 365-day execution deadlines.
+* **Supervised Completion Risk Forecasting**: Gradient Boosting Classifier predicting 365-day deadline breach probabilities across all 54,408 open developmental works.
+* **Statutory Early Warning Queue**: Forward-looking alerts detecting near-miss 75-day sanction deadlines and approaching 365-day project dormancies.
 * **Multi-Tier Role-Based Access Control**: Strict server-side SQL predicate injection enforcing true constitutional boundaries across Ministry, State, District, and MP tiers.
 * **Instantaneous Credential Revocation**: Hybrid JWT + live database checking guaranteeing immediate access revocation for deactivated or transferred users.
 * **Cryptographic Hardening**: Direct Bcrypt (12 rounds) with constant-time dummy hash verification mitigating timing-based user enumeration.
 * **Cloud Relational Architecture**: PostgreSQL on Supabase with 100% foreign key referential integrity (0 orphans) and Row Level Security enabled.
-* **Comprehensive Automated Verification**: 85 automated tests passing with a 100% success rate.
+* **Comprehensive Automated Verification**: 110 automated tests passing with a 100% success rate.
 
 ---
 
-## 21. Current Data & Analytical Limitations
+## 22. Current Data & Analytical Limitations
 
 To maintain institutional transparency, the following technical and data limitations are noted:
 1. **Lack of Intraday Transaction Timestamps**: Raw portal expenditure data provides transaction dates (`YYYY-MM-DD`), not minute-by-minute timestamps. Intraday velocity anomalies cannot be computed.
@@ -711,12 +762,12 @@ To maintain institutional transparency, the following technical and data limitat
 
 ---
 
-## 22. Important Architectural & Design Decisions
+## 23. Important Architectural & Design Decisions
 
-1. **Why 4 Independent Models Instead of a Composite Score?**
-   * Averaging cost, duplication, financial velocity, and timeline delays into a single number creates an opaque, misleading metric. True decision support requires vigilance officers to understand the exact, specific operational failure.
-2. **Why a Rule Engine for Delays?**
-   * Statutory deadlines are established legal rules (75 days under Para 3.12). A statistical ML model would predict expected delays based on historical delays (normalizing bureaucratic slowness); a rule engine evaluates statutory compliance against the law.
+1. **Why 5 Independent Models Instead of a Composite Score?**
+   * Averaging cost, duplication, financial velocity, timeline delays, and completion risk into a single number creates an opaque, misleading metric. True decision support requires vigilance officers to understand the exact, specific operational failure.
+2. **Why a Rule Engine for Retrospective Delays and an ML Classifier for Open Works?**
+   * Statutory deadlines are established legal rules (75 days under Para 3.12). A retrospective rule engine audits compliance against the law without normalizing slowness. For active open works, however, supervised machine learning predicts future risk based on historical completion trajectories.
 3. **Why Server-Side Predicate Injection Instead of Client Filtering?**
    * Frontend filtering is never security. All jurisdictional boundaries are injected directly into SQLAlchemy queries inside FastAPI dependencies before execution.
 4. **Why Direct Bcrypt (12 Rounds) Over Passlib?**
@@ -726,7 +777,7 @@ To maintain institutional transparency, the following technical and data limitat
 
 ---
 
-## 23. Project Implementation Status & Roadmap
+## 24. Project Implementation Status & Roadmap
 
 | Phase | Description | Status | Verification Reference |
 |---|---|:---:|---|
@@ -740,19 +791,21 @@ To maintain institutional transparency, the following technical and data limitat
 | **Phase 6.1** | Supabase PostgreSQL Ingestion (98,825 Works) | **COMPLETE** | `data/reports/phase6_1_data_validation_report.md` |
 | **Phase 6.2** | FastAPI Production Backend & REST APIs | **COMPLETE** | `tests/test_api.py` (15/15 Passed) |
 | **Phase 6.3** | Authentication, RBAC & Backend Security | **COMPLETE** | `tests/test_auth_rbac.py` (19/19 Passed) |
-| **Phase 7** | Interactive Frontend Dashboard (React / Next.js) | **NEXT** | Scheduled next implementation phase |
+| **Phase 7** | Interactive Frontend Dashboard (React / Vite / Tailwind) | **COMPLETE** | `frontend/` production application |
+| **Phase 8** | Predictive Delay Risk Model (Model 5) & Security Hardening | **COMPLETE** | `tests/test_model5_delay_predictor.py` (7/7 Passed, 110/110 Total Suite Passed) |
 
 ---
 
-## 24. Executive Summary: What Exactly Have We Built?
+## 25. Executive Summary: What Exactly Have We Built?
 
 We have engineered an enterprise-grade, data-grounded AI analytics and monitoring platform for India's **₹4,000+ Crore MPLAD Scheme**.
 
 Rather than presenting theoretical models or toy mockups, the platform operates on **real data**:
 * **98,825 real master developmental works** and **109,311 expenditure vouchers** spanning all 36 States/UTs.
-* **Four independent, mathematically validated analytical engines** providing audit coverage across cost estimates, duplicate works, expenditure stagnation, and statutory timeline delays.
+* **Five independent, mathematically validated analytical and predictive engines** providing audit coverage across cost estimates, duplicate works, expenditure stagnation, statutory timeline delays, and forward-looking project completion risk.
 * **A live, fully indexed PostgreSQL database on Supabase** with 100% foreign key integrity and Row Level Security enabled.
 * **A production-hardened FastAPI application gateway** with OAuth2 Bearer JWT authentication, Bcrypt password hashing, timing-attack mitigation, SlowAPI rate limiting, and server-side jurisdictional RBAC isolating records across Central Ministry, State, District, and MP tiers.
-* **100% Automated Test Coverage**: 85 passing tests verifying every data pipeline, ML model, database constraint, API route, and security boundary.
+* **A modern interactive frontend** providing responsive governance dashboards, granular work dossiers, geospatial intelligence, and active early warning queues.
+* **100% Automated Test Coverage**: 110 passing tests verifying every data pipeline, ML model, database constraint, API route, and security boundary.
 
-The platform stands fully functional, fully tested, and ready for frontend integration and national-level governance deployment.
+The platform stands fully functional, fully tested, and ready for national-level governance deployment.

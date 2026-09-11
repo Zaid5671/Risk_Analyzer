@@ -52,8 +52,8 @@ def compute_expenditure_model_features(
     tot_amt = exp_agg["total_disbursed_amount"]
     exp_agg["spending_velocity_per_day"] = np.where(
         window_days > 0,
-        tot_amt / np.maximum(1, window_days),
-        tot_amt
+        tot_amt / np.maximum(30, window_days),
+        0.0
     )
     
     # Calculate Herfindahl Index (HHI) across payee vendors per work_id (SRS § 5.3)

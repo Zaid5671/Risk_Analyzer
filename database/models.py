@@ -48,6 +48,7 @@ class Work(Base):
     cost_result = relationship("CostAnomalyResult", back_populates="work", uselist=False, cascade="all, delete-orphan")
     fund_result = relationship("FundExpenditureResult", back_populates="work", uselist=False, cascade="all, delete-orphan")
     delay_result = relationship("DelayResult", back_populates="work", uselist=False, cascade="all, delete-orphan")
+    delay_prediction = relationship("DelayPredictionResult", back_populates="work", uselist=False, cascade="all, delete-orphan")
     expenditures = relationship("WorkExpenditure", back_populates="work", cascade="all, delete-orphan")
 
 
@@ -134,6 +135,20 @@ class DelayResult(Base):
     explanation = Column(Text, nullable=True)
 
     work = relationship("Work", back_populates="delay_result")
+
+
+class DelayPredictionResult(Base):
+    """Model 5: Predictive Delay Risk Model results."""
+    __tablename__ = "delay_prediction_results"
+
+    work_id = Column(String(64), ForeignKey("works.work_id", ondelete="CASCADE"), primary_key=True)
+    predicted_completion_risk = Column(Float, nullable=False, index=True)
+    predicted_risk_severity = Column(String(32), nullable=False, index=True)
+    days_since_sanction = Column(Integer, nullable=True)
+    current_utilization = Column(Float, nullable=True)
+    explanation = Column(Text, nullable=True)
+
+    work = relationship("Work", back_populates="delay_prediction")
 
 
 class WorkExpenditure(Base):

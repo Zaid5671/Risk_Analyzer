@@ -10,15 +10,23 @@ class DelayExplanationGenerator:
         """Generates transparent, auditable human-readable narrative citing exact timeline numbers."""
         parts = []
 
-        rec_days = int(row.get("rec_to_sanc_days", 0))
-        rec_delay = int(row.get("rec_to_sanc_delay_days", 0))
+        rec_days_val = row.get("rec_to_sanc_days", 0)
+        rec_days = int(rec_days_val) if pd.notna(rec_days_val) else 0
+        rec_delay_val = row.get("rec_to_sanc_delay_days", 0)
+        rec_delay = int(rec_delay_val) if pd.notna(rec_delay_val) else 0
         rec_sev = str(row.get("rec_to_sanc_severity", "NONE"))
 
         is_completed = bool(row.get("is_completed_flag", False))
         status = str(row.get("work_status", "Unknown"))
 
         # 1. Recommendation narrative
-        if rec_delay > 0:
+        if rec_sev == "DATA_QUALITY_EXCEPTION" or (pd.notna(rec_days_val) and rec_days_val < 0):
+            days_diff = abs(int(rec_days_val))
+            parts.append(
+                f"Sanction date precedes recommendation date by {days_diff} days — "
+                f"possible data entry error or backdated sanction requiring audit"
+            )
+        elif rec_delay > 0:
             parts.append(
                 f"Recommendation took {rec_days} days to sanction "
                 f"(exceeds 75-day official SLA by {rec_delay} days [{rec_sev}])"

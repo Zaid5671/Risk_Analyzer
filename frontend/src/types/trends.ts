@@ -10,7 +10,9 @@ export type Trajectory =
   | 'INSUFFICIENT_HISTORY';
 
 export type WarningType =
+  | 'SLA_NEAR_MISS'
   | 'SLA_SANCTION_CLIFF'
+  | 'APPROACHING_DORMANCY'
   | 'STAGNATION_INCUBATION'
   | 'BATCH_DUPLICATE_CLUSTER';
 

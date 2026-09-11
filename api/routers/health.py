@@ -42,6 +42,6 @@ def get_filter_metadata(db: Session = Depends(get_db)):
         duplicate_severities=["HIGH", "REVIEW", "LOW"],
         fund_severities=["HIGH", "MEDIUM", "LOW"],
         fund_audit_categories=["ACTIVE_EXPENDITURE", "NORMAL_AWAITING_DISBURSEMENT", "DORMANT_SANCTION", "STATUS_EXPENDITURE_MISMATCH"],
-        delay_severities=["HIGH", "MEDIUM", "LOW", "NONE"],
+        delay_severities=["HIGH", "MEDIUM", "LOW", "NONE", "DATA_QUALITY_EXCEPTION"],
         delay_types=["RECOMMENDATION_TO_SANCTION_DELAY", "SANCTION_TO_COMPLETION_DELAY", "OPEN_WORK_AGING_STALLED"]
     )

@@ -4,6 +4,7 @@ from api.schemas.cost_anomaly import CostAnomalyItem, CostAnomalyDetail, CostSev
 from api.schemas.duplicate_work import DuplicatePairItem, WorkDuplicateLookupResponse, DuplicateSeverityEnum
 from api.schemas.fund_anomaly import FundAnomalyItem, FundAnomalyDetail, FundSeverityEnum, FundAuditCategoryEnum
 from api.schemas.delay import DelayItem, DelayDetail, DelaySeverityEnum, DelayTypeEnum
+from api.schemas.prediction import DelayPredictionItem, DelayPredictionDetail, DelayRiskSeverityEnum
 from api.schemas.summaries import DistrictSummaryItem, MPSummaryItem
 from api.schemas.auth import LoginRequest, TokenResponse, UserRead, UserCreate
 
@@ -14,6 +15,7 @@ __all__ = [
     "DuplicatePairItem", "WorkDuplicateLookupResponse", "DuplicateSeverityEnum",
     "FundAnomalyItem", "FundAnomalyDetail", "FundSeverityEnum", "FundAuditCategoryEnum",
     "DelayItem", "DelayDetail", "DelaySeverityEnum", "DelayTypeEnum",
+    "DelayPredictionItem", "DelayPredictionDetail", "DelayRiskSeverityEnum",
     "DistrictSummaryItem", "MPSummaryItem",
     "LoginRequest", "TokenResponse", "UserRead", "UserCreate"
 ]

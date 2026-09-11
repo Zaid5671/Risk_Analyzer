@@ -41,7 +41,7 @@ def compute_structural_features(df_pairs: pd.DataFrame, generic_descriptions: Se
     
     # 2. Date proximity: exp(-days_diff / decay)
     days_diff = df["days_diff"].values
-    df["date_proximity"] = np.exp(-days_diff / DATE_PROXIMITY_DECAY_DAYS)
+    df["date_proximity"] = np.exp(-days_diff / 60.0)
     
     # 3. Same constituency / Same MP
     df["same_const_score"] = df["is_same_constituency"].astype(float)
@@ -84,3 +84,16 @@ def compute_structural_features(df_pairs: pd.DataFrame, generic_descriptions: Se
     df["confidence"] = np.clip(word_conf * gen_mult * missing_mult, 0.1, 1.0)
     
     return df
+
+
+def apply_location_penalty(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Confidence penalty: If both works are in DIFFERENT constituencies AND different MPs,
+    reduce the score by 20% (multiply duplicate_score by 0.80) — these cannot be physical duplicates.
+    """
+    df = df.copy()
+    if "duplicate_score" in df.columns and "is_same_constituency" in df.columns and "is_same_mp" in df.columns:
+        different_location = (~df["is_same_constituency"].astype(bool)) & (~df["is_same_mp"].astype(bool))
+        df.loc[different_location, "duplicate_score"] *= 0.80
+    return df
+

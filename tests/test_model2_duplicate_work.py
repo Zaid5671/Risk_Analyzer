@@ -49,6 +49,34 @@ def test_score_bounds_and_components():
     assert scored.loc[0, "severity"] in ["HIGH", "REVIEW"]
 
 
+def test_date_proximity_decay_and_location_penalty():
+    """Verifies 60-day exponential decay and location confidence penalty for different constituency/MP."""
+    df_test = pd.DataFrame([
+        {
+            "work_id_1": "W1", "work_id_2": "W2",
+            "sanction_amount_1": 100000.0, "sanction_amount_2": 100000.0,
+            "days_diff": 60, "is_same_constituency": True, "is_same_mp": True,
+            "work_description_1": "Road project", "work_description_2": "Road project",
+            "semantic_similarity": 0.8
+        },
+        {
+            "work_id_1": "W3", "work_id_2": "W4",
+            "sanction_amount_1": 100000.0, "sanction_amount_2": 100000.0,
+            "days_diff": 60, "is_same_constituency": False, "is_same_mp": False,
+            "work_description_1": "Road project", "work_description_2": "Road project",
+            "semantic_similarity": 0.8
+        }
+    ])
+    
+    struct = compute_structural_features(df_test)
+    assert np.isclose(struct.loc[0, "date_proximity"], np.exp(-1.0))
+    
+    scored = compute_duplicate_score(struct)
+    unpenalized_2 = 0.65 * 0.8 + 0.35 * struct.loc[1, "structural_score"]
+    assert np.isclose(scored.loc[1, "duplicate_score"], unpenalized_2 * 0.80)
+
+
+
 def test_missing_and_generic_descriptions_affect_confidence():
     """Tests missing and generic/short descriptions handle confidence properly without crashing."""
     df_test = pd.DataFrame([

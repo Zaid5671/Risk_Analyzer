@@ -83,3 +83,30 @@ def test_model1_end_to_end_pipeline_output():
     ]
     for col in expected_cols:
         assert col in df_out.columns
+
+def test_model1_reduced_feature_set():
+    """Verify that Model 1 features are strictly limited to the 3 cost features."""
+    from ml_models.cost_anomaly.config import MODEL_FEATURE_COLS
+    expected_features = ["sanction_amount_log", "peer_iqr_deviation", "cost_ratio_vs_peer_median"]
+    assert MODEL_FEATURE_COLS == expected_features
+    assert "rec_to_sanc_days" not in MODEL_FEATURE_COLS
+    assert "desc_word_count" not in MODEL_FEATURE_COLS
+    
+    df = pd.read_parquet(COST_FEATURES_PATH).head(10)
+    X = prepare_features(df)
+    assert list(X.columns) == expected_features
+
+def test_model1_insufficient_peer_data_handling():
+    """Verify works with INSUFFICIENT_PEER_DATA receive 0.25 score and INSUFFICIENT_PEER_DATA severity."""
+    df = pd.read_parquet(COST_FEATURES_PATH).head(10).copy()
+    df["peer_group_used"] = "INSUFFICIENT_DATA"
+    df["peer_group_level"] = "INSUFFICIENT_PEER_DATA"
+    df["is_sufficient_peer_data"] = False
+    df["is_data_quality_exception"] = False
+    
+    peer_models = {}
+    df_scored = score_works_dataset(df, peer_models)
+    
+    assert (df_scored["cost_anomaly_score"] == 0.25).all()
+    assert (df_scored["severity"] == "INSUFFICIENT_PEER_DATA").all()
+

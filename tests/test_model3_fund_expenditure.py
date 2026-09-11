@@ -176,3 +176,35 @@ def test_full_pipeline_contract(config):
     assert config.model_joblib_path.exists()
     assert config.metadata_json_path.exists()
     assert config.report_output_path.exists()
+
+
+def test_velocity_calculation_min_window():
+    """Verifies that velocity calculation enforces 30-day minimum window and zero for single transactions."""
+    from feature_engineering.expenditure_features import compute_expenditure_model_features
+    df_works = pd.DataFrame({
+        "work_id": ["W1", "W2"],
+        "house": ["Lok Sabha", "Lok Sabha"],
+        "state": ["State A", "State A"],
+        "district": ["Dist A", "Dist A"],
+        "ida": ["IDA 1", "IDA 1"],
+        "mp_name": ["MP 1", "MP 1"],
+        "work_status": ["Ongoing", "Ongoing"],
+        "sanction_amount": [100000.0, 100000.0],
+        "sanction_date": ["2024-01-01", "2024-01-01"]
+    })
+    df_exp = pd.DataFrame({
+        "work_id": ["W1", "W2", "W2"],
+        "fund_disbursed_amount": [30000.0, 30000.0, 30000.0],
+        "expenditure_date": ["2024-02-01", "2024-02-01", "2024-02-11"],
+        "vendor_name": ["V1", "V2", "V2"],
+        "payment_status": ["Success", "Success", "Success"]
+    })
+    feat = compute_expenditure_model_features(df_works, df_exp)
+    # W1 has 1 transaction (window_days = 0) -> velocity must be 0.0
+    w1_row = feat[feat["work_id"] == "W1"].iloc[0]
+    assert w1_row["spending_velocity_per_day"] == 0.0
+
+    # W2 has 2 transactions with 10 days diff -> max(30, 10) = 30 -> 60000 / 30 = 2000.0
+    w2_row = feat[feat["work_id"] == "W2"].iloc[0]
+    assert np.isclose(w2_row["spending_velocity_per_day"], 60000.0 / 30.0)
+

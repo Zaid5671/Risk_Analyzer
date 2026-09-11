@@ -57,15 +57,22 @@ def score_works_dataset(
     
     # Vectorized scoring by peer group
     for group_name, group_data in out.groupby("peer_group_used"):
+        if "peer_group_level" in group_data.columns and (group_data["peer_group_level"] == "INSUFFICIENT_PEER_DATA").all():
+            continue
+            
         model_info = peer_models.get(group_name)
         if not model_info:
             continue
             
         clf = model_info["model"]
         indices = group_data.index
+        if "peer_group_level" in group_data.columns:
+            indices = group_data[group_data["peer_group_level"] != "INSUFFICIENT_PEER_DATA"].index
+        if len(indices) == 0:
+            continue
         
         # Prepare feature matrix for the group
-        X_group = prepare_features(group_data)
+        X_group = prepare_features(out.loc[indices])
         
         # Vectorized decision_function call for all works in the group
         raw_dec = clf.decision_function(X_group)
@@ -77,6 +84,12 @@ def score_works_dataset(
         out.loc[indices, "model_peer_median_amount"] = model_info["peer_median_amount"]
         out.loc[indices, "model_peer_iqr_amount"] = model_info["peer_iqr_amount"]
         
+    # Handle INSUFFICIENT_PEER_DATA explicitly
+    if "peer_group_level" in out.columns:
+        insuff_mask = out["peer_group_level"] == "INSUFFICIENT_PEER_DATA"
+        out.loc[insuff_mask, "cost_anomaly_score"] = 0.25
+        out.loc[insuff_mask, "raw_anomaly_score"] = 0.0
+
     # Handle Data Quality Exceptions explicitly
     dq_mask = out["is_data_quality_exception"]
     out.loc[dq_mask, "raw_anomaly_score"] = 0.0
@@ -88,6 +101,10 @@ def score_works_dataset(
         out["is_data_quality_exception"].values,
         out["is_sufficient_peer_data"].values
     )
+    
+    if "peer_group_level" in out.columns:
+        out.loc[out["peer_group_level"] == "INSUFFICIENT_PEER_DATA", "severity"] = "INSUFFICIENT_PEER_DATA"
+    out.loc[dq_mask, "severity"] = "DATA_QUALITY_EXCEPTION"
     
     sev_counts = out["severity"].value_counts().to_dict()
     logging.info(f"Scoring complete. Severity distribution: {sev_counts}")

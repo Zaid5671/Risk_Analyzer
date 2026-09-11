@@ -7,10 +7,11 @@ from api.routers.fund_anomalies import router as fund_router
 from api.routers.delays import router as delay_router
 from api.routers.summaries import router as summary_router
 from api.routers.trends import router as trend_router
+from api.routers.predictions import router as prediction_router
 
 __all__ = [
     "health_router", "auth_router", "works_router", "cost_router",
     "duplicate_router", "fund_router", "delay_router", "summary_router",
-    "trend_router"
+    "trend_router", "prediction_router"
 ]
 

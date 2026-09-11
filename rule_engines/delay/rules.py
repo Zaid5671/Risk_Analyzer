@@ -19,30 +19,41 @@ class DelayRulesEngine:
         days = (sanc_dates - rec_dates).dt.days.values
         # Negative check / data quality assertion
         is_negative = (days < 0)
-        days_clean = np.where(is_negative, 0, days)
+        days_clean = np.where(is_negative, np.nan, days)
 
-        delay_days = np.maximum(0, days_clean - self.config.rec_to_sanc_sla_days)
+        delay_days = np.maximum(0, np.nan_to_num(days_clean, nan=0.0) - self.config.rec_to_sanc_sla_days)
 
         # Severity
         severity = np.where(
-            days_clean > self.config.rec_high_threshold, "HIGH",
+            is_negative, "DATA_QUALITY_EXCEPTION",
             np.where(
-                days_clean > self.config.rec_medium_threshold, "MEDIUM",
-                np.where(days_clean > self.config.rec_low_threshold, "LOW", "NONE")
+                days_clean > self.config.rec_high_threshold, "HIGH",
+                np.where(
+                    days_clean > self.config.rec_medium_threshold, "MEDIUM",
+                    np.where(days_clean > self.config.rec_low_threshold, "LOW", "NONE")
+                )
             )
         )
 
         # Normalized Score [0.0, 1.0]
         # <= 75d: maps into [0.0, 0.25]
         # > 75d: scales from 0.25 to 1.0 at rec_max_scale_days (300d)
-        ratio = days_clean / float(self.config.rec_to_sanc_sla_days)
+        ratio = np.nan_to_num(days_clean, nan=0.0) / float(self.config.rec_to_sanc_sla_days)
         score = np.where(
-            ratio <= 1.0,
-            0.25 * ratio,
-            0.25 + 0.75 * np.minimum(1.0, (days_clean - self.config.rec_to_sanc_sla_days) / float(self.config.rec_max_scale_days - self.config.rec_to_sanc_sla_days))
+            is_negative,
+            0.90,
+            np.where(
+                ratio <= 1.0,
+                0.25 * ratio,
+                0.25 + 0.75 * np.minimum(1.0, (np.nan_to_num(days_clean, nan=0.0) - self.config.rec_to_sanc_sla_days) / float(self.config.rec_max_scale_days - self.config.rec_to_sanc_sla_days))
+            )
         )
 
         return days, delay_days, severity, np.round(score, 4)
+
+    @staticmethod
+    def get_negative_delay_explanation(days: float) -> str:
+        return f"Sanction date precedes recommendation date by {abs(int(days))} days — possible data entry error or backdated sanction requiring audit"
 
     def evaluate_completion_delay(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """

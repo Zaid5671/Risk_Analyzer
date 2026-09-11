@@ -15,7 +15,8 @@ from api.routers import (
     fund_router,
     delay_router,
     summary_router,
-    trend_router
+    trend_router,
+    prediction_router
 )
 
 app = FastAPI(
@@ -60,6 +61,7 @@ app.include_router(fund_router, prefix=settings.API_V1_STR)
 app.include_router(delay_router, prefix=settings.API_V1_STR)
 app.include_router(summary_router, prefix=settings.API_V1_STR)
 app.include_router(trend_router, prefix=settings.API_V1_STR)
+app.include_router(prediction_router, prefix=settings.API_V1_STR)
 
 @app.get("/", tags=["Root"])
 def root():

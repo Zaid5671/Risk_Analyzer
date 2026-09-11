@@ -322,6 +322,65 @@ def ingest_delay_results(conn, parquet_path: str = "data/model_outputs/delay_rul
     print(f"Delay Rule Results ingested: {count:,} rows in {time.time()-t0:.2f}s")
     return count
 
+def ingest_delay_prediction_results(conn, parquet_path: str = "data/model_outputs/delay_predictor/delay_predictions.parquet") -> int:
+    """Ingests Model 5 Predictive Delay Risk results."""
+    t0 = time.time()
+    print(f"\n--- Ingesting Delay Prediction Results from {parquet_path} ---")
+    
+    cur = conn.cursor()
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS delay_prediction_results (
+            work_id VARCHAR(64) PRIMARY KEY REFERENCES works(work_id) ON DELETE CASCADE,
+            predicted_completion_risk DOUBLE PRECISION NOT NULL,
+            predicted_risk_severity VARCHAR(32) NOT NULL,
+            days_since_sanction INTEGER,
+            current_utilization DOUBLE PRECISION,
+            explanation TEXT
+        );
+        CREATE INDEX IF NOT EXISTS idx_pred_delay_risk ON delay_prediction_results(predicted_completion_risk);
+        CREATE INDEX IF NOT EXISTS idx_pred_delay_severity ON delay_prediction_results(predicted_risk_severity);
+    """)
+    conn.commit()
+
+    df = pd.read_parquet(parquet_path)
+    df["work_id"] = df["work_id"].astype(str).str.strip()
+
+    cols = [
+        "work_id", "predicted_completion_risk", "predicted_risk_severity",
+        "days_since_sanction", "current_utilization", "explanation"
+    ]
+    cols_sql = ", ".join(cols)
+    df_sub = df[cols].copy()
+    df_sub["days_since_sanction"] = pd.to_numeric(df_sub["days_since_sanction"], errors="coerce").astype("Int64")
+
+    cur.execute("CREATE TEMP TABLE stage_delay_pred (LIKE delay_prediction_results INCLUDING DEFAULTS) ON COMMIT DROP;")
+
+    buf = io.StringIO()
+    df_sub.to_csv(buf, sep=",", header=False, index=False, na_rep="\\N")
+    buf.seek(0)
+
+    cur.copy_expert(f"""
+        COPY stage_delay_pred ({cols_sql}) FROM STDIN WITH (FORMAT csv, HEADER false, NULL '\\N');
+    """, buf)
+
+    cur.execute(f"""
+        INSERT INTO delay_prediction_results ({cols_sql})
+        SELECT {cols_sql} FROM stage_delay_pred
+        ON CONFLICT (work_id) DO UPDATE SET
+            predicted_completion_risk = EXCLUDED.predicted_completion_risk,
+            predicted_risk_severity = EXCLUDED.predicted_risk_severity,
+            days_since_sanction = EXCLUDED.days_since_sanction,
+            current_utilization = EXCLUDED.current_utilization,
+            explanation = EXCLUDED.explanation;
+    """)
+    conn.commit()
+
+    cur.execute("SELECT count(*) FROM delay_prediction_results;")
+    count = cur.fetchone()[0]
+    cur.close()
+    print(f"Delay Prediction Results ingested: {count:,} rows in {time.time()-t0:.2f}s")
+    return count
+
 def ingest_work_expenditures(conn) -> int:
     """Ingests 109,311 expenditure transaction vouchers."""
     t0 = time.time()
@@ -542,6 +601,9 @@ def main():
 
         # Step 4: Delay
         ingest_delay_results(conn)
+
+        # Step 4.1: Delay Predictions (Model 5)
+        ingest_delay_prediction_results(conn)
 
         # Step 5: Work expenditures
         ingest_work_expenditures(conn)
