@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   ExternalLink,
   ReceiptText,
+  BrainCircuit,
 } from 'lucide-react';
 
 export const WorkDetail: React.FC = () => {
@@ -444,6 +445,99 @@ export const WorkDetail: React.FC = () => {
                 className="text-xs text-blue-600 hover:underline font-semibold"
               >
                 View Delay Tracker →
+              </Link>
+            </div>
+          </div>
+
+          {/* Card 5: AI Predictive Delay Risk (Model 5) */}
+          <div className="p-5 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between md:col-span-2 bg-gradient-to-r from-white via-white to-purple-50/30">
+            <div>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-1.5 rounded-md bg-purple-100 text-purple-700">
+                    <BrainCircuit className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                      <span>5. AI Predictive Completion Delay Risk</span>
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 bg-purple-100 text-purple-700 rounded border border-purple-200">
+                        Model 5 • Gradient Boosting
+                      </span>
+                    </h3>
+                  </div>
+                </div>
+                {profiles.delay_prediction ? (
+                  <SeverityBadge severity={profiles.delay_prediction.predicted_risk_severity} />
+                ) : (
+                  <Badge variant="neutral">Not Scored / Completed</Badge>
+                )}
+              </div>
+
+              {profiles.delay_prediction ? (
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                  <div>
+                    <span className="text-slate-500 block mb-1">Completion Breach Probability:</span>
+                    <div className="flex items-center gap-2">
+                      <span className={`font-mono text-sm font-bold ${
+                        profiles.delay_prediction.predicted_completion_risk >= 0.75
+                          ? 'text-rose-600'
+                          : profiles.delay_prediction.predicted_completion_risk >= 0.5
+                          ? 'text-amber-600'
+                          : 'text-emerald-600'
+                      }`}>
+                        {(profiles.delay_prediction.predicted_completion_risk * 100).toFixed(1)}%
+                      </span>
+                      <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                        <div
+                          className={`h-full rounded-full ${
+                            profiles.delay_prediction.predicted_completion_risk >= 0.75
+                              ? 'bg-rose-500'
+                              : profiles.delay_prediction.predicted_completion_risk >= 0.5
+                              ? 'bg-amber-500'
+                              : 'bg-emerald-500'
+                          }`}
+                          style={{ width: `${Math.min(100, Math.max(5, profiles.delay_prediction.predicted_completion_risk * 100))}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="text-slate-500 block mb-1">Days Since Sanction:</span>
+                    <span className="font-mono font-semibold text-slate-800 text-sm">
+                      {profiles.delay_prediction.days_since_sanction != null ? `${profiles.delay_prediction.days_since_sanction}d` : '—'}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className="text-slate-500 block mb-1">Current Fund Utilization:</span>
+                    <span className="font-mono font-semibold text-slate-800 text-sm">
+                      {profiles.delay_prediction.current_utilization != null
+                        ? `${(profiles.delay_prediction.current_utilization * 100).toFixed(1)}%`
+                        : '0.0%'}
+                    </span>
+                  </div>
+
+                  <div className="sm:col-span-3">
+                    <p className="text-slate-600 bg-purple-50/50 p-2.5 rounded-lg border border-purple-100 text-[11px] leading-relaxed">
+                      <strong className="text-purple-900 font-semibold">Predictive Assessment: </strong>
+                      {profiles.delay_prediction.explanation || 'Evaluated against historical completion velocity and district-level delivery factors.'}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="mt-4 text-xs text-slate-500">
+                  This work is either completed or has low estimated probability of exceeding statutory delivery timelines.
+                </p>
+              )}
+            </div>
+
+            <div className="mt-4 pt-3 border-t border-slate-100 text-right">
+              <Link
+                to="/analytics/predictions"
+                className="text-xs text-purple-600 hover:underline font-semibold"
+              >
+                View Predictive Queue →
               </Link>
             </div>
           </div>

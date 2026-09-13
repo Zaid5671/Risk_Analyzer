@@ -4,6 +4,7 @@ import type { CostAnomalyItem, CostAnomalyDetail } from '@/types/cost_anomaly';
 import type { DuplicatePairItem, WorkDuplicateLookupResponse } from '@/types/duplicate_work';
 import type { FundAnomalyItem, FundAnomalyDetail } from '@/types/fund_anomaly';
 import type { DelayItem, DelayDetail } from '@/types/delay';
+import type { DelayPredictionItem, DelayPredictionDetail } from '@/types/prediction';
 import type { DistrictSummaryItem, MPSummaryItem } from '@/types/summaries';
 
 export const analyticsService = {
@@ -80,6 +81,24 @@ export const analyticsService = {
 
   async getDelayById(workId: string): Promise<DelayDetail> {
     const { data } = await apiClient.get<DelayDetail>('/analytics/delays/' + encodeURIComponent(workId));
+    return data;
+  },
+
+  // Model 5: Predictive Delay Risk
+  async getDelayPredictions(params?: {
+    severity?: string;
+    min_risk?: number;
+    state?: string;
+    district?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<PaginatedResponse<DelayPredictionItem>> {
+    const { data } = await apiClient.get<PaginatedResponse<DelayPredictionItem>>('/analytics/predictions/delay-risk', { params });
+    return data;
+  },
+
+  async getDelayPredictionById(workId: string): Promise<DelayPredictionDetail> {
+    const { data } = await apiClient.get<DelayPredictionDetail>('/analytics/predictions/delay-risk/' + encodeURIComponent(workId));
     return data;
   },
 

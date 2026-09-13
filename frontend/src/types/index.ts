@@ -6,3 +6,4 @@ export * from './duplicate_work';
 export * from './fund_anomaly';
 export * from './delay';
 export * from './summaries';
+export * from './prediction';

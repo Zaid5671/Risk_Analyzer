@@ -17,6 +17,7 @@ import { StatutoryDelays } from '@/pages/StatutoryDelays';
 import { DistrictSummary } from '@/pages/DistrictSummary';
 import { MPSummary } from '@/pages/MPSummary';
 import { TrendAnalytics } from '@/pages/TrendAnalytics';
+import { PredictiveInsights } from '@/pages/PredictiveInsights';
 import { AdminUsers } from '@/pages/AdminUsers';
 
 const queryClient = new QueryClient({
@@ -50,6 +51,7 @@ export const App: React.FC = () => {
                 <Route path="/duplicates/compare" element={<DuplicateComparison />} />
                 <Route path="/analytics/fund-anomalies" element={<FundAnomalies />} />
                 <Route path="/analytics/delays" element={<StatutoryDelays />} />
+                <Route path="/analytics/predictions" element={<PredictiveInsights />} />
                 <Route path="/analytics/district-summary" element={<DistrictSummary />} />
                 <Route path="/analytics/mp-summary" element={<MPSummary />} />
                 <Route path="/analytics/trends" element={<TrendAnalytics />} />

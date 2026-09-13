@@ -30,6 +30,7 @@ import {
   Search,
   Activity,
   Layers,
+  BrainCircuit,
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
@@ -101,11 +102,13 @@ const MinistryDashboard: React.FC = () => {
     duplicateHigh: number;
     fundHigh: number;
     delayHigh: number;
+    predictionHigh: number;
   }>({
     costHigh: 986,
     duplicateHigh: 50000,
     fundHigh: 1737,
     delayHigh: 15263,
+    predictionHigh: 0,
   });
 
   // Attention Required queue items
@@ -119,7 +122,8 @@ const MinistryDashboard: React.FC = () => {
       analyticsService.getDuplicateWorks({ severity: 'HIGH', page_size: 1 }),
       analyticsService.getFundAnomalies({ severity: 'HIGH', page_size: 1 }),
       analyticsService.getDelays({ severity: 'HIGH', page_size: 1 }),
-    ]).then(([resHealth, resDist, resCost, resDup, resFund, resDelay]) => {
+      analyticsService.getDelayPredictions({ severity: 'HIGH', page_size: 1 }),
+    ]).then(([resHealth, resDist, resCost, resDup, resFund, resDelay, resPred]) => {
       if (resHealth.status === 'fulfilled') setHealth(resHealth.value);
       if (resDist.status === 'fulfilled') setDistricts(resDist.value);
 
@@ -128,6 +132,7 @@ const MinistryDashboard: React.FC = () => {
         duplicateHigh: resDup.status === 'fulfilled' ? resDup.value.pagination.total_records : 50000,
         fundHigh: resFund.status === 'fulfilled' ? resFund.value.pagination.total_records : 1737,
         delayHigh: resDelay.status === 'fulfilled' ? resDelay.value.pagination.total_records : 15263,
+        predictionHigh: resPred.status === 'fulfilled' ? resPred.value.pagination.total_records : 0,
       });
 
       setLoading(false);
@@ -302,7 +307,7 @@ const MinistryDashboard: React.FC = () => {
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
           <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>Zero Composite Scoring • 4 Isolated Models</span>
+          <span>Zero Composite Scoring • 5 Isolated Models</span>
         </div>
       </div>
 
@@ -335,12 +340,12 @@ const MinistryDashboard: React.FC = () => {
         />
       </div>
 
-      {/* SECTION 2: Four Independent Module Summary Cards */}
+      {/* SECTION 2: Five Independent Module Summary Cards */}
       <div>
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
             <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Independent Analytical Surveillance (4 Modules)
+              Independent Analytical Surveillance (5 Modules)
             </h2>
             <span className="text-[10px] text-slate-500">
               Decoupled algorithmic pipelines • No synthetic blended scores
@@ -348,7 +353,7 @@ const MinistryDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
           {/* Model 1: Cost Anomalies */}
           <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
             <div>
@@ -472,6 +477,38 @@ const MinistryDashboard: React.FC = () => {
                 className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
               >
                 <span>Triage Delays</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Model 5: Predictive Delay Risk */}
+          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-purple-300 hover:shadow-sm transition-all">
+            <div>
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200/80">
+                  Model 5: Predictive Risk
+                </span>
+                <div className="p-1.5 rounded-md bg-purple-50/80 border border-purple-100 text-purple-600 shrink-0">
+                  <BrainCircuit className="w-3.5 h-3.5" />
+                </div>
+              </div>
+              <div className="mt-3.5">
+                <p className="text-3xl font-black text-purple-700 tabular-nums tracking-tight">
+                  {modelCounts.predictionHigh.toLocaleString()}
+                </p>
+                <p className="text-xs font-semibold text-slate-700 mt-1">High Completion Breach Risk</p>
+              </div>
+            </div>
+            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
+              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
+                Gradient Boosting
+              </span>
+              <Link
+                to="/analytics/predictions?severity=HIGH"
+                className="text-xs font-bold text-purple-700 hover:text-purple-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
+              >
+                <span>Forecast Queue</span>
                 <ArrowRight className="w-3.5 h-3.5" />
               </Link>
             </div>

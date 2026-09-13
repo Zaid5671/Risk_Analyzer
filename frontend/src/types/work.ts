@@ -2,6 +2,7 @@ import type { CostAnomalyItem } from './cost_anomaly';
 import type { DuplicatePairItem } from './duplicate_work';
 import type { FundAnomalyItem } from './fund_anomaly';
 import type { DelayItem } from './delay';
+import type { DelayPredictionItem } from './prediction';
 
 export interface WorkExpenditureItem {
   id: number;
@@ -36,6 +37,7 @@ export interface IndependentModelProfiles {
   duplicate_pairs: DuplicatePairItem[];
   fund_anomaly: FundAnomalyItem | null;
   delay: DelayItem | null;
+  delay_prediction?: DelayPredictionItem | null;
 }
 
 export interface WorkDetail extends WorkListItem {
