@@ -116,3 +116,16 @@ def test_early_warnings_paging_and_descriptions(client, ministry_headers):
     assert {a["work_id"] for a in first["alerts"]}.isdisjoint({a["work_id"] for a in second["alerts"]})
     assert all(a["urgency_level"] == "CRITICAL" for a in first["alerts"])
     assert any(a["work_description"] for a in first["alerts"])
+
+
+def test_login_limit_is_per_visitor_behind_proxy(client):
+    """Each forwarded visitor gets their own 20/minute login budget."""
+    import uuid
+    n = uuid.uuid4().int % 250
+    first, second = f"198.51.100.{n}, 10.0.0.1", f"198.51.100.{n + 1}, 10.0.0.1"
+    bad = {"email": "nobody@example.com", "password": "wrong-password"}
+    codes = [client.post("/api/v1/auth/login", json=bad, headers={"X-Forwarded-For": first}).status_code for _ in range(21)]
+    assert codes[:20] == [401] * 20
+    assert codes[20] == 429
+    other = client.post("/api/v1/auth/login", json=bad, headers={"X-Forwarded-For": second})
+    assert other.status_code == 401

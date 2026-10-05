@@ -19,12 +19,12 @@ router = APIRouter(prefix="/auth", tags=["Authentication & Access Control"])
 
 
 @router.post("/login", response_model=TokenResponse)
-@limiter.limit("5/minute")
+@limiter.limit("20/minute")
 def login(request: Request, credentials: LoginRequest, db: Session = Depends(get_db)):
     """
     Authenticate a user with email and password.
     Returns an RFC 7519 compliant signed JWT access token.
-    Rate limited to 5 attempts per minute per IP address.
+    Rate limited to 20 attempts per minute per visitor IP (one-click demo logins and role switches each count).
     Includes constant-time dummy verification to mitigate timing-based user enumeration.
     """
     clean_email = credentials.email.lower().strip()
