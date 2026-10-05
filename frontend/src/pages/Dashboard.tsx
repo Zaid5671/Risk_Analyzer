@@ -11,16 +11,9 @@ import type { FundAnomalyItem } from '@/types/fund_anomaly';
 import type { DelayItem } from '@/types/delay';
 import type { DistrictSummaryItem, MPSummaryItem } from '@/types/summaries';
 import { MetricCard } from '@/components/common/MetricCard';
-import { SeverityBadge, Badge } from '@/components/common/Badge';
 import {
   FolderKanban,
-  AlertTriangle,
-  Copy,
-  BadgePercent,
-  Clock,
   Landmark,
-  ShieldAlert,
-  ArrowRight,
   TrendingUp,
   MapPin,
   CheckCircle,
@@ -29,33 +22,43 @@ import {
   ArrowUpDown,
   Search,
   Activity,
-  Layers,
-  BrainCircuit,
 } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { ModelSummaryCards } from '@/components/dashboard/ModelSummaryCards';
+import { WelcomeBanner } from '@/components/dashboard/WelcomeBanner';
+import { formatINRCompact, formatNumber, titleCase } from '@/lib/format';
+import type { WorkBrief } from '@/types/common';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
 
   if (!user) return null;
 
+  let view: React.ReactNode;
   switch (user.role) {
-    case 'MINISTRY':
-      return <MinistryDashboard />;
     case 'STATE_OFFICER':
-      return <StateDashboard stateName={user.assigned_state || 'Uttar Pradesh'} />;
+      view = <StateDashboard stateName={user.assigned_state || 'Uttar Pradesh'} />;
+      break;
     case 'DISTRICT_OFFICER':
-      return (
+      view = (
         <DistrictDashboard
           districtName={user.assigned_district || 'PATNA'}
           stateName={user.assigned_state || 'Bihar'}
         />
       );
+      break;
     case 'MP':
-      return <MPDashboard mpName={user.assigned_mp_name || 'SARABJEET SINGH KHALSA'} />;
+      view = <MPDashboard mpName={user.assigned_mp_name || 'SARABJEET SINGH KHALSA'} />;
+      break;
     default:
-      return <MinistryDashboard />;
+      view = <MinistryDashboard />;
   }
+  return (
+    <div className="space-y-6">
+      <WelcomeBanner />
+      {view}
+    </div>
+  );
 };
 
 /* -------------------------------------------------------------
@@ -75,6 +78,7 @@ interface StatePerformanceRow {
 
 interface AttentionWorkItem {
   work_id: string;
+  work: WorkBrief | null;
   flags: { model: string; label: string; color: 'rose' | 'amber' | 'blue' }[];
 }
 
@@ -96,44 +100,15 @@ const MinistryDashboard: React.FC = () => {
   const [sortField, setSortField] = useState<SortField>('total_sanctioned_amount');
   const [sortAsc, setSortAsc] = useState(false);
 
-  // Dynamic severity counts from models
-  const [modelCounts, setModelCounts] = useState<{
-    costHigh: number;
-    duplicateHigh: number;
-    fundHigh: number;
-    delayHigh: number;
-    predictionHigh: number;
-  }>({
-    costHigh: 986,
-    duplicateHigh: 50000,
-    fundHigh: 1737,
-    delayHigh: 15263,
-    predictionHigh: 0,
-  });
-
   // Attention Required queue items
   const [attentionWorks, setAttentionWorks] = useState<AttentionWorkItem[]>([]);
 
   useEffect(() => {
-    Promise.allSettled([
-      healthService.getHealth(),
-      analyticsService.getDistrictSummaries(),
-      analyticsService.getCostAnomalies({ severity: 'HIGH', page_size: 1 }),
-      analyticsService.getDuplicateWorks({ severity: 'HIGH', page_size: 1 }),
-      analyticsService.getFundAnomalies({ severity: 'HIGH', page_size: 1 }),
-      analyticsService.getDelays({ severity: 'HIGH', page_size: 1 }),
-      analyticsService.getDelayPredictions({ severity: 'HIGH', page_size: 1 }),
-    ]).then(([resHealth, resDist, resCost, resDup, resFund, resDelay, resPred]) => {
+    // Model counts are fetched by <ModelSummaryCards />; totals come from every district in one call
+    Promise.allSettled([healthService.getHealth(), analyticsService.getDistrictSummaries()]).then(([resHealth, resDist]) => {
       if (resHealth.status === 'fulfilled') setHealth(resHealth.value);
       if (resDist.status === 'fulfilled') setDistricts(resDist.value);
 
-      setModelCounts({
-        costHigh: resCost.status === 'fulfilled' ? resCost.value.pagination.total_records : 986,
-        duplicateHigh: resDup.status === 'fulfilled' ? resDup.value.pagination.total_records : 50000,
-        fundHigh: resFund.status === 'fulfilled' ? resFund.value.pagination.total_records : 1737,
-        delayHigh: resDelay.status === 'fulfilled' ? resDelay.value.pagination.total_records : 15263,
-        predictionHigh: resPred.status === 'fulfilled' ? resPred.value.pagination.total_records : 0,
-      });
 
       setLoading(false);
     });
@@ -144,48 +119,36 @@ const MinistryDashboard: React.FC = () => {
       analyticsService.getFundAnomalies({ severity: 'HIGH', page_size: 6 }),
       analyticsService.getDelays({ severity: 'HIGH', page_size: 6 }),
     ]).then(([resCost, resFund, resDelay]) => {
-      const workMap = new Map<string, AttentionWorkItem['flags']>();
+      const workMap = new Map<string, AttentionWorkItem>();
+      const add = (workId: string, work: WorkBrief | null | undefined, flag: AttentionWorkItem['flags'][number]) => {
+        const entry = workMap.get(workId) || { work_id: workId, work: work ?? null, flags: [] };
+        entry.flags.push(flag);
+        workMap.set(workId, entry);
+      };
 
       if (resCost.status === 'fulfilled') {
-        resCost.value.items.forEach((c) => {
-          const flags = workMap.get(c.work_id) || [];
-          flags.push({
-            model: 'Cost Anomaly',
-            label: c.explanation ? c.explanation.slice(0, 48) + '…' : 'Peer Outlier',
-            color: 'rose',
-          });
-          workMap.set(c.work_id, flags);
-        });
+        resCost.value.items.forEach((c) =>
+          add(c.work_id, c.work_info, { model: 'Cost', label: c.reason || 'Cost far above similar works', color: 'rose' })
+        );
       }
-
       if (resFund.status === 'fulfilled') {
-        resFund.value.items.forEach((f) => {
-          const flags = workMap.get(f.work_id) || [];
-          flags.push({
-            model: 'Fund Anomaly',
-            label: f.audit_category ? f.audit_category.replace(/_/g, ' ') : 'Disbursement Irregularity',
-            color: 'amber',
-          });
-          workMap.set(f.work_id, flags);
-        });
+        resFund.value.items.forEach((f) =>
+          add(f.work_id, f.work_info, { model: 'Fund', label: f.reason || 'Unusual payment pattern', color: 'amber' })
+        );
       }
-
       if (resDelay.status === 'fulfilled') {
-        resDelay.value.items.forEach((d) => {
-          const flags = workMap.get(d.work_id) || [];
-          flags.push({
-            model: 'Statutory Delay',
-            label: d.primary_delay_type ? d.primary_delay_type.replace(/_/g, ' ') : 'Overdue SLA',
-            color: 'blue',
-          });
-          workMap.set(d.work_id, flags);
-        });
+        resDelay.value.items.forEach((d) =>
+          add(d.work_id, d.work_info, { model: 'Delay', label: d.reason || 'Statutory deadline breached', color: 'blue' })
+        );
       }
 
-      const merged: AttentionWorkItem[] = Array.from(workMap.entries())
-        .map(([work_id, flags]) => ({ work_id, flags }))
-        .sort((a, b) => b.flags.length - a.flags.length)
-        .slice(0, 8);
+      // Interleave the models so the queue isn't six cost items in a row; multi-model works first
+      const byModel = (m: string) => [...workMap.values()].filter((w) => w.flags[0].model === m);
+      const lists = [byModel('Cost'), byModel('Fund'), byModel('Delay')];
+      const interleaved: AttentionWorkItem[] = [];
+      const longest = Math.max(...lists.map((l) => l.length));
+      for (let i = 0; i < longest; i++) lists.forEach((l) => l[i] && interleaved.push(l[i]));
+      const merged = interleaved.sort((x, y) => y.flags.length - x.flags.length).slice(0, 8);
 
       setAttentionWorks(merged);
     });
@@ -263,7 +226,7 @@ const MinistryDashboard: React.FC = () => {
       .sort((a, b) => b.total_sanctioned_amount - a.total_sanctioned_amount)
       .slice(0, 8)
       .map((s) => ({
-        state: s.state.length > 12 ? s.state.slice(0, 10) + '…' : s.state,
+        state: s.state,
         fullState: s.state,
         sanctionedCr: Number((s.total_sanctioned_amount / 1e7).toFixed(1)),
         disbursedCr: Number((s.total_disbursed_amount / 1e7).toFixed(1)),
@@ -278,8 +241,8 @@ const MinistryDashboard: React.FC = () => {
         <div className="bg-slate-900 text-white text-xs p-2.5 rounded-lg shadow-xl border border-slate-700">
           <p className="font-bold text-slate-100">{data.fullState}</p>
           <div className="mt-1 space-y-0.5 tabular-nums">
-            <p className="text-blue-300 font-medium">Sanctioned Outlay: ₹{data.sanctionedCr.toLocaleString()} Cr</p>
-            <p className="text-amber-300 font-medium">Disbursed Funds: ₹{data.disbursedCr.toLocaleString()} Cr</p>
+            <p className="text-blue-300 font-medium">Sanctioned: ₹{data.sanctionedCr.toLocaleString('en-IN')} Cr</p>
+            <p className="text-amber-300 font-medium">Disbursed: ₹{data.disbursedCr.toLocaleString('en-IN')} Cr</p>
             <p className="text-emerald-300 font-semibold pt-1 border-t border-slate-800">
               Utilization: {data.utilization}%
             </p>
@@ -296,225 +259,48 @@ const MinistryDashboard: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-slate-200/90">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">National Executive Overview</h1>
+            <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">National Overview</h1>
             <span className="text-[11px] font-semibold px-2 py-0.5 bg-blue-50 text-blue-900 rounded-md border border-blue-200">
               Central MoSPI Oversight
             </span>
           </div>
           <p className="text-xs text-slate-500 mt-0.5">
-            Ministry of Statistics and Programme Implementation • Scheme-wide surveillance across 36 States/UTs
+            Ministry of Statistics and Programme Implementation · monitoring across {statePerformanceRows.length || 36} States/UTs
           </p>
-        </div>
-        <div className="flex items-center gap-2 text-xs text-slate-500 font-mono">
-          <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-          <span>Zero Composite Scoring • 5 Isolated Models</span>
         </div>
       </div>
 
       {/* SECTION 1: National Macro Portfolio KPI Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
         <MetricCard
-          title="Total Sanctioned Works"
-          value={totalWorksCount.toLocaleString()}
-          subtitle="Database Master Catalog"
+          title="Sanctioned works"
+          value={formatNumber(totalWorksCount)}
+          subtitle={`Across ${formatNumber(districts.length || 861)} districts`}
           icon={FolderKanban}
         />
         <MetricCard
-          title="Total Sanctioned Outlay"
-          value={`₹${(totalSanctionedAmt / 1e7).toFixed(1)} Cr`}
-          subtitle="Across 500+ Districts in India"
+          title="Sanctioned amount"
+          value={formatINRCompact(totalSanctionedAmt)}
+          subtitle="Total approved for all works"
           icon={TrendingUp}
         />
         <MetricCard
-          title="Cumulative Disbursed Capital"
-          value={`₹${(totalDisbursedAmt / 1e7).toFixed(1)} Cr`}
-          subtitle="Reconciled Bank Vouchers"
+          title="Amount disbursed"
+          value={formatINRCompact(totalDisbursedAmt)}
+          subtitle="From recorded payment vouchers"
           icon={Landmark}
         />
         <MetricCard
-          title="National Fund Utilization"
+          title="Fund utilisation"
           value={`${nationalUtilization}%`}
-          subtitle="Capital Disbursed / Sanctioned"
+          subtitle="Disbursed ÷ sanctioned"
           icon={CheckCircle}
           variant="success"
         />
       </div>
 
-      {/* SECTION 2: Five Independent Module Summary Cards */}
-      <div>
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Independent Analytical Surveillance (5 Modules)
-            </h2>
-            <span className="text-[10px] text-slate-500">
-              Decoupled algorithmic pipelines • No synthetic blended scores
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-          {/* Model 1: Cost Anomalies */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
-                  Model 1: Cost Anomalies
-                </span>
-                <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-rose-700 tabular-nums tracking-tight">
-                  {modelCounts.costHigh.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Cost Outliers</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Isolation Forest
-              </span>
-              <Link
-                to="/analytics/cost-anomalies?severity=HIGH"
-                className="text-xs font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Inspect Outliers</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 2: Duplicate Works */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
-                  Model 2: Duplicate Works
-                </span>
-                <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
-                  <Copy className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-indigo-700 tabular-nums tracking-tight">
-                  {modelCounts.duplicateHigh.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">Flagged Candidate Pairs</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                MiniLM Embeddings
-              </span>
-              <Link
-                to="/analytics/duplicate-works?severity=HIGH"
-                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Review Pairs</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 3: Fund Anomalies */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
-                  Model 3: Fund & Expenditure
-                </span>
-                <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
-                  <BadgePercent className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-amber-700 tabular-nums tracking-tight">
-                  {modelCounts.fundHigh.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Disbursement Flags</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Vendor HHI Index
-              </span>
-              <Link
-                to="/analytics/fund-anomalies?severity=HIGH"
-                className="text-xs font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Audit Pacing</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 4: Statutory Delays */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
-                  Model 4: Statutory Delays
-                </span>
-                <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
-                  <Clock className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-blue-700 tabular-nums tracking-tight">
-                  {modelCounts.delayHigh.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High SLA Violations</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                MoSPI 2023 SLA
-              </span>
-              <Link
-                to="/analytics/delays?severity=HIGH"
-                className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Triage Delays</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 5: Predictive Delay Risk */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-purple-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200/80">
-                  Model 5: Predictive Risk
-                </span>
-                <div className="p-1.5 rounded-md bg-purple-50/80 border border-purple-100 text-purple-600 shrink-0">
-                  <BrainCircuit className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-purple-700 tabular-nums tracking-tight">
-                  {modelCounts.predictionHigh.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Completion Breach Risk</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Gradient Boosting
-              </span>
-              <Link
-                to="/analytics/predictions?severity=HIGH"
-                className="text-xs font-bold text-purple-700 hover:text-purple-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Forecast Queue</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* SECTION 2: Five independent model summaries (scoped by the API) */}
+      <ModelSummaryCards />
 
       {/* SECTION 3: State Performance Table (Primary Geographic Oversight) */}
       <div className="bg-white rounded-lg border border-slate-200/90 p-4 sm:p-5 shadow-xs">
@@ -698,7 +484,7 @@ const MinistryDashboard: React.FC = () => {
             <strong className="text-slate-700">{sortField.replace(/_/g, ' ')}</strong>)
           </span>
           <Link to="/analytics/district-summary" className="text-blue-600 hover:underline font-semibold">
-            View All 500+ District Breakdown →
+            View all {formatNumber(districts.length)} districts →
           </Link>
         </div>
       </div>
@@ -710,33 +496,34 @@ const MinistryDashboard: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-                Capital Allocation vs Disbursement Pacing (Top States)
+                Sanctioned vs disbursed — top 8 states
               </h3>
             </div>
             <p className="text-xs text-slate-500 mb-4">
-              Comparing Sanctioned Outlay vs Actual Vouchers Disbursed (in ₹ Crores)
+              ₹ crore · hover a bar for exact values
             </p>
-            <div className="h-64">
+            <div className="h-80">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={top10StatesChartData} margin={{ top: 5, right: 10, left: -10, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="state" tick={{ fontSize: 10, fill: '#64748b' }} />
-                  <YAxis tick={{ fontSize: 10, fill: '#64748b' }} />
-                  <Tooltip content={<CustomBarTooltip />} />
-                  <Bar
-                    dataKey="sanctionedCr"
-                    name="Sanctioned Outlay"
-                    fill="#1e3a8a"
-                    radius={[3, 3, 0, 0]}
-                    barSize={14}
+                <BarChart
+                  data={top10StatesChartData}
+                  layout="vertical"
+                  margin={{ top: 0, right: 16, left: 0, bottom: 0 }}
+                  barGap={2}
+                  barCategoryGap="22%"
+                >
+                  <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#eef2f6" />
+                  <XAxis type="number" tick={{ fontSize: 10, fill: '#94a3b8' }} axisLine={false} tickLine={false} />
+                  <YAxis
+                    type="category"
+                    dataKey="state"
+                    width={112}
+                    tick={{ fontSize: 11, fill: '#334155' }}
+                    axisLine={false}
+                    tickLine={false}
                   />
-                  <Bar
-                    dataKey="disbursedCr"
-                    name="Disbursed Funds"
-                    fill="#d97706"
-                    radius={[3, 3, 0, 0]}
-                    barSize={14}
-                  />
+                  <Tooltip content={<CustomBarTooltip />} cursor={{ fill: '#f8fafc' }} />
+                  <Bar dataKey="sanctionedCr" name="Sanctioned" fill="#3b5bdb" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="disbursedCr" name="Disbursed" fill="#d97706" radius={[0, 4, 4, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -744,15 +531,14 @@ const MinistryDashboard: React.FC = () => {
           <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
             <div className="flex items-center gap-4">
               <span className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm bg-[#1e3a8a]"></span>
-                <span>Sanctioned Capital</span>
+                <span className="w-2.5 h-2.5 rounded-sm bg-[#3b5bdb]"></span>
+                <span>Sanctioned</span>
               </span>
               <span className="flex items-center gap-1.5">
                 <span className="w-2.5 h-2.5 rounded-sm bg-[#d97706]"></span>
-                <span>Disbursed Voucher Spend</span>
+                <span>Disbursed</span>
               </span>
             </div>
-            <span className="font-mono text-[10px] text-slate-400">Reconciled Data</span>
           </div>
         </div>
 
@@ -761,55 +547,46 @@ const MinistryDashboard: React.FC = () => {
           <div>
             <div className="flex items-center justify-between mb-1">
               <h3 className="text-sm font-bold text-slate-900 tracking-tight">
-                Attention Required Queue — Multi-Model Signals
+                Needs attention
               </h3>
-              <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">
-                Actionable Works
-              </span>
             </div>
             <p className="text-xs text-slate-500 mb-3">
-              Works flagged with HIGH severity findings across independent analytical models
+              High-severity findings across the models — what the work is and why it was flagged
             </p>
 
             <div className="divide-y divide-slate-100 text-xs">
               {attentionWorks.length > 0 ? (
                 attentionWorks.map((item) => (
-                  <div key={item.work_id} className="py-2.5 flex items-center justify-between gap-3">
+                  <div key={item.work_id} className="py-2.5 flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          to={`/works/${encodeURIComponent(item.work_id)}`}
-                          className="font-mono font-bold text-blue-700 hover:text-blue-900 hover:underline truncate"
-                        >
-                          {item.work_id}
-                        </Link>
-                        {item.flags.length > 1 && (
-                          <span className="text-[9px] px-1 py-0.2 rounded bg-purple-50 text-purple-700 font-bold border border-purple-200">
-                            {item.flags.length} Models Flagged
-                          </span>
-                        )}
+                      <Link
+                        to={`/works/${encodeURIComponent(item.work_id)}`}
+                        className="font-semibold text-[13px] text-slate-900 hover:text-blue-700 hover:underline line-clamp-2"
+                        title={item.work?.work_description || item.work_id}
+                      >
+                        {item.work?.work_description ? titleCase(item.work.work_description) : item.work_id}
+                      </Link>
+                      <div className="text-[11px] text-slate-500">
+                        {item.work ? `${titleCase(item.work.district)}, ${item.work.state} · ` : ''}
+                        <span className="font-mono">{item.work_id}</span>
                       </div>
-                      <div className="flex flex-wrap gap-1.5 mt-1">
-                        {item.flags.map((flag, idx) => (
+                      {item.flags.map((flag, idx) => (
+                        <p key={idx} className="mt-1 text-[11.5px] text-slate-700 leading-snug">
                           <span
-                            key={idx}
-                            className={`text-[10px] px-1.5 py-0.2 rounded font-medium border ${
-                              flag.color === 'rose'
-                                ? 'bg-rose-50 text-rose-700 border-rose-200'
-                                : flag.color === 'amber'
-                                ? 'bg-amber-50 text-amber-700 border-amber-200'
-                                : 'bg-blue-50 text-blue-700 border-blue-200'
+                            className={`mr-1.5 text-[10px] font-bold uppercase ${
+                              flag.color === 'rose' ? 'text-rose-700' : flag.color === 'amber' ? 'text-amber-700' : 'text-blue-700'
                             }`}
                           >
-                            {flag.model}: {flag.label}
+                            {flag.model}
                           </span>
-                        ))}
-                      </div>
+                          {flag.label}
+                        </p>
+                      ))}
                     </div>
                     <Link
                       to={`/works/${encodeURIComponent(item.work_id)}`}
                       className="p-1.5 rounded border border-slate-200 bg-slate-50 hover:bg-blue-50 hover:text-blue-700 text-slate-600 transition-colors shrink-0"
-                      title="Inspect Work Dossier"
+                      title="Open full profile"
                     >
                       <ExternalLink className="w-3.5 h-3.5" />
                     </Link>
@@ -826,7 +603,7 @@ const MinistryDashboard: React.FC = () => {
 
           <div className="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs">
             <span className="text-slate-500 text-[11px]">
-              Filtered by Model Severity = HIGH • Zero composite scoring
+              Severity: high
             </span>
             <Link to="/works" className="text-blue-600 hover:underline font-semibold">
               Explore Master Registry →
@@ -857,10 +634,6 @@ const StateDashboard: React.FC<{ stateName: string }> = ({ stateName }) => {
   const stateDisbursed = districts.reduce((acc, d) => acc + (d.total_disbursed_amount || 0), 0);
   const stateUtilization = stateOutlay > 0 ? ((stateDisbursed / stateOutlay) * 100).toFixed(1) : '0.0';
 
-  const stateHighCost = districts.reduce((acc, d) => acc + (d.high_cost_anomalies || 0), 0);
-  const stateHighDuplicates = districts.reduce((acc, d) => acc + (d.high_duplicate_pairs || 0), 0);
-  const stateHighFund = districts.reduce((acc, d) => acc + (d.high_fund_anomalies || 0), 0);
-  const stateHighDelays = districts.reduce((acc, d) => acc + (d.high_delays || 0), 0);
 
   return (
     <div className="space-y-6">
@@ -911,149 +684,8 @@ const StateDashboard: React.FC<{ stateName: string }> = ({ stateName }) => {
         />
       </div>
 
-      {/* SECTION 2: Four Independent Module Summary Cards */}
-      <div>
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Independent Analytical Surveillance (4 Modules)
-            </h2>
-            <span className="text-[10px] text-slate-500">
-              Decoupled algorithmic pipelines • No synthetic blended scores
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Model 1: Cost Anomalies */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
-                  Model 1: Cost Anomalies
-                </span>
-                <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-rose-700 tabular-nums tracking-tight">
-                  {stateHighCost.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Cost Outliers</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Isolation Forest
-              </span>
-              <Link
-                to={`/analytics/cost-anomalies?severity=HIGH&state=${encodeURIComponent(stateName)}`}
-                className="text-xs font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Inspect Outliers</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 2: Duplicate Works */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
-                  Model 2: Duplicate Works
-                </span>
-                <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
-                  <Copy className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-indigo-700 tabular-nums tracking-tight">
-                  {stateHighDuplicates.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">Flagged Candidate Pairs</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                MiniLM Embeddings
-              </span>
-              <Link
-                to="/analytics/duplicate-works?severity=HIGH"
-                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Review Pairs</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 3: Fund Anomalies */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
-                  Model 3: Fund & Expenditure
-                </span>
-                <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
-                  <BadgePercent className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-amber-700 tabular-nums tracking-tight">
-                  {stateHighFund.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Disbursement Flags</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Vendor HHI Index
-              </span>
-              <Link
-                to={`/analytics/fund-anomalies?severity=HIGH&state=${encodeURIComponent(stateName)}`}
-                className="text-xs font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Audit Pacing</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 4: Statutory Delays */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
-                  Model 4: Statutory Delays
-                </span>
-                <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
-                  <Clock className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-blue-700 tabular-nums tracking-tight">
-                  {stateHighDelays.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High SLA Violations</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                MoSPI 2023 SLA
-              </span>
-              <Link
-                to={`/analytics/delays?severity=HIGH&state=${encodeURIComponent(stateName)}`}
-                className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Triage Delays</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* SECTION 2: Five independent model summaries (scoped by the API) */}
+      <ModelSummaryCards />
 
       {/* Inter-District Table */}
       <div className="bg-white rounded-lg border border-slate-200/90 p-5 shadow-xs">
@@ -1145,10 +777,6 @@ const DistrictDashboard: React.FC<{ districtName: string; stateName: string }> =
   const districtDisbursed = districtSummary?.total_disbursed_amount || 0;
   const districtUtilization = districtOutlay > 0 ? ((districtDisbursed / districtOutlay) * 100).toFixed(1) : '0.0';
 
-  const districtHighCost = districtSummary?.high_cost_anomalies ?? costAnomalies.length;
-  const districtHighDuplicates = districtSummary?.high_duplicate_pairs ?? duplicatePairs.length;
-  const districtHighFund = districtSummary?.high_fund_anomalies ?? fundAnomalies.length;
-  const districtHighDelays = districtSummary?.high_delays ?? delays.length;
 
   return (
     <div className="space-y-6">
@@ -1201,149 +829,8 @@ const DistrictDashboard: React.FC<{ districtName: string; stateName: string }> =
         />
       </div>
 
-      {/* SECTION 2: Four Independent Module Summary Cards */}
-      <div>
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Independent Analytical Surveillance (4 Modules)
-            </h2>
-            <span className="text-[10px] text-slate-500">
-              Decoupled algorithmic pipelines • No synthetic blended scores
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Model 1: Cost Anomalies */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
-                  Model 1: Cost Anomalies
-                </span>
-                <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-rose-700 tabular-nums tracking-tight">
-                  {districtHighCost.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Cost Outliers</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Isolation Forest
-              </span>
-              <Link
-                to={`/analytics/cost-anomalies?severity=HIGH&district=${encodeURIComponent(districtName)}&state=${encodeURIComponent(stateName)}`}
-                className="text-xs font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Inspect Outliers</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 2: Duplicate Works */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
-                  Model 2: Duplicate Works
-                </span>
-                <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
-                  <Copy className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-indigo-700 tabular-nums tracking-tight">
-                  {districtHighDuplicates.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">Flagged Candidate Pairs</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                MiniLM Embeddings
-              </span>
-              <Link
-                to="/analytics/duplicate-works?severity=HIGH"
-                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Review Pairs</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 3: Fund Anomalies */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
-                  Model 3: Fund & Expenditure
-                </span>
-                <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
-                  <BadgePercent className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-amber-700 tabular-nums tracking-tight">
-                  {districtHighFund.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Disbursement Flags</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Vendor HHI Index
-              </span>
-              <Link
-                to={`/analytics/fund-anomalies?severity=HIGH&district=${encodeURIComponent(districtName)}&state=${encodeURIComponent(stateName)}`}
-                className="text-xs font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Audit Pacing</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 4: Statutory Delays */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
-                  Model 4: Statutory Delays
-                </span>
-                <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
-                  <Clock className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-blue-700 tabular-nums tracking-tight">
-                  {districtHighDelays.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High SLA Violations</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                MoSPI 2023 SLA
-              </span>
-              <Link
-                to={`/analytics/delays?severity=HIGH&district=${encodeURIComponent(districtName)}&state=${encodeURIComponent(stateName)}`}
-                className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Triage Delays</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* SECTION 2: Five independent model summaries (scoped by the API) */}
+      <ModelSummaryCards />
 
       {/* SECTION 3: Active Operational Review Queue Table */}
       <div className="bg-white rounded-lg border border-slate-200/90 p-5 shadow-xs">
@@ -1581,9 +1068,6 @@ const MPDashboard: React.FC<{ mpName: string }> = ({ mpName }) => {
         : '0.0'
       : '0.0';
 
-  const mpHighCost = mpSummary?.high_cost_anomalies ?? 0;
-  const mpHighFund = mpSummary?.high_fund_anomalies ?? 0;
-  const mpHighDelays = mpSummary?.high_delays ?? 0;
   const mpCompletedWorks =
     mpSummary?.completed_works ??
     allWorks.filter((w) => w.work_status === 'Work Completed' || w.is_completed_flag).length;
@@ -1654,149 +1138,8 @@ const MPDashboard: React.FC<{ mpName: string }> = ({ mpName }) => {
         />
       </div>
 
-      {/* SECTION 2: Four Independent Module Summary Cards */}
-      <div>
-        <div className="flex items-center justify-between mb-2.5">
-          <div className="flex items-center gap-2">
-            <h2 className="text-xs font-bold uppercase tracking-wider text-slate-700">
-              Independent Analytical Surveillance (4 Modules)
-            </h2>
-            <span className="text-[10px] text-slate-500">
-              Decoupled algorithmic pipelines • No synthetic blended scores
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-          {/* Model 1: Cost Anomalies */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-rose-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-rose-50 text-rose-700 border border-rose-200/80">
-                  Model 1: Cost Anomalies
-                </span>
-                <div className="p-1.5 rounded-md bg-rose-50/80 border border-rose-100 text-rose-600 shrink-0">
-                  <AlertTriangle className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-rose-700 tabular-nums tracking-tight">
-                  {mpHighCost.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Cost Outliers</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Isolation Forest
-              </span>
-              <Link
-                to={`/analytics/cost-anomalies?severity=HIGH${mpSummary?.state ? `&state=${encodeURIComponent(mpSummary.state)}` : ''}`}
-                className="text-xs font-bold text-rose-700 hover:text-rose-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Inspect Outliers</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 2: Duplicate Works */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-indigo-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200/80">
-                  Model 2: Duplicate Works
-                </span>
-                <div className="p-1.5 rounded-md bg-indigo-50/80 border border-indigo-100 text-indigo-600 shrink-0">
-                  <Copy className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-indigo-700 tabular-nums tracking-tight">
-                  Candidate Pairs
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">Flagged Candidate Pairs</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                MiniLM Embeddings
-              </span>
-              <Link
-                to="/analytics/duplicate-works?severity=HIGH"
-                className="text-xs font-bold text-indigo-700 hover:text-indigo-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Review Pairs</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 3: Fund Anomalies */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-amber-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200/80">
-                  Model 3: Fund & Expenditure
-                </span>
-                <div className="p-1.5 rounded-md bg-amber-50/80 border border-amber-100 text-amber-600 shrink-0">
-                  <BadgePercent className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-amber-700 tabular-nums tracking-tight">
-                  {mpHighFund.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High Disbursement Flags</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                Vendor HHI Index
-              </span>
-              <Link
-                to={`/analytics/fund-anomalies?severity=HIGH${mpSummary?.state ? `&state=${encodeURIComponent(mpSummary.state)}` : ''}`}
-                className="text-xs font-bold text-amber-700 hover:text-amber-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Audit Pacing</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-
-          {/* Model 4: Statutory Delays */}
-          <div className="group bg-white rounded-xl border border-slate-200/90 p-4.5 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-300 hover:shadow-sm transition-all">
-            <div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200/80">
-                  Model 4: Statutory Delays
-                </span>
-                <div className="p-1.5 rounded-md bg-blue-50/80 border border-blue-100 text-blue-600 shrink-0">
-                  <Clock className="w-3.5 h-3.5" />
-                </div>
-              </div>
-              <div className="mt-3.5">
-                <p className="text-3xl font-black text-blue-700 tabular-nums tracking-tight">
-                  {mpHighDelays.toLocaleString()}
-                </p>
-                <p className="text-xs font-semibold text-slate-700 mt-1">High SLA Violations</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/60">
-                MoSPI 2023 SLA
-              </span>
-              <Link
-                to={`/analytics/delays?severity=HIGH${mpSummary?.state ? `&state=${encodeURIComponent(mpSummary.state)}` : ''}`}
-                className="text-xs font-bold text-blue-700 hover:text-blue-900 inline-flex items-center gap-1 group-hover:gap-1.5 transition-all"
-              >
-                <span>Triage Delays</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* SECTION 2: Five independent model summaries (scoped by the API) */}
+      <ModelSummaryCards />
 
       {/* SECTION 3: 5-Stage Verified Lifecycle Funnel */}
       <div className="bg-white rounded-lg border border-slate-200/90 p-5 shadow-xs">
