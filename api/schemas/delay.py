@@ -9,9 +9,22 @@ class DelaySeverityEnum(str, Enum):
     NONE = "NONE"
 
 class DelayTypeEnum(str, Enum):
+    # Values actually written by the delay rule engine (rule_engines/delay/score.py)
+    RECOMMENDATION_SANCTION_DELAY = "RECOMMENDATION_SANCTION_DELAY"
+    COMPLETION_DELAY = "COMPLETION_DELAY"
+    OPEN_WORK_AGING = "OPEN_WORK_AGING"
+    ON_SCHEDULE = "ON_SCHEDULE"
+    # Legacy names, still accepted and mapped to the stored values above
     RECOMMENDATION_TO_SANCTION_DELAY = "RECOMMENDATION_TO_SANCTION_DELAY"
     SANCTION_TO_COMPLETION_DELAY = "SANCTION_TO_COMPLETION_DELAY"
     OPEN_WORK_AGING_STALLED = "OPEN_WORK_AGING_STALLED"
+
+
+LEGACY_DELAY_TYPE_ALIASES = {
+    "RECOMMENDATION_TO_SANCTION_DELAY": "RECOMMENDATION_SANCTION_DELAY",
+    "SANCTION_TO_COMPLETION_DELAY": "COMPLETION_DELAY",
+    "OPEN_WORK_AGING_STALLED": "OPEN_WORK_AGING",
+}
 
 class DelayItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)

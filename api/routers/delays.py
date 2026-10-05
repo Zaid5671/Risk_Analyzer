@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from database.models import DelayResult, Work
 from api.dependencies import get_db, PaginationParams
 from api.auth import CurrentUser, apply_work_joined_scope, verify_work_jurisdiction
-from api.schemas.delay import DelayItem, DelayDetail, DelaySeverityEnum, DelayTypeEnum
+from api.schemas.delay import DelayItem, DelayDetail, DelaySeverityEnum, DelayTypeEnum, LEGACY_DELAY_TYPE_ALIASES
 from api.schemas.common import PaginatedResponse, PaginationMeta
 
 router = APIRouter(prefix="/analytics/delays", tags=["Model 4 — Statutory Delay & SLA Tracking"])
@@ -40,7 +40,8 @@ def list_delays(
     if severity:
         query = query.filter(DelayResult.severity == severity.value)
     if primary_delay_type:
-        query = query.filter(DelayResult.primary_delay_type == primary_delay_type.value)
+        stored_type = LEGACY_DELAY_TYPE_ALIASES.get(primary_delay_type.value, primary_delay_type.value)
+        query = query.filter(DelayResult.primary_delay_type == stored_type)
     if min_days_overdue is not None:
         query = query.filter(DelayResult.open_work_overdue_days >= min_days_overdue)
 
