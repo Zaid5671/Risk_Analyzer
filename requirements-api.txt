@@ -1,0 +1,26 @@
+# Runtime dependencies for the deployed API only.
+# Model results are precomputed (database + parquet), so training libraries
+# (torch, transformers, sentence-transformers, scikit-learn) are not needed here.
+# Full development/training environment: requirements.txt
+
+# Web framework
+fastapi==0.141.1
+starlette==1.6.0
+uvicorn[standard]==0.38.0
+pydantic==2.12.3
+email-validator==2.3.0
+python-dotenv==1.1.1
+
+# Database (Supabase PostgreSQL)
+SQLAlchemy==2.0.44
+psycopg2-binary==2.9.13
+
+# Authentication & rate limiting
+bcrypt==5.0.0
+PyJWT==2.14.0
+slowapi==0.1.10
+
+# Precomputed analytics (parquet rollups and peer statistics)
+numpy==2.3.4
+pandas==3.0.5
+pyarrow==25.0.1
