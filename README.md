@@ -186,8 +186,8 @@ The pipeline unifies disparate datasets into `canonical_works.parquet`:
 * **Unique States Covered**: **36**
 * **Unique Districts Represented**: **767**
 * **Unique (State, District) Geographic Pairs**: **861**
-* **Overall Sanctioned Value**: **₹42,864,895,310.00 (~₹4,286 Crore)**
-* **Overall Disbursed Value**: **₹20,019,268,142.00 (~₹2,001 Crore)**
+* **Overall Sanctioned Value**: **₹58,913,976,889.75 (~₹5,891 Crore)**
+* **Overall Disbursed Value**: **₹40,220,574,336.14 (~₹4,022 Crore, 68.3% utilisation)**
 
 ---
 
@@ -798,7 +798,7 @@ To maintain institutional transparency, the following technical and data limitat
 
 ## 25. Executive Summary: What Exactly Have We Built?
 
-We have engineered an enterprise-grade, data-grounded AI analytics and monitoring platform for India's **₹4,000+ Crore MPLAD Scheme**.
+We have engineered an enterprise-grade, data-grounded AI analytics and monitoring platform covering **₹5,891 Crore of sanctioned MPLADS works**.
 
 Rather than presenting theoretical models or toy mockups, the platform operates on **real data**:
 * **98,825 real master developmental works** and **109,311 expenditure vouchers** spanning all 36 States/UTs.
