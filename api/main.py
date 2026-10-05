@@ -1,4 +1,7 @@
+import threading
 import time
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from slowapi import _rate_limit_exceeded_handler
@@ -6,6 +9,7 @@ from slowapi.errors import RateLimitExceeded
 
 from api.config import settings
 from api.auth.limiter import limiter
+from api.warmup import warm_caches
 from api.routers import (
     health_router,
     auth_router,
@@ -19,7 +23,15 @@ from api.routers import (
     prediction_router
 )
 
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    # Precompute static aggregations in the background so the first visitor doesn't wait for them
+    threading.Thread(target=warm_caches, name="cache-warmup", daemon=True).start()
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     description=settings.DESCRIPTION,
@@ -69,5 +81,6 @@ def root():
         "platform": settings.PROJECT_NAME,
         "version": settings.VERSION,
         "docs_url": f"{settings.API_V1_STR}/docs",
-        "health_check": f"{settings.API_V1_STR}/health"
+        "health_check": f"{settings.API_V1_STR}/health",
+        "demo_mode": settings.DEMO_MODE
     }
