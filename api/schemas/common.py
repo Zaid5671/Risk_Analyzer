@@ -34,6 +34,7 @@ class HealthCheckResponse(BaseModel):
     db_latency_ms: float
     total_works: int
     version: str
+    demo_mode: bool = False
 
 class FilterOptionsResponse(BaseModel):
     states: List[str]

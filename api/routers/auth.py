@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
@@ -84,6 +85,19 @@ def get_current_user_profile(current_user: CurrentUser):
     return UserRead.model_validate(current_user)
 
 
+@router.get("/users", response_model=List[UserRead])
+def list_users(
+    current_admin: User = Depends(require_roles(["MINISTRY"])),
+    db: Session = Depends(get_db)
+):
+    """
+    Lists all stakeholder accounts for the administration console.
+    Restricted exclusively to Central Ministry (MINISTRY) administrators.
+    """
+    users = db.query(User).order_by(User.id.asc()).all()
+    return [UserRead.model_validate(u) for u in users]
+
+
 @router.post("/users", response_model=UserRead, status_code=status.HTTP_201_CREATED)
 def create_user(
     payload: UserCreate,
@@ -93,7 +107,14 @@ def create_user(
     """
     Administrative endpoint for provisioning new stakeholder accounts.
     Restricted exclusively to Central Ministry (MINISTRY) administrators.
+    Disabled when DEMO_MODE is on, since the demo credentials are public.
     """
+    if settings.DEMO_MODE:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account provisioning is disabled in the public demo.",
+        )
+
     clean_email = payload.email.lower().strip()
     existing = db.query(User).filter(User.email == clean_email).first()
     if existing:

@@ -20,7 +20,8 @@ def health_check(db: Session = Depends(get_db)):
         database="PostgreSQL on Supabase",
         db_latency_ms=round(latency_ms, 2),
         total_works=count or 0,
-        version=settings.VERSION
+        version=settings.VERSION,
+        demo_mode=settings.DEMO_MODE
     )
 
 @router.get("/meta/filters", response_model=FilterOptionsResponse)
