@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import text
 from api.dependencies import get_db
 from api.auth import CurrentUser
+from api import cache
+from api.config import settings
 from api.schemas.summaries import DistrictSummaryItem, MPSummaryItem
 
 router = APIRouter(prefix="/analytics", tags=["Aggregations & Governance Summaries"])
@@ -32,7 +34,7 @@ def get_duplicate_district_cache() -> Dict:
 @router.get("/district-summary", response_model=List[DistrictSummaryItem])
 def get_district_summary(
     state: Optional[str] = Query(None, description="Filter by state"),
-    limit: int = Query(50, ge=1, le=500, description="Max districts to return"),
+    limit: int = Query(50, ge=1, le=settings.SUMMARY_MAX_LIMIT, description="Max districts to return (861 districts exist)"),
     current_user: CurrentUser = None,
     db: Session = Depends(get_db)
 ):
@@ -62,12 +64,12 @@ def get_district_summary(
     SELECT
         w.state,
         w.district,
-        count(DISTINCT w.work_id) AS total_works,
+        count(*) AS total_works,
         COALESCE(sum(w.sanction_amount), 0) AS total_sanctioned_amount,
         COALESCE(sum(w.amount_disbursed), 0) AS total_disbursed_amount,
-        count(DISTINCT c.work_id) AS high_cost_anomalies,
-        count(DISTINCT d.work_id) AS high_delays,
-        count(DISTINCT f.work_id) AS high_fund_anomalies
+        count(c.work_id) AS high_cost_anomalies,
+        count(d.work_id) AS high_delays,
+        count(f.work_id) AS high_fund_anomalies
     FROM works w
     LEFT JOIN cost_anomaly_results c ON w.work_id = c.work_id AND c.severity = 'HIGH'
     LEFT JOIN delay_results d ON w.work_id = d.work_id AND d.severity = 'HIGH'
@@ -78,8 +80,11 @@ def get_district_summary(
     LIMIT :limit;
     """
 
-    rows = db.execute(text(sql), params).fetchall()
-
+    # Analytical tables are static while the API runs, so each scope/filter combination is computed once
+    rows = cache.get_or_compute(
+        ("district-summary", tuple(sorted(params.items()))),
+        lambda: db.execute(text(sql), params).fetchall(),
+    )
 
     dup_cache = get_duplicate_district_cache()
 
@@ -103,7 +108,7 @@ def get_district_summary(
 @router.get("/mp-summary", response_model=List[MPSummaryItem])
 def get_mp_summary(
     mp_name: Optional[str] = Query(None, description="Search keyword in MP name"),
-    limit: int = Query(50, ge=1, le=500, description="Max MPs to return"),
+    limit: int = Query(50, ge=1, le=settings.SUMMARY_MAX_LIMIT, description="Max MPs to return"),
     current_user: CurrentUser = None,
     db: Session = Depends(get_db)
 ):
@@ -134,12 +139,12 @@ def get_mp_summary(
         COALESCE(max(w.house), 'Lok Sabha') AS house,
         COALESCE(max(w.state), 'Unknown') AS state,
         COALESCE(max(w.constituency), 'Unknown') AS constituency,
-        count(DISTINCT w.work_id) AS total_works,
+        count(*) AS total_works,
         COALESCE(sum(w.sanction_amount), 0) AS total_sanctioned_amount,
-        count(DISTINCT CASE WHEN w.is_completed_flag THEN w.work_id END) AS completed_works,
-        count(DISTINCT c.work_id) AS high_cost_anomalies,
-        count(DISTINCT f.work_id) AS high_fund_anomalies,
-        count(DISTINCT d.work_id) AS high_delays
+        count(*) FILTER (WHERE w.is_completed_flag) AS completed_works,
+        count(c.work_id) AS high_cost_anomalies,
+        count(f.work_id) AS high_fund_anomalies,
+        count(d.work_id) AS high_delays
     FROM works w
     LEFT JOIN cost_anomaly_results c ON w.work_id = c.work_id AND c.severity = 'HIGH'
     LEFT JOIN fund_expenditure_results f ON w.work_id = f.work_id AND f.severity = 'HIGH'
@@ -150,7 +155,10 @@ def get_mp_summary(
     LIMIT :limit;
     """
 
-    rows = db.execute(text(sql), params).fetchall()
+    rows = cache.get_or_compute(
+        ("mp-summary", tuple(sorted(params.items()))),
+        lambda: db.execute(text(sql), params).fetchall(),
+    )
 
     results = []
     for r in rows:
