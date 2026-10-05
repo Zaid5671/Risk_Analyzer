@@ -1,3 +1,17 @@
+/** Human-readable context the API attaches to model results (what the work is, where, how much). */
+export interface WorkBrief {
+  work_id: string;
+  work_description: string | null;
+  work_type: string | null;
+  state: string | null;
+  district: string | null;
+  mp_name: string | null;
+  work_status: string | null;
+  sanction_amount: number | null;
+  amount_disbursed: number | null;
+  sanction_date: string | null;
+}
+
 export interface PaginationMeta {
   total_records: number;
   page: number;
@@ -18,6 +32,8 @@ export interface HealthCheckResponse {
   db_latency_ms: number;
   total_works: number;
   version: string;
+  /** Public demo: account management is read-only */
+  demo_mode?: boolean;
 }
 
 export interface FilterOptionsResponse {

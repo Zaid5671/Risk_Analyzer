@@ -1,11 +1,14 @@
 import { apiClient } from '@/lib/api-client';
 import type { PaginatedResponse } from '@/types/common';
 import type { CostAnomalyItem, CostAnomalyDetail } from '@/types/cost_anomaly';
-import type { DuplicatePairItem, WorkDuplicateLookupResponse } from '@/types/duplicate_work';
+import type { DuplicatePairItem, WorkDuplicateLookupResponse, DuplicateGroupItem, DuplicateSummary } from '@/types/duplicate_work';
 import type { FundAnomalyItem, FundAnomalyDetail } from '@/types/fund_anomaly';
 import type { DelayItem, DelayDetail } from '@/types/delay';
 import type { DelayPredictionItem, DelayPredictionDetail } from '@/types/prediction';
 import type { DistrictSummaryItem, MPSummaryItem } from '@/types/summaries';
+
+// The backend returns up to 2000 summary rows per call, enough for every district (861) and MP
+const SUMMARY_LIMIT = 2000;
 
 export const analyticsService = {
   // Model 1: Cost Anomalies
@@ -36,6 +39,22 @@ export const analyticsService = {
     page_size?: number;
   }): Promise<PaginatedResponse<DuplicatePairItem>> {
     const { data } = await apiClient.get<PaginatedResponse<DuplicatePairItem>>('/analytics/duplicate-works', { params });
+    return data;
+  },
+
+  async getDuplicateGroups(params?: {
+    min_works?: number;
+    is_single_mp?: boolean;
+    state?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<PaginatedResponse<DuplicateGroupItem>> {
+    const { data } = await apiClient.get<PaginatedResponse<DuplicateGroupItem>>('/analytics/duplicate-works/groups', { params });
+    return data;
+  },
+
+  async getDuplicateSummary(): Promise<DuplicateSummary> {
+    const { data } = await apiClient.get<DuplicateSummary>('/analytics/duplicate-works/summary');
     return data;
   },
 
@@ -104,13 +123,13 @@ export const analyticsService = {
 
   // Summaries
   async getDistrictSummaries(params?: { state?: string; limit?: number }): Promise<DistrictSummaryItem[]> {
-    const queryParams = { limit: 500, ...params };
+    const queryParams = { limit: SUMMARY_LIMIT, ...params };
     const { data } = await apiClient.get<DistrictSummaryItem[]>('/analytics/district-summary', { params: queryParams });
     return data;
   },
 
   async getMPSummaries(params?: { state?: string; house?: string; limit?: number; mp_name?: string }): Promise<MPSummaryItem[]> {
-    const queryParams = { limit: 500, ...params };
+    const queryParams = { limit: SUMMARY_LIMIT, ...params };
     const { data } = await apiClient.get<MPSummaryItem[]>('/analytics/mp-summary', { params: queryParams });
     return data;
   },
@@ -143,6 +162,7 @@ export const analyticsService = {
     district?: string;
     mp_name?: string;
     limit?: number;
+    offset?: number;
   }): Promise<import('@/types/trends').EarlyWarningsResponse> {
     const { data } = await apiClient.get<import('@/types/trends').EarlyWarningsResponse>('/analytics/trends/early-warnings', { params });
     return data;

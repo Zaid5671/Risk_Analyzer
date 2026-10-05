@@ -180,6 +180,7 @@ export interface EarlyWarningItem {
   days_to_statutory_breach: number | null;
   urgency_level: UrgencyLevel;
   action_recommended: string;
+  work_description?: string | null;
 }
 
 export interface EarlyWarningsResponse {

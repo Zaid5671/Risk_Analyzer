@@ -1,3 +1,5 @@
+import type { WorkBrief } from './common';
+
 export type FundSeverity = 'HIGH' | 'MEDIUM' | 'LOW';
 export type FundAuditCategory = 
   | 'ACTIVE_EXPENDITURE'
@@ -18,6 +20,8 @@ export interface FundAnomalyItem {
   days_to_first_disbursement: number | null;
   anomaly_reasons: string[] | null;
   explanation: string | null;
+  work_info?: WorkBrief | null;
+  reason?: string | null;
 }
 
 export interface FundAnomalyDetail extends FundAnomalyItem {

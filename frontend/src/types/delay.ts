@@ -1,8 +1,12 @@
+import type { WorkBrief } from './common';
+
 export type DelaySeverity = 'HIGH' | 'MEDIUM' | 'LOW' | 'NONE';
-export type DelayType = 
-  | 'RECOMMENDATION_TO_SANCTION_DELAY'
-  | 'SANCTION_TO_COMPLETION_DELAY'
-  | 'OPEN_WORK_AGING_STALLED';
+// Values stored by the delay rule engine
+export type DelayType =
+  | 'RECOMMENDATION_SANCTION_DELAY'
+  | 'COMPLETION_DELAY'
+  | 'OPEN_WORK_AGING'
+  | 'ON_SCHEDULE';
 
 export interface DelayItem {
   work_id: string;
@@ -20,6 +24,8 @@ export interface DelayItem {
   open_work_overdue_days: number | null;
   open_work_aging_severity: string | null;
   explanation: string | null;
+  work_info?: WorkBrief | null;
+  reason?: string | null;
 }
 
 export interface DelayDetail extends DelayItem {

@@ -1,3 +1,5 @@
+import type { WorkBrief } from './common';
+
 export interface DelayPredictionItem {
   work_id: string;
   predicted_completion_risk: number;
@@ -5,6 +7,8 @@ export interface DelayPredictionItem {
   days_since_sanction?: number | null;
   current_utilization?: number | null;
   explanation?: string | null;
+  work_info?: WorkBrief | null;
+  reason?: string | null;
 }
 
 export interface DelayPredictionDetail extends DelayPredictionItem {

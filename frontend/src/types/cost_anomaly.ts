@@ -1,3 +1,5 @@
+import type { WorkBrief } from './common';
+
 export type CostSeverity = 'HIGH' | 'MEDIUM' | 'LOW' | 'DATA_QUALITY_EXCEPTION' | 'INSUFFICIENT_PEER_DATA';
 
 export interface CostAnomalyItem {
@@ -10,6 +12,10 @@ export interface CostAnomalyItem {
   peer_group_size: number | null;
   is_data_quality_exception: boolean;
   explanation: string | null;
+  peer_median_amount?: number | null;
+  cost_ratio_vs_peer_median?: number | null;
+  work_info?: WorkBrief | null;
+  reason?: string | null;
 }
 
 export interface CostAnomalyDetail extends CostAnomalyItem {
