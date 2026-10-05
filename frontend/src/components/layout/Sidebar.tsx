@@ -15,9 +15,16 @@ import {
   Building2,
   TrendingUp,
   BrainCircuit,
+  X,
 } from 'lucide-react';
 
-export const Sidebar: React.FC = () => {
+interface SidebarProps {
+  /** Phones/tablets: whether the slide-in drawer is open. Ignored on large screens. */
+  open?: boolean;
+  onClose?: () => void;
+}
+
+export const Sidebar: React.FC<SidebarProps> = ({ open = false, onClose }) => {
   const { user } = useAuth();
 
   const navClass = ({ isActive }: { isActive: boolean }) =>
@@ -35,7 +42,12 @@ export const Sidebar: React.FC = () => {
     }`;
 
   return (
-    <aside className="w-64 bg-[#0c1b2e] text-slate-200 flex flex-col shrink-0 h-screen sticky top-0 border-r border-slate-800/80 select-none">
+    <aside
+      className={`w-64 bg-[#0c1b2e] text-slate-200 flex flex-col shrink-0 h-screen border-r border-slate-800/80 select-none
+        fixed inset-y-0 left-0 z-50 transition-transform duration-200 lg:sticky lg:top-0 lg:translate-x-0
+        ${open ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}`}
+      aria-label="Main navigation"
+    >
       {/* Brand Header */}
       <div className="h-16 px-4 flex items-center gap-3 border-b border-slate-800/80 bg-slate-950/20">
         <div className="w-9 h-9 rounded-md bg-blue-900/60 border border-blue-600/40 flex items-center justify-center text-blue-300 shrink-0">
@@ -43,13 +55,20 @@ export const Sidebar: React.FC = () => {
         </div>
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <h1 className="font-bold text-sm tracking-tight text-white leading-none">MPLADS</h1>
+            <h1 className="font-serif font-bold text-base tracking-tight text-white leading-none">Drishti</h1>
             <span className="text-[10px] font-semibold px-1 py-0.2 bg-blue-500/20 text-blue-300 rounded border border-blue-500/30">
               AI MONITOR
             </span>
           </div>
-          <p className="text-[10px] text-slate-400 font-mono mt-1 truncate">SIH 2026 • PS 26102</p>
+          <p className="text-[10px] text-slate-400 font-mono mt-1 truncate">MPLADS • SIH 2026</p>
         </div>
+        <button
+          onClick={onClose}
+          className="ml-auto p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-slate-800 lg:hidden"
+          aria-label="Close menu"
+        >
+          <X className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Navigation Sections */}
@@ -162,7 +181,7 @@ export const Sidebar: React.FC = () => {
           <span>Team Code Blooded • SIH 2026</span>
         </div>
         <p className="mt-1 text-[9px] text-slate-400 leading-tight">
-          Zero Composite Risk • 4 Isolated Models • PostgreSQL RLS Enforced
+          5 independent AI models · real MPLADS portal data
         </p>
       </div>
     </aside>
