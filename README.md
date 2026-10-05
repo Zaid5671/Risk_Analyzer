@@ -1,9 +1,28 @@
 # AI-Powered MPLADS Monitoring and Analytics Platform
 ### Smart India Hackathon (SIH) 2026 — Problem Statement ID: 26102
 **Team**: Code Blooded  
-**Repository**: `Zaid5671/CodeBlooded`  
+**Repository**: [`Zaid5671/Risk_Analyzer`](https://github.com/Zaid5671/Risk_Analyzer)  
 **Current Phase**: Phase 8 Complete (Predictive Delay Risk Model & Production Hardening Verified)  
 **Overall Validation Status**: **110/110 Passing Tests (100% Pass Rate)**
+
+---
+
+## Live Demo
+
+**Try it:** _live link added after deployment_. No sign-up is needed: on the login page, pick a role for one-click access.
+
+![Drishti national dashboard](frontend/public/dashboard-preview.webp)
+
+| Role | What you see | Demo login |
+|---|---|---|
+| Central Ministry | All of India | `ministry@mplads.gov.in` |
+| State Nodal Officer | Uttar Pradesh only | `state.up@mplads.gov.in` |
+| District Officer | Patna, Bihar only | `district.patna@mplads.gov.in` |
+| Member of Parliament | One MP's works | `mp.khalsa@mplads.gov.in` |
+
+Password for all demo accounts: `Mplads@Demo2026#`. After logging in, use the role switcher in the header to compare what each role sees.
+
+**Hosting:** React frontend on Vercel → FastAPI on Render (Singapore) → PostgreSQL on Supabase. The five model results are precomputed, so the deployed API installs only [`requirements-api.txt`](requirements-api.txt) (no PyTorch). The public demo runs with `DEMO_MODE=true`, which disables creating new accounts.
 
 ---
 
