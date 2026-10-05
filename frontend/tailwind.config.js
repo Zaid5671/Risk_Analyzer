@@ -6,7 +6,27 @@ export default {
   ],
   theme: {
     extend: {
+      fontFamily: {
+        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+        sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+      },
       colors: {
+        drishti: {
+          ivory: '#fbf9f4',
+          cream: '#f4efe6',
+          sand: '#eae2d3',
+          border: '#e6ded1',
+          forest: '#0b2e27',
+          'forest-deep': '#061c17',
+          'forest-light': '#13443a',
+          terracotta: '#c25e2e',
+          'terracotta-light': '#e47743',
+          saffron: '#d97706',
+          sage: '#d6ded9',
+          'sage-light': '#edf2ef',
+          charcoal: '#1c2423',
+          muted: '#5c6b68',
+        },
         gov: {
           navy: '#0b192c',
           deep: '#0c1b2e',
@@ -26,7 +46,7 @@ export default {
           700: '#b45309',
         }
       }
-    },
+    }
   },
   plugins: [],
 }

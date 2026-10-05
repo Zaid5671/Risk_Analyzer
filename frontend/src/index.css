@@ -3,16 +3,76 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   body {
-    @apply bg-slate-50 text-slate-900 antialiased font-sans selection:bg-blue-100 selection:text-blue-900;
+    @apply bg-slate-50 text-slate-900 antialiased font-sans;
     margin: 0;
     padding: 0;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
   }
 
+  ::selection {
+    background-color: #0b2e27;
+    color: #fbf9f4;
+  }
+
   .tabular-nums {
     font-variant-numeric: tabular-nums;
   }
+}
+
+@keyframes drishtiFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes drishtiFloatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes drishtiPulseGlow {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+}
+
+.animate-drishti-float {
+  animation: drishtiFloat 5s ease-in-out infinite;
+}
+
+.animate-drishti-float-slow {
+  animation: drishtiFloatSlow 7s ease-in-out infinite;
+}
+
+.animate-drishti-pulse {
+  animation: drishtiPulseGlow 3s ease-in-out infinite;
+}
+
+/* Subtle pinstripe texture for dark forest sections */
+.bg-pinstripe-forest {
+  background-image: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.02) 0px,
+    rgba(255, 255, 255, 0.02) 1px,
+    transparent 1px,
+    transparent 12px
+  );
 }
 
 /* Custom scrollbars for high-density enterprise tables */
