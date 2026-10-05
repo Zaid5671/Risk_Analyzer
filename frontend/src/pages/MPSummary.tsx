@@ -57,41 +57,8 @@ export const MPSummary: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      if (user?.role === 'STATE_OFFICER' || user?.role === 'DISTRICT_OFFICER' || user?.role === 'MP') {
-        // Scoped roles have fewer than 500 MPs in jurisdiction (e.g. UP has ~111 MPs)
-        const scopedData = await analyticsService.getMPSummaries({ limit: 500 });
-        setAllMPs(scopedData);
-      } else {
-        // Central Ministry / National Oversight:
-        // Base query fetches top 500 MPs; parallel partition queries fetch remainder to ensure all 714 MPs are present
-        const partitionLetters = ['e', 'o', 'u', 'd', 'm', 'k', 't', 'l', 'g', 'v'];
-        const allQueries = ['', ...partitionLetters];
-        const results: MPSummaryItem[][] = [];
-
-        // Batch in groups of 4 to stay well within connection pool limits
-        const chunkSize = 4;
-        for (let i = 0; i < allQueries.length; i += chunkSize) {
-          const chunk = allQueries.slice(i, i + chunkSize);
-          const chunkRes = await Promise.all(
-            chunk.map((q) => analyticsService.getMPSummaries({ mp_name: q || undefined, limit: 500 }))
-          );
-          results.push(...chunkRes);
-        }
-
-        // Deduplicate by mp_name
-        const uniqueMap = new Map<string, MPSummaryItem>();
-        results.forEach((list) => {
-          list.forEach((item) => {
-            const key = item.mp_name.trim().toLowerCase();
-            if (!uniqueMap.has(key)) {
-              uniqueMap.set(key, item);
-            }
-          });
-        });
-
-        const completeList = Array.from(uniqueMap.values());
-        setAllMPs(completeList);
-      }
+      // One call returns every MP in the caller's jurisdiction (the API allows up to 2000 rows; there are 714)
+      setAllMPs(await analyticsService.getMPSummaries());
     } catch (err: any) {
       console.error('Failed to load MP summary records:', err);
       setError('Failed to load complete parliamentary member data. Please try refreshing.');

@@ -65,38 +65,8 @@ export const DistrictSummary: React.FC = () => {
       const allStates = filterRes.states || [];
       setAvailableStates(allStates);
 
-      // 2. If user is role-scoped (STATE_OFFICER, DISTRICT_OFFICER, MP), a single call with limit=500 returns all scoped data
-      if (user?.role === 'STATE_OFFICER' || user?.role === 'DISTRICT_OFFICER' || user?.role === 'MP') {
-        const scopedData = await analyticsService.getDistrictSummaries({ limit: 500 });
-        setAllDistricts(scopedData);
-      } else {
-        // 3. Central Ministry / National Oversight:
-        // Query backend across all 36 States in parallel chunks of 6 to guarantee 100% data completeness (861 districts)
-        const chunkSize = 6;
-        const aggregated: DistrictSummaryItem[] = [];
-
-        for (let i = 0; i < allStates.length; i += chunkSize) {
-          const chunk = allStates.slice(i, i + chunkSize);
-          const chunkResults = await Promise.all(
-            chunk.map((s) => analyticsService.getDistrictSummaries({ state: s, limit: 500 }))
-          );
-          chunkResults.forEach((res) => {
-            aggregated.push(...res);
-          });
-        }
-
-        // Deduplicate using unique (state, district) key
-        const uniqueMap = new Map<string, DistrictSummaryItem>();
-        aggregated.forEach((item) => {
-          const key = `${item.state.trim().toLowerCase()}::${item.district.trim().toLowerCase()}`;
-          if (!uniqueMap.has(key)) {
-            uniqueMap.set(key, item);
-          }
-        });
-
-        const completeList = Array.from(uniqueMap.values());
-        setAllDistricts(completeList);
-      }
+      // 2. One call returns every district in the caller's jurisdiction (the API allows up to 2000 rows; there are 861)
+      setAllDistricts(await analyticsService.getDistrictSummaries());
     } catch (err: any) {
       console.error('Failed to load district summary records:', err);
       setError('Failed to load complete district governance data. Please try refreshing.');
