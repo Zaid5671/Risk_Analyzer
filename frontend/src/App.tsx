@@ -19,6 +19,7 @@ import { MPSummary } from '@/pages/MPSummary';
 import { TrendAnalytics } from '@/pages/TrendAnalytics';
 import { PredictiveInsights } from '@/pages/PredictiveInsights';
 import { AdminUsers } from '@/pages/AdminUsers';
+import { DrishtiLanding } from '@/pages/DrishtiLanding';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -36,13 +37,14 @@ export const App: React.FC = () => {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Public Login Route */}
+            {/* Public Landing & Login Routes */}
+            <Route path="/" element={<DrishtiLanding />} />
+            <Route path="/landing" element={<DrishtiLanding />} />
             <Route path="/login" element={<Login />} />
 
             {/* Protected Routes inside AppLayout */}
             <Route element={<ProtectedRoute />}>
               <Route element={<AppLayout />}>
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/works" element={<WorksRegistry />} />
                 <Route path="/works/:workId" element={<WorkDetail />} />
