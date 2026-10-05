@@ -6,7 +6,14 @@ from sqlalchemy import or_
 from database.models import DuplicateWorkResult, Work
 from api.dependencies import get_db, PaginationParams
 from api.auth import CurrentUser, apply_duplicate_works_scope, verify_work_jurisdiction
-from api.schemas.duplicate_work import DuplicatePairItem, WorkDuplicateLookupResponse, DuplicateSeverityEnum
+from api.schemas.duplicate_work import (
+    DuplicatePairItem,
+    WorkDuplicateLookupResponse,
+    DuplicateSeverityEnum,
+    DuplicateGroupItem,
+    DuplicateSummaryResponse,
+)
+from api.duplicate_groups import get_index, scoped_groups, scoped_pair_count
 from api.schemas.common import PaginatedResponse, PaginationMeta
 from api.enrichment import attach_duplicate_context
 
@@ -57,6 +64,59 @@ def list_duplicate_works(
             has_next=has_next,
             has_prev=has_prev
         )
+    )
+
+@router.get("/groups", response_model=PaginatedResponse[DuplicateGroupItem])
+def list_duplicate_groups(
+    min_works: int = Query(2, ge=2, description="Only groups with at least this many works"),
+    is_single_mp: Optional[bool] = Query(None, description="True: one MP sanctioned every work in the group"),
+    state: Optional[str] = Query(None, description="Only groups containing a work in this State"),
+    pagination: PaginationParams = Depends(),
+    current_user: CurrentUser = None,
+    db: Session = Depends(get_db)
+):
+    """
+    Flagged duplicate pairs collapsed into groups of near-identical works (largest first).
+    A group is visible if any of its works falls within the caller's jurisdiction.
+    """
+    index = get_index(db)
+    groups = scoped_groups(index, current_user)
+    if min_works > 2:
+        groups = [g for g in groups if g.work_count >= min_works]
+    if is_single_mp is not None:
+        groups = [g for g in groups if g.is_single_mp == is_single_mp]
+    if state:
+        groups = [g for g in groups if state in g.states]
+
+    total_records = len(groups)
+    page_items = groups[pagination.offset: pagination.offset + pagination.page_size]
+    total_pages = math.ceil(total_records / pagination.page_size) if total_records > 0 else 1
+
+    return PaginatedResponse[DuplicateGroupItem](
+        items=page_items,
+        pagination=PaginationMeta(
+            total_records=total_records,
+            page=pagination.page,
+            page_size=pagination.page_size,
+            total_pages=total_pages,
+            has_next=pagination.page < total_pages,
+            has_prev=pagination.page > 1
+        )
+    )
+
+@router.get("/summary", response_model=DuplicateSummaryResponse)
+def get_duplicate_summary(
+    current_user: CurrentUser = None,
+    db: Session = Depends(get_db)
+):
+    """Headline counts for the caller's jurisdiction: pairs, groups, and distinct works involved."""
+    index = get_index(db)
+    groups = scoped_groups(index, current_user)
+    return DuplicateSummaryResponse(
+        total_pairs=scoped_pair_count(index, current_user),
+        total_groups=len(groups),
+        total_works_involved=sum(g.work_count for g in groups),
+        largest_group_size=max((g.work_count for g in groups), default=0),
     )
 
 @router.get("/pairs/{work_id:path}", response_model=WorkDuplicateLookupResponse)
