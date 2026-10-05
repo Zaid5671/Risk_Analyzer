@@ -6,10 +6,10 @@ import type { PaginationMeta } from '@/types/common';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import { SeverityBadge, Badge } from '@/components/common/Badge';
 import { MetricCard } from '@/components/common/MetricCard';
+import { WorkCell } from '@/components/common/WorkCell';
 import {
   BrainCircuit,
   Filter,
-  ExternalLink,
   Info,
   AlertTriangle,
   Clock,
@@ -84,17 +84,8 @@ export const PredictiveInsights: React.FC = () => {
 
   const columns: Column<DelayPredictionItem>[] = [
     {
-      header: 'Work ID',
-      accessor: 'work_id',
-      render: (item) => (
-        <Link
-          to={`/works/${encodeURIComponent(item.work_id)}`}
-          className="font-mono text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
-        >
-          <span>{item.work_id}</span>
-          <ExternalLink className="w-3 h-3 text-slate-400" />
-        </Link>
-      ),
+      header: 'Work',
+      render: (item) => <WorkCell workId={item.work_id} work={item.work_info} />,
     },
     {
       header: 'Predicted Severity',
@@ -102,7 +93,7 @@ export const PredictiveInsights: React.FC = () => {
       render: (item) => <SeverityBadge severity={item.predicted_risk_severity} />,
     },
     {
-      header: 'Completion Breach Probability',
+      header: 'Chance of missing deadline',
       accessor: 'predicted_completion_risk',
       render: (item) => {
         const pct = (item.predicted_completion_risk * 100).toFixed(1);
@@ -138,13 +129,13 @@ export const PredictiveInsights: React.FC = () => {
             {item.days_since_sanction != null ? `${item.days_since_sanction}d` : '—'}
           </span>
           {item.days_since_sanction != null && item.days_since_sanction > 365 && (
-            <span className="text-[10px] text-rose-600 block font-medium">Over 1yr Active</span>
+            <span className="text-[10px] text-rose-600 block font-medium">Already past 1 year</span>
           )}
         </div>
       ),
     },
     {
-      header: 'Current Utilization',
+      header: 'Budget spent',
       accessor: 'current_utilization',
       render: (item) => (
         <span className="font-mono text-xs text-slate-700">
@@ -152,16 +143,6 @@ export const PredictiveInsights: React.FC = () => {
             ? `${(item.current_utilization * 100).toFixed(1)}%`
             : '0.0%'}
         </span>
-      ),
-    },
-    {
-      header: 'Predictive Rationale & Risk Drivers',
-      accessor: 'explanation',
-      className: 'max-w-md',
-      render: (item) => (
-        <p className="text-xs text-slate-600 line-clamp-2" title={item.explanation || ''}>
-          {item.explanation || 'Evaluated against empirical completion timelines and historical district velocity.'}
-        </p>
       ),
     },
     {
@@ -185,17 +166,17 @@ export const PredictiveInsights: React.FC = () => {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-100 text-purple-800 border border-purple-200">
-              Model 5 • Predictive Analytics
+              AI forecast
             </span>
-            <span className="text-xs text-slate-500 font-mono">ROC-AUC: 0.9366</span>
+            <span className="text-xs text-slate-500">Accuracy (AUC): 0.94</span>
           </div>
           <h1 className="text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
             <BrainCircuit className="w-6 h-6 text-purple-600" />
-            Predictive Delay Risk Forecasting
+            Predicted Delays
           </h1>
           <p className="text-xs text-slate-600 mt-1 max-w-3xl">
-            Pre-breach machine learning forecast identifying open works with elevated likelihood of exceeding
-            statutory 365-day delivery deadlines, enabling proactive district-level intervention before failure.
+            Which open works are likely to miss the 365-day completion deadline, learned from how 44,417 completed
+            works actually turned out — so districts can step in before the deadline passes.
           </p>
         </div>
 
@@ -241,11 +222,11 @@ export const PredictiveInsights: React.FC = () => {
       <div className="bg-purple-50/60 border border-purple-200/80 rounded-xl p-4 text-xs text-purple-900 flex items-start gap-3">
         <Info className="w-5 h-5 text-purple-600 shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-semibold">Statutory SLA Compliance & Predictive Early Intervention</p>
+          <p className="font-semibold">Why this matters</p>
           <p className="text-purple-800 leading-relaxed">
-            Under Para 3.12 of the MPLADS Guidelines 2023, sanctioned works must be completed within 12 months (365 days).
-            This gradient-boosted diagnostic evaluates current expenditure velocity, statutory aging, historical district SLA adherence,
-            and administrative stage friction to alert Implementing District Authorities before statutory default occurs.
+            MPLADS Guidelines (Para 3.12) require sanctioned works to be completed within 365 days. The forecast looks at
+            how long a work has been open, how much of its budget has been spent, its type and its state, and flags the
+            ones most likely to slip.
           </p>
         </div>
       </div>

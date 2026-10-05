@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { analyticsService } from '@/services/analytics';
 import type { FundAnomalyItem } from '@/types/fund_anomaly';
 import type { PaginationMeta } from '@/types/common';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import { SeverityBadge, Badge } from '@/components/common/Badge';
-import { BadgePercent, Filter, ExternalLink } from 'lucide-react';
+import { BadgePercent, Filter } from 'lucide-react';
+import { WorkCell, ReasonCell } from '@/components/common/WorkCell';
+import { formatINRCompact } from '@/lib/format';
+
+const CATEGORY_LABELS: Record<string, string> = {
+  ACTIVE_EXPENDITURE: 'Spending in progress',
+  NORMAL_AWAITING_DISBURSEMENT: 'Awaiting first payment',
+  DORMANT_SANCTION: 'Dormant — nothing spent in a year',
+  STATUS_EXPENDITURE_MISMATCH: 'Status vs payments mismatch',
+};
 
 export const FundAnomalies: React.FC = () => {
   const [items, setItems] = useState<FundAnomalyItem[]>([]);
@@ -39,16 +47,30 @@ export const FundAnomalies: React.FC = () => {
 
   const columns: Column<FundAnomalyItem>[] = [
     {
-      header: 'Work ID',
-      accessor: 'work_id',
+      header: 'Work',
+      render: (item) => <WorkCell workId={item.work_id} work={item.work_info} />,
+    },
+    {
+      header: 'Why flagged',
+      className: 'min-w-[240px]',
       render: (item) => (
-        <Link
-          to={`/works/${encodeURIComponent(item.work_id)}`}
-          className="font-mono text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
-        >
-          <span>{item.work_id}</span>
-          <ExternalLink className="w-3 h-3" />
-        </Link>
+        <div className="space-y-1">
+          <Badge variant="neutral" size="sm">{CATEGORY_LABELS[item.audit_category] || item.audit_category}</Badge>
+          <ReasonCell reason={item.reason} fallback={item.explanation} />
+        </div>
+      ),
+    },
+    {
+      header: 'Spent',
+      className: 'text-right whitespace-nowrap',
+      render: (item) => (
+        <div className="text-xs tabular-nums">
+          <div className="font-semibold text-slate-800">{formatINRCompact(item.total_disbursed_amount ?? 0)}</div>
+          <div className="text-[11px] text-slate-500">
+            of {formatINRCompact(item.work_info?.sanction_amount)}
+            {item.utilization_ratio != null ? ` · ${(item.utilization_ratio * 100).toFixed(0)}%` : ''}
+          </div>
+        </div>
       ),
     },
     {
@@ -57,58 +79,13 @@ export const FundAnomalies: React.FC = () => {
       render: (item) => <SeverityBadge severity={item.severity} />,
     },
     {
-      header: 'Audit Category',
-      accessor: 'audit_category',
-      render: (item) => (
-        <Badge variant="neutral" size="sm">
-          {item.audit_category.replace(/_/g, ' ')}
-        </Badge>
-      ),
-    },
-    {
-      header: 'Disbursed Amount',
-      accessor: 'total_disbursed_amount',
-      render: (item) => (
-        <span className="font-mono text-xs font-semibold text-slate-800">
-          {item.total_disbursed_amount != null ? `₹${item.total_disbursed_amount.toLocaleString()}` : '₹0'}
-        </span>
-      ),
-    },
-    {
-      header: 'Utilization',
-      accessor: 'utilization_ratio',
-      render: (item) => (
-        <span className="font-mono text-xs text-slate-700">
-          {item.utilization_ratio != null ? `${(item.utilization_ratio * 100).toFixed(1)}%` : '—'}
-        </span>
-      ),
-    },
-    {
-      header: 'Vendor HHI',
-      accessor: 'payment_concentration_hhi',
-      render: (item) => (
-        <span className="font-mono text-xs text-slate-700" title="Herfindahl-Hirschman Index">
-          {item.payment_concentration_hhi != null ? item.payment_concentration_hhi.toFixed(3) : '—'}
-        </span>
-      ),
-    },
-    {
       header: 'Score',
       accessor: 'fund_anomaly_score',
+      className: 'text-right',
       render: (item) => (
         <span className="font-mono text-xs font-bold text-slate-800">
           {(item.fund_anomaly_score * 100).toFixed(1)}%
         </span>
-      ),
-    },
-    {
-      header: 'Audit Explanation',
-      accessor: 'explanation',
-      className: 'max-w-xs',
-      render: (item) => (
-        <p className="text-xs text-slate-600 line-clamp-2" title={item.explanation || ''}>
-          {item.explanation || 'Financial pattern verified against normal ledger flow.'}
-        </p>
       ),
     },
   ];
@@ -122,10 +99,10 @@ export const FundAnomalies: React.FC = () => {
             <div className="p-2 rounded-lg bg-amber-100 text-amber-700">
               <BadgePercent className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900">Model 3 — Fund & Expenditure Anomaly</h1>
+            <h1 className="text-xl font-bold text-slate-900">Fund & Expenditure Audit</h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Financial reconciliation, vendor payment concentration (HHI), and disbursement dormancy.
+            Unusual payment timing and size, money that never moved, and works marked done with no payments.
           </p>
         </div>
 

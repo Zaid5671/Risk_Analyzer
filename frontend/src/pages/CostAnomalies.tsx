@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { analyticsService } from '@/services/analytics';
 import type { CostAnomalyItem } from '@/types/cost_anomaly';
 import type { PaginationMeta } from '@/types/common';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import { SeverityBadge } from '@/components/common/Badge';
-import { AlertTriangle, Filter, ExternalLink } from 'lucide-react';
+import { AlertTriangle, Filter } from 'lucide-react';
+import { WorkCell, ReasonCell } from '@/components/common/WorkCell';
+import { formatINRCompact, formatNumber } from '@/lib/format';
 
 export const CostAnomalies: React.FC = () => {
   const [items, setItems] = useState<CostAnomalyItem[]>([]);
@@ -37,16 +38,38 @@ export const CostAnomalies: React.FC = () => {
 
   const columns: Column<CostAnomalyItem>[] = [
     {
-      header: 'Work ID',
-      accessor: 'work_id',
+      header: 'Work',
+      render: (item) => <WorkCell workId={item.work_id} work={item.work_info} />,
+    },
+    {
+      header: 'Why flagged',
+      className: 'min-w-[260px]',
       render: (item) => (
-        <Link
-          to={`/works/${encodeURIComponent(item.work_id)}`}
-          className="font-mono text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
-        >
-          <span>{item.work_id}</span>
-          <ExternalLink className="w-3 h-3" />
-        </Link>
+        <div className="max-w-md">
+          {item.cost_ratio_vs_peer_median ? (
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-bold tabular-nums text-rose-700">
+                {item.cost_ratio_vs_peer_median.toFixed(1)}×
+              </span>
+              <span className="text-[11px] text-slate-500">the typical cost</span>
+            </div>
+          ) : null}
+          <ReasonCell reason={item.reason} fallback={item.explanation} />
+          {item.peer_group_size ? (
+            <div className="text-[10.5px] text-slate-400 mt-0.5">
+              Compared with {formatNumber(item.peer_group_size)} similar works
+            </div>
+          ) : null}
+        </div>
+      ),
+    },
+    {
+      header: 'Sanctioned',
+      className: 'text-right whitespace-nowrap',
+      render: (item) => (
+        <span className="text-xs font-semibold tabular-nums text-slate-800">
+          {formatINRCompact(item.work_info?.sanction_amount)}
+        </span>
       ),
     },
     {
@@ -55,40 +78,13 @@ export const CostAnomalies: React.FC = () => {
       render: (item) => <SeverityBadge severity={item.severity} />,
     },
     {
-      header: 'Calibrated Score',
+      header: 'Score',
       accessor: 'cost_anomaly_score',
+      className: 'text-right',
       render: (item) => (
         <span className="font-mono text-xs font-bold text-slate-800">
           {(item.cost_anomaly_score * 100).toFixed(1)}%
         </span>
-      ),
-    },
-    {
-      header: 'Peer Group Used',
-      accessor: 'peer_group_used',
-      render: (item) => (
-        <span className="text-xs text-slate-600">
-          {item.peer_group_used || 'General Peer Group'} ({item.peer_group_level || 'L1'})
-        </span>
-      ),
-    },
-    {
-      header: 'Peer Sample Size',
-      accessor: 'peer_group_size',
-      render: (item) => (
-        <span className="text-xs text-slate-600 font-mono">
-          {item.peer_group_size ? item.peer_group_size.toLocaleString() : '—'}
-        </span>
-      ),
-    },
-    {
-      header: 'Statutory Explanation',
-      accessor: 'explanation',
-      className: 'max-w-md',
-      render: (item) => (
-        <p className="text-xs text-slate-600 line-clamp-2" title={item.explanation || ''}>
-          {item.explanation || 'Evaluated against category peer median.'}
-        </p>
       ),
     },
   ];
@@ -102,10 +98,10 @@ export const CostAnomalies: React.FC = () => {
             <div className="p-2 rounded-lg bg-rose-100 text-rose-700">
               <AlertTriangle className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900">Model 1 — Cost Anomaly Detection</h1>
+            <h1 className="text-xl font-bold text-slate-900">Cost Anomaly Detection</h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Hierarchical Isolation Forest & peer median deviation calibrated by work category.
+            Works whose sanctioned cost is far from similar works in the same state (or nationally when a state has too few).
           </p>
         </div>
 

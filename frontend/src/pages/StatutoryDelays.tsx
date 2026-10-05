@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { analyticsService } from '@/services/analytics';
 import type { DelayItem } from '@/types/delay';
 import type { PaginationMeta } from '@/types/common';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import { SeverityBadge } from '@/components/common/Badge';
-import { Clock, Filter, ExternalLink, Info } from 'lucide-react';
+import { Clock, Filter, Info } from 'lucide-react';
+import { WorkCell, ReasonCell } from '@/components/common/WorkCell';
 
 export const StatutoryDelays: React.FC = () => {
   const [items, setItems] = useState<DelayItem[]>([]);
@@ -37,80 +37,46 @@ export const StatutoryDelays: React.FC = () => {
 
   const columns: Column<DelayItem>[] = [
     {
-      header: 'Work ID',
-      accessor: 'work_id',
+      header: 'Work',
+      render: (item) => <WorkCell workId={item.work_id} work={item.work_info} />,
+    },
+    {
+      header: 'Why flagged',
+      className: 'min-w-[240px]',
+      render: (item) => <ReasonCell reason={item.reason} fallback={item.explanation} />,
+    },
+    {
+      header: 'Sanction (limit 75d)',
+      className: 'whitespace-nowrap',
       render: (item) => (
-        <Link
-          to={`/works/${encodeURIComponent(item.work_id)}`}
-          className="font-mono text-xs font-semibold text-blue-600 hover:underline flex items-center gap-1"
-        >
-          <span>{item.work_id}</span>
-          <ExternalLink className="w-3 h-3" />
-        </Link>
+        <div className="text-xs tabular-nums">
+          <span className="font-semibold">{item.rec_to_sanc_days != null ? `${item.rec_to_sanc_days}d` : '—'}</span>
+          {item.rec_to_sanc_delay_days != null && item.rec_to_sanc_delay_days > 0 && (
+            <span className="text-rose-600 font-semibold ml-1.5">+{item.rec_to_sanc_delay_days}d</span>
+          )}
+        </div>
       ),
     },
     {
-      header: 'Overall Severity',
+      header: 'Completion (limit 365d)',
+      className: 'whitespace-nowrap',
+      render: (item) => {
+        const done = item.sanc_to_comp_days != null;
+        const days = done ? item.sanc_to_comp_days : item.open_work_aging_days;
+        const over = done ? item.sanc_to_comp_delay_days : item.open_work_overdue_days;
+        return (
+          <div className="text-xs tabular-nums">
+            <span className="font-semibold">{days != null ? `${days}d` : '—'}</span>
+            {over != null && over > 0 && <span className="text-rose-600 font-semibold ml-1.5">+{over}d</span>}
+            <div className="text-[11px] text-slate-500">{done ? 'completed' : 'still open'}</div>
+          </div>
+        );
+      },
+    },
+    {
+      header: 'Severity',
       accessor: 'severity',
       render: (item) => <SeverityBadge severity={item.severity} />,
-    },
-    {
-      header: 'Sanction SLA (75d)',
-      render: (item) => (
-        <div className="text-xs">
-          <span className="font-mono font-semibold">
-            {item.rec_to_sanc_days != null ? `${item.rec_to_sanc_days}d` : '—'}
-          </span>
-          {item.rec_to_sanc_delay_days != null && item.rec_to_sanc_delay_days > 0 && (
-            <span className="text-rose-600 font-bold ml-1.5">(+{item.rec_to_sanc_delay_days}d overdue)</span>
-          )}
-        </div>
-      ),
-    },
-    {
-      header: 'Completion SLA (365d)',
-      render: (item) => (
-        <div className="text-xs">
-          <span className="font-mono font-semibold">
-            {item.sanc_to_comp_days != null ? `${item.sanc_to_comp_days}d` : '—'}
-          </span>
-          {item.sanc_to_comp_delay_days != null && item.sanc_to_comp_delay_days > 0 && (
-            <span className="text-rose-600 font-bold ml-1.5">(+{item.sanc_to_comp_delay_days}d)</span>
-          )}
-        </div>
-      ),
-    },
-    {
-      header: 'Open Aging Days',
-      accessor: 'open_work_aging_days',
-      render: (item) => (
-        <span className="font-mono text-xs text-slate-700">
-          {item.open_work_aging_days != null ? `${item.open_work_aging_days}d` : '—'}
-        </span>
-      ),
-    },
-    {
-      header: 'Overdue Past 1yr',
-      accessor: 'open_work_overdue_days',
-      render: (item) => (
-        <span
-          className={`font-mono text-xs font-bold ${
-            item.open_work_overdue_days && item.open_work_overdue_days > 0 ? 'text-rose-600' : 'text-slate-500'
-          }`}
-        >
-          {item.open_work_overdue_days != null ? `${item.open_work_overdue_days}d` : '0d'}
-        </span>
-      ),
-    },
-    {
-      header: 'Statutory Explanation',
-      accessor: 'explanation',
-      className: 'max-w-md',
-      render: (item) => (
-        <p className="text-xs text-slate-600 line-clamp-2" title={item.explanation || ''}>
-          {item.explanation || 'Compliance tracking against MPLADS Guidelines 2023.'}
-        </p>
-      ),
     },
   ];
 
@@ -123,7 +89,7 @@ export const StatutoryDelays: React.FC = () => {
             <div className="p-2 rounded-lg bg-blue-100 text-blue-700">
               <Clock className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900">Model 4 — Statutory Delay & SLA Tracking</h1>
+            <h1 className="text-xl font-bold text-slate-900">Statutory Delay Tracking</h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
             Tracking compliance with official statutory deadlines under MPLADS Guidelines 2023 Para 3.12.
