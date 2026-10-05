@@ -29,6 +29,15 @@ class Settings:
     RATE_LIMIT_STORAGE_URL: str = os.getenv("RATE_LIMIT_STORAGE_URL", "memory://")
     DEMO_SEED_PASSWORD: str = os.getenv("DEMO_SEED_PASSWORD", "Mplads@Demo2026#")
 
+    # Public demo deployments set DEMO_MODE=true to make account management read-only
+    DEMO_MODE: bool = os.getenv("DEMO_MODE", "false").strip().lower() in ("1", "true", "yes")
+
+    # Governance summaries must be able to return every district (861) or MP in one call
+    SUMMARY_MAX_LIMIT: int = 2000
+
+    # Same fixed reference date the delay rule engine uses, so "days since sanction" is reproducible
+    DATA_REFERENCE_DATE: str = "2026-09-05"
+
     def __init__(self):
         if not self.JWT_SECRET_KEY:
             raise RuntimeError(
