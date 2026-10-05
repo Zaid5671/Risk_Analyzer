@@ -10,7 +10,11 @@ from fastapi import APIRouter, Depends, Query, HTTPException, status
 import pandas as pd
 import numpy as np
 
+from sqlalchemy.orm import Session
+
 from api.auth import CurrentUser
+from api.dependencies import get_db
+from database.models import Work
 from analytics.trends.schemas import (
     NationalTrendsResponse,
     QuarterTrendItem,
@@ -57,7 +61,15 @@ def get_warnings_df() -> pd.DataFrame:
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Early warnings artifact not found. Please run the trend pipeline first."
             )
-        _df_warnings = pd.read_parquet(WARNINGS_PARQUET)
+        df = pd.read_parquet(WARNINGS_PARQUET)
+        # Most urgent first: CRITICAL before WATCHLIST, then nearest statutory breach, then oldest
+        df["_urgency_rank"] = (df["urgency_level"] != "CRITICAL").astype(int)
+        _df_warnings = df.sort_values(
+            ["_urgency_rank", "days_to_statutory_breach", "days_elapsed"],
+            ascending=[True, True, False],
+            na_position="last",
+            kind="stable",
+        ).drop(columns="_urgency_rank").reset_index(drop=True)
     return _df_warnings
 
 
@@ -326,7 +338,9 @@ def get_early_warnings(
     warning_type: Optional[str] = Query(None, description="Filter by warning type: SLA_NEAR_MISS, APPROACHING_DORMANCY, STAGNATION_INCUBATION, BATCH_DUPLICATE_CLUSTER"),
     urgency_level: Optional[str] = Query(None, description="Filter by urgency: CRITICAL, WATCHLIST"),
     limit: int = Query(50, ge=1, le=500, description="Max alerts to return"),
-    current_user: CurrentUser = None
+    offset: int = Query(0, ge=0, description="Number of alerts to skip (for paging)"),
+    current_user: CurrentUser = None,
+    db: Session = Depends(get_db)
 ):
     """
     Returns live actionable pre-breach alerts grounded in statutory guidelines
@@ -355,7 +369,12 @@ def get_early_warnings(
     crit_count = int((df["urgency_level"] == "CRITICAL").sum())
     watch_count = int((df["urgency_level"] == "WATCHLIST").sum())
 
-    sub_df = df.head(limit)
+    sub_df = df.iloc[offset: offset + limit]
+    descriptions = dict(
+        db.query(Work.work_id, Work.work_description)
+        .filter(Work.work_id.in_(sub_df["work_id"].astype(str).tolist()))
+        .all()
+    ) if len(sub_df) else {}
     items = []
     for _, r in sub_df.iterrows():
         items.append(EarlyWarningItem(
@@ -370,7 +389,8 @@ def get_early_warnings(
             days_elapsed=int(r["days_elapsed"]),
             days_to_statutory_breach=int(r["days_to_statutory_breach"]) if pd.notna(r["days_to_statutory_breach"]) else None,
             urgency_level=str(r["urgency_level"]),
-            action_recommended=str(r["action_recommended"])
+            action_recommended=str(r["action_recommended"]),
+            work_description=(descriptions.get(str(r["work_id"])) or "").strip() or None,
         ))
 
     return EarlyWarningsResponse(

@@ -164,6 +164,7 @@ class EarlyWarningItem(BaseModel):
     days_to_statutory_breach: Optional[int]
     urgency_level: str
     action_recommended: str
+    work_description: Optional[str] = None
 
 
 class EarlyWarningsResponse(BaseModel):
