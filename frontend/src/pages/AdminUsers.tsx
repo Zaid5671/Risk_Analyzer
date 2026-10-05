@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { authService } from '@/services/auth';
+import { healthService } from '@/services/health';
 import type { User, UserCreate, Role } from '@/types/auth';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import { Badge } from '@/components/common/Badge';
@@ -20,6 +21,12 @@ export const AdminUsers: React.FC = () => {
     assigned_mp_name: '',
   });
   const [error, setError] = useState<string | null>(null);
+  // Public demo: the API rejects new accounts, so the button is shown disabled
+  const [demoMode, setDemoMode] = useState(false);
+
+  useEffect(() => {
+    healthService.getHealth().then((h) => setDemoMode(Boolean(h.demo_mode))).catch(() => undefined);
+  }, []);
   const [success, setSuccess] = useState<string | null>(null);
 
   const loadUsers = async () => {
@@ -136,20 +143,24 @@ export const AdminUsers: React.FC = () => {
             <div className="p-2 rounded-lg bg-slate-900 text-white">
               <UserCog className="w-5 h-5" />
             </div>
-            <h1 className="text-xl font-bold text-slate-900">Stakeholder User Administration</h1>
+            <h1 className="text-xl font-bold text-slate-900">Stakeholder Accounts</h1>
           </div>
           <p className="text-xs text-slate-500 mt-1">
-            Central MoSPI User Provisioning Console • PostgreSQL RLS Jurisdictional Management
+            Who can sign in, and which area each account can see.
           </p>
         </div>
 
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Provision New Stakeholder</span>
-        </button>
+        <div className="text-right">
+          <button
+            onClick={() => setShowModal(true)}
+            disabled={demoMode}
+            className="inline-flex items-center gap-2 px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-bold transition-all shadow disabled:bg-slate-200 disabled:text-slate-500 disabled:shadow-none disabled:cursor-not-allowed"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add stakeholder</span>
+          </button>
+          {demoMode && <p className="text-[11px] text-slate-500 mt-1">Disabled in the public demo</p>}
+        </div>
       </div>
 
       {success && (
