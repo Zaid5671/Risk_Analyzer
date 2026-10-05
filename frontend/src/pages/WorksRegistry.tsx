@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { worksService } from '@/services/works';
 import type { WorkListItem } from '@/types/work';
 import type { PaginationMeta, FilterOptionsResponse } from '@/types/common';
 import { DataTable, type Column } from '@/components/common/DataTable';
 import { Badge } from '@/components/common/Badge';
+import { WorkCell } from '@/components/common/WorkCell';
+import { formatINRCompact } from '@/lib/format';
 import {
   FolderKanban,
   Search,
-  ExternalLink,
   X,
   Loader2,
   ChevronDown,
@@ -203,48 +203,31 @@ export const WorksRegistry: React.FC = () => {
 
   const columns: Column<WorkListItem>[] = [
     {
-      header: 'Work ID',
-      accessor: 'work_id',
+      header: 'Work',
+      render: (item) => <WorkCell workId={item.work_id} work={item} />,
+    },
+    {
+      header: 'Type',
       render: (item) => (
-        <Link
-          to={`/works/${encodeURIComponent(item.work_id)}`}
-          className="font-mono text-xs font-bold text-blue-700 hover:text-blue-900 hover:underline inline-flex items-center gap-1"
-        >
-          <span>{item.work_id}</span>
-          <ExternalLink className="w-3 h-3 text-slate-400" />
-        </Link>
+        <span className="text-xs text-slate-700 line-clamp-2 max-w-[220px]" title={item.work_type || ''}>
+          {item.work_type || item.work_category || '—'}
+        </span>
       ),
     },
     {
-      header: 'Category',
-      accessor: 'work_category',
-      render: (item) => <span className="text-xs text-slate-800 font-medium">{item.work_category || 'General'}</span>,
-    },
-    {
-      header: 'State / District',
-      render: (item) => (
-        <div className="text-xs">
-          <p className="font-semibold text-slate-900">{item.district || '—'}</p>
-          <p className="text-[10px] text-slate-500">{item.state || '—'}</p>
-        </div>
-      ),
-    },
-    {
-      header: 'Sanction Outlay',
+      header: 'Sanctioned',
       accessor: 'sanction_amount',
+      className: 'text-right whitespace-nowrap',
       render: (item) => (
-        <span className="font-mono text-xs font-semibold tabular-nums text-slate-900">
-          {item.sanction_amount != null ? `₹${item.sanction_amount.toLocaleString()}` : '—'}
-        </span>
+        <span className="text-xs font-semibold tabular-nums text-slate-900">{formatINRCompact(item.sanction_amount)}</span>
       ),
     },
     {
-      header: 'Disbursed',
+      header: 'Spent',
       accessor: 'amount_disbursed',
+      className: 'text-right whitespace-nowrap',
       render: (item) => (
-        <span className="font-mono text-xs tabular-nums text-slate-600">
-          {item.amount_disbursed != null ? `₹${item.amount_disbursed.toLocaleString()}` : '₹0'}
-        </span>
+        <span className="text-xs tabular-nums text-slate-600">{formatINRCompact(item.amount_disbursed ?? 0)}</span>
       ),
     },
     {
@@ -258,11 +241,6 @@ export const WorksRegistry: React.FC = () => {
           </Badge>
         );
       },
-    },
-    {
-      header: 'Implementing Agency',
-      accessor: 'ida',
-      render: (item) => <span className="text-xs text-slate-600 line-clamp-1">{item.ida || '—'}</span>,
     },
   ];
 

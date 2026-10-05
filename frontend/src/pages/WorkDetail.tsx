@@ -17,6 +17,7 @@ import {
   ReceiptText,
   BrainCircuit,
 } from 'lucide-react';
+import { formatINR, titleCase } from '@/lib/format';
 
 export const WorkDetail: React.FC = () => {
   const { workId } = useParams<{ workId: string }>();
@@ -121,13 +122,13 @@ export const WorkDetail: React.FC = () => {
             <div>
               <p className="text-[10px] uppercase font-bold text-slate-500">Sanction Outlay</p>
               <p className="text-base font-bold text-slate-900 font-mono mt-0.5">
-                {work.sanction_amount != null ? `₹${work.sanction_amount.toLocaleString()}` : '—'}
+                {formatINR(work.sanction_amount)}
               </p>
             </div>
             <div className="border-l border-slate-200 pl-3">
               <p className="text-[10px] uppercase font-bold text-slate-500">Disbursed Amount</p>
               <p className="text-base font-bold text-slate-900 font-mono mt-0.5">
-                {effectiveDisbursed != null ? `₹${effectiveDisbursed.toLocaleString()}` : '₹0'}
+                {formatINR(effectiveDisbursed ?? 0)}
               </p>
             </div>
             <div className="border-l border-slate-200 pl-3">
@@ -150,12 +151,12 @@ export const WorkDetail: React.FC = () => {
           <div>
             <span className="text-slate-400 block font-medium">State / District</span>
             <span className="font-semibold text-slate-800 mt-0.5 block">
-              {work.district}, {work.state}
+              {titleCase(work.district)}, {work.state}
             </span>
           </div>
           <div>
             <span className="text-slate-400 block font-medium">MP Recommendation</span>
-            <span className="font-semibold text-slate-800 mt-0.5 block">{work.mp_name || '—'}</span>
+            <span className="font-semibold text-slate-800 mt-0.5 block">{titleCase(work.mp_name) || '—'}</span>
           </div>
           <div>
             <span className="text-slate-400 block font-medium">Implementing Agency</span>
@@ -172,15 +173,15 @@ export const WorkDetail: React.FC = () => {
         </div>
       </div>
 
-      {/* 4 Independent Analytical Modules (Strict Isolation — Zero Composite Score) */}
+      {/* 5 independent model results (no combined score) */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <div>
             <h2 className="text-sm font-bold uppercase tracking-wider text-slate-900">
-              Independent Analytical Profiles (4 Models)
+              Results from all 5 models
             </h2>
             <p className="text-[11px] text-slate-500">
-              Evaluated strictly in isolation with zero composite weighting or hidden scoring.
+              Each model judges a different kind of risk on its own — there is no combined score.
             </p>
           </div>
           <div className="flex items-center gap-1 text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
@@ -210,7 +211,15 @@ export const WorkDetail: React.FC = () => {
               </div>
 
               {profiles.cost_anomaly ? (
-                <div className="mt-4 space-y-2 text-xs">
+                <div className="mt-4 text-xs">
+                  {profiles.cost_anomaly.reason && (
+                    <p className="text-sm font-medium text-slate-900 leading-snug">{profiles.cost_anomaly.reason}</p>
+                  )}
+                  <details className="mt-3 group">
+                    <summary className="cursor-pointer select-none text-[11px] font-semibold text-blue-700 hover:underline">
+                      Technical details
+                    </summary>
+                    <div className="mt-2 space-y-2">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Calibrated Score:</span>
                     <span className="font-mono font-bold text-slate-900">
@@ -232,6 +241,8 @@ export const WorkDetail: React.FC = () => {
                   <p className="mt-2 text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-[11px]">
                     {profiles.cost_anomaly.explanation || 'Evaluated against category peer median.'}
                   </p>
+                    </div>
+                  </details>
                 </div>
               ) : (
                 <p className="mt-4 text-xs text-slate-500">
@@ -337,7 +348,15 @@ export const WorkDetail: React.FC = () => {
               </div>
 
               {profiles.fund_anomaly ? (
-                <div className="mt-4 space-y-2 text-xs">
+                <div className="mt-4 text-xs">
+                  {profiles.fund_anomaly.reason && (
+                    <p className="text-sm font-medium text-slate-900 leading-snug">{profiles.fund_anomaly.reason}</p>
+                  )}
+                  <details className="mt-3 group">
+                    <summary className="cursor-pointer select-none text-[11px] font-semibold text-blue-700 hover:underline">
+                      Technical details
+                    </summary>
+                    <div className="mt-2 space-y-2">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Audit Category:</span>
                     <Badge variant="neutral" size="sm">
@@ -361,6 +380,8 @@ export const WorkDetail: React.FC = () => {
                   <p className="mt-2 text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-[11px]">
                     {profiles.fund_anomaly.explanation || 'Reconciled with normal expenditure patterns.'}
                   </p>
+                    </div>
+                  </details>
                 </div>
               ) : (
                 <p className="mt-4 text-xs text-slate-500">
@@ -399,7 +420,15 @@ export const WorkDetail: React.FC = () => {
               </div>
 
               {profiles.delay ? (
-                <div className="mt-4 space-y-2 text-xs">
+                <div className="mt-4 text-xs">
+                  {profiles.delay.reason && (
+                    <p className="text-sm font-medium text-slate-900 leading-snug">{profiles.delay.reason}</p>
+                  )}
+                  <details className="mt-3 group">
+                    <summary className="cursor-pointer select-none text-[11px] font-semibold text-blue-700 hover:underline">
+                      Technical details
+                    </summary>
+                    <div className="mt-2 space-y-2">
                   <div className="flex justify-between">
                     <span className="text-slate-500">Sanction SLA (75 Days):</span>
                     <span className="font-mono font-semibold text-slate-900">
@@ -431,6 +460,8 @@ export const WorkDetail: React.FC = () => {
                   <p className="mt-2 text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 text-[11px]">
                     {profiles.delay.explanation || 'Tracked under MPLADS Guidelines 2023 Para 3.12.'}
                   </p>
+                    </div>
+                  </details>
                 </div>
               ) : (
                 <p className="mt-4 text-xs text-slate-500">
@@ -474,6 +505,10 @@ export const WorkDetail: React.FC = () => {
               </div>
 
               {profiles.delay_prediction ? (
+                <>
+                {profiles.delay_prediction.reason && (
+                  <p className="mt-4 text-sm font-medium text-slate-900 leading-snug">{profiles.delay_prediction.reason}</p>
+                )}
                 <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
                   <div>
                     <span className="text-slate-500 block mb-1">Completion Breach Probability:</span>
@@ -517,17 +552,11 @@ export const WorkDetail: React.FC = () => {
                         : '0.0%'}
                     </span>
                   </div>
-
-                  <div className="sm:col-span-3">
-                    <p className="text-slate-600 bg-purple-50/50 p-2.5 rounded-lg border border-purple-100 text-[11px] leading-relaxed">
-                      <strong className="text-purple-900 font-semibold">Predictive Assessment: </strong>
-                      {profiles.delay_prediction.explanation || 'Evaluated against historical completion velocity and district-level delivery factors.'}
-                    </p>
-                  </div>
                 </div>
+                </>
               ) : (
                 <p className="mt-4 text-xs text-slate-500">
-                  This work is either completed or has low estimated probability of exceeding statutory delivery timelines.
+                  Not forecast — only open works are scored, and this one is complete or not yet eligible.
                 </p>
               )}
             </div>
@@ -576,7 +605,7 @@ export const WorkDetail: React.FC = () => {
                     <td className="py-2.5 px-3 font-mono text-slate-700">{v.expenditure_date || '—'}</td>
                     <td className="py-2.5 px-3 font-semibold text-slate-900">{v.vendor_name || 'Vendor Not Stated'}</td>
                     <td className="py-2.5 px-3 font-mono font-bold text-slate-900">
-                      {v.fund_disbursed_amount != null ? `₹${v.fund_disbursed_amount.toLocaleString()}` : '—'}
+                      {formatINR(v.fund_disbursed_amount)}
                     </td>
                     <td className="py-2.5 px-3">
                       <Badge variant="success" size="sm">
