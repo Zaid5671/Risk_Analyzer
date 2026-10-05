@@ -7,6 +7,7 @@ from api.dependencies import get_db, PaginationParams
 from api.auth import CurrentUser, apply_work_joined_scope, verify_work_jurisdiction
 from api.schemas.cost_anomaly import CostAnomalyItem, CostAnomalyDetail, CostSeverityEnum
 from api.schemas.common import PaginatedResponse, PaginationMeta
+from api.enrichment import attach_cost_context
 
 router = APIRouter(prefix="/analytics/cost-anomalies", tags=["Model 1 — Cost Anomaly Detection"])
 
@@ -51,7 +52,7 @@ def list_cost_anomalies(
     has_next = pagination.page < total_pages
     has_prev = pagination.page > 1
 
-    formatted_items = [CostAnomalyItem.model_validate(item) for item in items]
+    formatted_items = attach_cost_context(db, [CostAnomalyItem.model_validate(item) for item in items])
 
     return PaginatedResponse[CostAnomalyItem](
         items=formatted_items,

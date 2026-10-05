@@ -1,6 +1,7 @@
 from typing import Optional, List
 from enum import Enum
 from pydantic import BaseModel, ConfigDict
+from api.schemas.common import WorkBrief
 
 class DuplicateSeverityEnum(str, Enum):
     HIGH = "HIGH"
@@ -24,6 +25,9 @@ class DuplicatePairItem(BaseModel):
     is_same_mp: Optional[bool] = None
     is_same_constituency: Optional[bool] = None
     explanation: Optional[str] = None
+    # Additive context: both works, so lists can show what is being compared
+    work_1: Optional[WorkBrief] = None
+    work_2: Optional[WorkBrief] = None
 
 class WorkDuplicateLookupResponse(BaseModel):
     work_id: str

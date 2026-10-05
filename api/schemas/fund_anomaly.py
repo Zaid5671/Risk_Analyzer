@@ -1,6 +1,7 @@
 from typing import Optional, List
 from enum import Enum
 from pydantic import BaseModel, ConfigDict
+from api.schemas.common import WorkBrief
 
 class FundSeverityEnum(str, Enum):
     HIGH = "HIGH"
@@ -28,6 +29,9 @@ class FundAnomalyItem(BaseModel):
     days_to_first_disbursement: Optional[float] = None
     anomaly_reasons: Optional[List[str]] = None
     explanation: Optional[str] = None
+    # Additive context for list views: what the work is, and a one-line plain-language reason
+    work_info: Optional[WorkBrief] = None  # not "work": the ORM rows already have a "work" relationship
+    reason: Optional[str] = None
 
 class FundAnomalyDetail(FundAnomalyItem):
     sanction_amount: Optional[float] = None

@@ -8,6 +8,7 @@ from api.dependencies import get_db, PaginationParams
 from api.auth import CurrentUser, apply_duplicate_works_scope, verify_work_jurisdiction
 from api.schemas.duplicate_work import DuplicatePairItem, WorkDuplicateLookupResponse, DuplicateSeverityEnum
 from api.schemas.common import PaginatedResponse, PaginationMeta
+from api.enrichment import attach_duplicate_context
 
 router = APIRouter(prefix="/analytics/duplicate-works", tags=["Model 2 — Duplicate Work Detection"])
 
@@ -44,7 +45,7 @@ def list_duplicate_works(
     has_next = pagination.page < total_pages
     has_prev = pagination.page > 1
 
-    formatted_items = [DuplicatePairItem.model_validate(item) for item in items]
+    formatted_items = attach_duplicate_context(db, [DuplicatePairItem.model_validate(item) for item in items])
 
     return PaginatedResponse[DuplicatePairItem](
         items=formatted_items,
@@ -77,7 +78,7 @@ def get_work_duplicate_pairs(
         or_(DuplicateWorkResult.work_id_1 == clean_id, DuplicateWorkResult.work_id_2 == clean_id)
     ).order_by(DuplicateWorkResult.duplicate_score.desc()).all()
 
-    formatted_pairs = [DuplicatePairItem.model_validate(p) for p in pairs]
+    formatted_pairs = attach_duplicate_context(db, [DuplicatePairItem.model_validate(p) for p in pairs])
     return WorkDuplicateLookupResponse(
         work_id=clean_id,
         total_flagged_pairs=len(formatted_pairs),

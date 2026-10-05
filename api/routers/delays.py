@@ -7,6 +7,7 @@ from api.dependencies import get_db, PaginationParams
 from api.auth import CurrentUser, apply_work_joined_scope, verify_work_jurisdiction
 from api.schemas.delay import DelayItem, DelayDetail, DelaySeverityEnum, DelayTypeEnum, LEGACY_DELAY_TYPE_ALIASES
 from api.schemas.common import PaginatedResponse, PaginationMeta
+from api.enrichment import attach_delay_context
 
 router = APIRouter(prefix="/analytics/delays", tags=["Model 4 — Statutory Delay & SLA Tracking"])
 
@@ -52,7 +53,7 @@ def list_delays(
     has_next = pagination.page < total_pages
     has_prev = pagination.page > 1
 
-    formatted_items = [DelayItem.model_validate(item) for item in items]
+    formatted_items = attach_delay_context(db, [DelayItem.model_validate(item) for item in items])
 
     return PaginatedResponse[DelayItem](
         items=formatted_items,

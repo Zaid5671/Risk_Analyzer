@@ -1,7 +1,20 @@
-from typing import Generic, TypeVar, List
+from typing import Generic, TypeVar, List, Optional
 from pydantic import BaseModel
 
 T = TypeVar("T")
+
+class WorkBrief(BaseModel):
+    """Human-readable context for a work, attached to model results so lists can show what the work is."""
+    work_id: str
+    work_description: Optional[str] = None
+    work_type: Optional[str] = None
+    state: Optional[str] = None
+    district: Optional[str] = None
+    mp_name: Optional[str] = None
+    work_status: Optional[str] = None
+    sanction_amount: Optional[float] = None
+    amount_disbursed: Optional[float] = None
+    sanction_date: Optional[str] = None
 
 class PaginationMeta(BaseModel):
     total_records: int

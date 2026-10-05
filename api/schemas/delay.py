@@ -1,6 +1,7 @@
 from typing import Optional, List
 from enum import Enum
 from pydantic import BaseModel, ConfigDict
+from api.schemas.common import WorkBrief
 
 class DelaySeverityEnum(str, Enum):
     HIGH = "HIGH"
@@ -44,6 +45,9 @@ class DelayItem(BaseModel):
     open_work_overdue_days: Optional[int] = None
     open_work_aging_severity: Optional[str] = None
     explanation: Optional[str] = None
+    # Additive context for list views: what the work is, and a one-line plain-language reason
+    work_info: Optional[WorkBrief] = None  # not "work": the ORM rows already have a "work" relationship
+    reason: Optional[str] = None
 
 class DelayDetail(DelayItem):
     state: Optional[str] = None

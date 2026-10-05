@@ -12,6 +12,7 @@ from api.schemas.prediction import (
     DelayRiskSeverityEnum
 )
 from api.schemas.common import PaginatedResponse, PaginationMeta
+from api.enrichment import attach_prediction_context
 
 router = APIRouter(prefix="/analytics/predictions", tags=["Model 5 — Predictive Delay Risk"])
 
@@ -60,7 +61,7 @@ def list_delay_predictions(
     has_next = pagination.page < total_pages
     has_prev = pagination.page > 1
 
-    formatted_items = [DelayPredictionItem.model_validate(item) for item in items]
+    formatted_items = attach_prediction_context(db, [DelayPredictionItem.model_validate(item) for item in items])
 
     return PaginatedResponse[DelayPredictionItem](
         items=formatted_items,

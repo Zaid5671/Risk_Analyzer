@@ -13,6 +13,14 @@ from api.schemas.fund_anomaly import FundAnomalyItem
 from api.schemas.delay import DelayItem
 from api.schemas.duplicate_work import DuplicatePairItem
 from api.schemas.prediction import DelayPredictionItem
+from api.enrichment import (
+    work_brief_from_row,
+    attach_cost_context,
+    attach_fund_context,
+    attach_delay_context,
+    attach_prediction_context,
+    attach_duplicate_context,
+)
 
 router = APIRouter(prefix="/works", tags=["Works Master Registry"])
 
@@ -131,6 +139,18 @@ def get_work_detail(
     # Model 5: Predictive Delay Risk
     pred_res = db.query(DelayPredictionResult).filter(DelayPredictionResult.work_id == work_id.strip()).first()
     pred_item = DelayPredictionItem.model_validate(pred_res) if pred_res else None
+
+    # Plain-language reasons on each profile (the dossier's own work is the context)
+    briefs = {work.work_id: work_brief_from_row(work)}
+    if cost_item:
+        attach_cost_context(db, [cost_item], briefs)
+    if fund_item:
+        attach_fund_context(db, [fund_item], briefs)
+    if delay_item:
+        attach_delay_context(db, [delay_item], briefs)
+    if pred_item:
+        attach_prediction_context(db, [pred_item], briefs)
+    attach_duplicate_context(db, dup_items)
 
     work_dict = {c.name: getattr(work, c.name) for c in work.__table__.columns}
     for dcol in ["sanction_date", "recommended_date", "completion_date"]:

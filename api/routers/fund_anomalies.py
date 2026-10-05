@@ -7,6 +7,7 @@ from api.dependencies import get_db, PaginationParams
 from api.auth import CurrentUser, apply_work_joined_scope, verify_work_jurisdiction
 from api.schemas.fund_anomaly import FundAnomalyItem, FundAnomalyDetail, FundSeverityEnum, FundAuditCategoryEnum
 from api.schemas.common import PaginatedResponse, PaginationMeta
+from api.enrichment import attach_fund_context
 
 router = APIRouter(prefix="/analytics/fund-anomalies", tags=["Model 3 — Fund & Expenditure Anomaly"])
 
@@ -57,7 +58,7 @@ def list_fund_anomalies(
     has_next = pagination.page < total_pages
     has_prev = pagination.page > 1
 
-    formatted_items = [FundAnomalyItem.model_validate(item) for item in items]
+    formatted_items = attach_fund_context(db, [FundAnomalyItem.model_validate(item) for item in items])
 
     return PaginatedResponse[FundAnomalyItem](
         items=formatted_items,

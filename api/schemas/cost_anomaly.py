@@ -1,6 +1,7 @@
 from typing import Optional
 from enum import Enum
 from pydantic import BaseModel, ConfigDict
+from api.schemas.common import WorkBrief
 
 class CostSeverityEnum(str, Enum):
     HIGH = "HIGH"
@@ -21,6 +22,11 @@ class CostAnomalyItem(BaseModel):
     peer_group_size: Optional[int] = None
     is_data_quality_exception: bool = False
     explanation: Optional[str] = None
+    peer_median_amount: Optional[float] = None
+    cost_ratio_vs_peer_median: Optional[float] = None
+    # Additive context for list views: what the work is, and a one-line plain-language reason
+    work_info: Optional[WorkBrief] = None  # not "work": the ORM rows already have a "work" relationship
+    reason: Optional[str] = None
 
 class CostAnomalyDetail(CostAnomalyItem):
     house: Optional[str] = None
