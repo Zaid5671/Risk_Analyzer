@@ -9,7 +9,7 @@
 
 ## Live Demo
 
-**Try it:** _live link added after deployment_. No sign-up is needed: on the login page, pick a role for one-click access.
+**Try it:** [risk-analyzer-kohl.vercel.app](https://risk-analyzer-kohl.vercel.app/). No sign-up is needed: on the login page, pick a role for one-click access.
 
 ![Drishti national dashboard](frontend/public/dashboard-preview.webp)
 
